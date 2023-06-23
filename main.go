@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-simple-rest/src"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,5 +16,6 @@ func main() {
 		})
 	})
 	src.Routes(r)
+	log.Println("Starting server... on port ", 8080)
 	r.Run("localhost:8080")
 }
