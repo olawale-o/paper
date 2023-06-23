@@ -6,4 +6,8 @@ import (
 
 func ArticleRoutes(r *gin.Engine) {
 	r.GET("/articles", GetArticles)
+	r.POST("/articles", NewArticle)
+	r.GET("/articles/:id", ShowArticle)
+	r.PUT("/articles/:id", UpdateArticle)
+	r.DELETE("/articles/:id", DeleteArticle)
 }
