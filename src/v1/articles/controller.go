@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -55,9 +56,12 @@ func ShowArticle(c *gin.Context) {
 	filter := bson.M{"_id": oid}
 	if err := collection.FindOne(ctx, filter).Decode(&article); err != nil {
 		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		}
 		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"article": article})
+	c.IndentedJSON(http.StatusOK, gin.H{"article": article})
 }
 
 func UpdateArticle(c *gin.Context) {
@@ -74,7 +78,11 @@ func UpdateArticle(c *gin.Context) {
 	result, err := collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		log.Println(err)
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		if err == mongo.ErrNoDocuments {
+
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+			return
+		}
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated", "article": result})
