@@ -20,6 +20,7 @@ func ShowArticle(c *gin.Context) {
 	article, err := GetArticle(c)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"article": article})
 }
@@ -28,6 +29,7 @@ func UpdateArticle(c *gin.Context) {
 	result, err := Update(c)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated", "article": result})
 }
@@ -36,6 +38,7 @@ func DeleteArticle(c *gin.Context) {
 	result, err := Delete(c)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article deleted", "article": result})
 }
