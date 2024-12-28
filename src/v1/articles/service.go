@@ -36,7 +36,7 @@ func CreateArticle(c *gin.Context) (error, interface{}) {
 		log.Println(err)
 		return err, ""
 	}
-	doc := Article{TITLE: newArticle.TITLE, AUTHOR: newArticle.AUTHOR}
+	doc := Article{TITLE: newArticle.TITLE, AUTHORID: newArticle.AUTHORID}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
@@ -69,7 +69,7 @@ func Update(c *gin.Context) (interface{}, error) {
 		return updatedArticle, err
 	}
 	filter := bson.M{"_id": oid}
-	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHOR}}
+	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHORID}}
 	opts := options.Update().SetUpsert(true)
 
 	result, err := collection.UpdateOne(context.TODO(), filter, update, opts)
