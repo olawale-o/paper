@@ -1,6 +1,8 @@
 package articles
 
 import (
+	"context"
+	"fmt"
 	"go-simple-rest/db"
 	"log"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client, ctx, _ = db.Connect()
+var client, ctx, err = db.Connect()
 
 var collection = client.Database("go").Collection("articles")
 
@@ -23,12 +25,13 @@ type Article struct {
 }
 
 func GetArticles(c *gin.Context) {
-	cursor, err := collection.Find(ctx, bson.D{{}})
+	cursor, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
+		fmt.Println(err.Error())
 		panic(err)
 	}
 	var articles []Article
-	if err = cursor.All(ctx, &articles); err != nil {
+	if err = cursor.All(context.TODO(), &articles); err != nil {
 		panic(err)
 	}
 	c.IndentedJSON(http.StatusOK, articles)
@@ -41,7 +44,7 @@ func NewArticle(c *gin.Context) {
 		return
 	}
 	doc := Article{TITLE: newArticle.TITLE, AUTHOR: newArticle.AUTHOR}
-	res, err := collection.InsertOne(ctx, doc)
+	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
 		return
@@ -54,7 +57,7 @@ func ShowArticle(c *gin.Context) {
 	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	var article Article
 	filter := bson.M{"_id": oid}
-	if err := collection.FindOne(ctx, filter).Decode(&article); err != nil {
+	if err := collection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
 			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
@@ -75,7 +78,7 @@ func UpdateArticle(c *gin.Context) {
 	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHOR}}
 	opts := options.Update().SetUpsert(true)
 
-	result, err := collection.UpdateOne(ctx, filter, update, opts)
+	result, err := collection.UpdateOne(context.TODO(), filter, update, opts)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -91,7 +94,7 @@ func UpdateArticle(c *gin.Context) {
 func DeleteArticle(c *gin.Context) {
 	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	filter := bson.M{"_id": oid}
-	result, err := collection.DeleteOne(ctx, filter)
+	result, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
