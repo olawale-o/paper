@@ -36,7 +36,8 @@ func CreateArticle(c *gin.Context) (error, interface{}) {
 		log.Println(err)
 		return err, ""
 	}
-	doc := Article{TITLE: newArticle.TITLE, AUTHORID: newArticle.AUTHORID}
+
+	doc := Article{TITLE: newArticle.TITLE, AUTHORID: newArticle.AUTHORID, CONTENT: newArticle.CONTENT}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
