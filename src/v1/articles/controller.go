@@ -1,12 +1,15 @@
 package articles
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetArticles(c *gin.Context) {
+	userId := c.MustGet("userId").(string)
+	log.Printf("userId %s", userId)
 	articles := GetAll()
 	c.IndentedJSON(http.StatusOK, articles)
 }

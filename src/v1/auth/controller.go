@@ -16,6 +16,8 @@ var client, ctx, err = db.Connect()
 var collection = client.Database("go").Collection("users")
 
 func Login(c *gin.Context) {
+	example := c.MustGet("example").(string)
+	log.Println(example)
 	var user User
 	var dbUser User
 
