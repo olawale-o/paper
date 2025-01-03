@@ -9,7 +9,10 @@ import (
 )
 
 func Routes(r *gin.Engine) {
-	articles.ArticleRoutes(r)
-	auth.AuthRoutes(r)
-	authors.AuthorRoutes(r)
+	v1 := r.Group("/api/v1")
+	{
+		articles.ArticleRoutes(v1)
+		auth.AuthRoutes(v1)
+		authors.AuthorRoutes(v1)
+	}
 }
