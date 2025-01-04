@@ -49,7 +49,7 @@ func Login(c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": user.USERNAME})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": user.USERNAME, "role": jwt.GetRole("user")})
 }
 
 func Register(c *gin.Context) {

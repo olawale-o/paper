@@ -9,7 +9,7 @@ import (
 
 var secretKey = []byte("secret-key")
 
-func getRole(role string) string {
+func GetRole(role string) string {
 	if role == "user" {
 		return "user"
 	}
@@ -29,7 +29,7 @@ func CreateToken(payload map[string]string) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": payload["username"],
 		"iss": "go-simple-rest",
-		"aud": getRole(payload["role"]),
+		"aud": GetRole(payload["role"]),
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
