@@ -9,11 +9,11 @@ import (
 
 var secretKey = []byte("secret-key")
 
-func getRole(username string) string {
-	if username == "senior" {
-		return "senior"
+func getRole(role string) string {
+	if role == "user" {
+		return "user"
 	}
-	return "employee"
+	return "admin"
 }
 
 func signToken(claims *jwt.Token) (string, error) {
@@ -25,11 +25,11 @@ func signToken(claims *jwt.Token) (string, error) {
 	return tokenString, nil
 }
 
-func createToken(payload string) (string, error) {
+func CreateToken(payload map[string]string) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": payload,
+		"sub": payload["role"],
 		"iss": "go-simple-rest",
-		"aud": getRole(payload),
+		"aud": getRole(payload["role"]),
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
@@ -41,7 +41,7 @@ func createToken(payload string) (string, error) {
 	return tokenString, nil
 }
 
-func verifyToken(tokenString string) (*jwt.Token, error) {
+func VerifyToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
