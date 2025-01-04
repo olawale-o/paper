@@ -40,7 +40,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := jwt.CreateToken(map[string]string{"role": "user"})
+	tokenString, err := jwt.CreateToken(map[string]string{"username": dbUser.USERNAME, "role": "user"})
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server error"})

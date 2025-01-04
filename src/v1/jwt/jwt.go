@@ -27,7 +27,7 @@ func signToken(claims *jwt.Token) (string, error) {
 
 func CreateToken(payload map[string]string) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": payload["role"],
+		"sub": payload["username"],
 		"iss": "go-simple-rest",
 		"aud": getRole(payload["role"]),
 		"exp": time.Now().Add(time.Hour).Unix(),
