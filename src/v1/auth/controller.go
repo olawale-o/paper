@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/jwt"
 	"log"
 	"net/http"
 
@@ -16,8 +17,6 @@ var client, ctx, err = db.Connect()
 var collection = client.Database("go").Collection("users")
 
 func Login(c *gin.Context) {
-	example := c.MustGet("example").(string)
-	log.Println(example)
 	var user User
 	var dbUser User
 
@@ -41,6 +40,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	tokenString, err := jwt.CreateToken(map[string]string{"role": "user"})
+
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server error"})
+		return
+	}
+
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": user.USERNAME})
 }
 
