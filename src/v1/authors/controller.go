@@ -16,7 +16,7 @@ var articleCollection = client.Database("go").Collection("articles")
 var userCollection = client.Database("go").Collection("users")
 
 func CreateArticle(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("authorId"))
+	authorId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
 	var newArticle articles.Article
 	if err := c.BindJSON(&newArticle); err != nil {
 		log.Println(err)
@@ -33,7 +33,7 @@ func CreateArticle(c *gin.Context) {
 }
 
 func UpdateArticle(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("authorId"))
+	authorId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
 	var article articles.Article
@@ -54,10 +54,10 @@ func UpdateArticle(c *gin.Context) {
 }
 
 func DeleteArticle(c *gin.Context) {
-	authorOid, _ := primitive.ObjectIDFromHex(c.Param("authorId"))
+	authorId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	res, err := Delete(authorOid, articleId)
+	res, err := Delete(authorId, articleId)
 
 	if err != nil {
 		log.Println(err)
