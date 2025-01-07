@@ -3,7 +3,6 @@ package middlewares
 import (
 	"fmt"
 	"go-simple-rest/src/v1/jwt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,24 +14,28 @@ func Auth() gin.HandlerFunc {
 
 		if err != nil {
 			fmt.Println("Token is missing")
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Missing token"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Missing token"})
 			return
 		}
 
 		token, err := jwt.VerifyToken(tokenString)
 		if err != nil {
 			fmt.Printf("Token verification failed: %v\\n", err)
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unathorized"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unathorized"})
 			return
 		}
-		fmt.Printf("Token verified successfully. Claims: %+v\\n", token.Claims)
+		fmt.Printf("Token verified successfully. Claims: %+v\\n", token)
 		// before request
+
+		fmt.Printf("Username %v", token)
+
+		c.Set("userId", token)
 
 		c.Next()
 
 		// access the status we are sending
-		status := c.Writer.Status()
-		log.Println(status)
+		// status := c.Writer.Status()
+		// log.Println(status)
 
 	}
 }
