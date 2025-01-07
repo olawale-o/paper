@@ -33,7 +33,6 @@ func CreateToken(payload map[string]string) (string, error) {
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
-	fmt.Printf("Token claims added: %+v\n", claims)
 	tokenString, err := signToken(claims)
 	if err != nil {
 		return "", err
@@ -41,16 +40,23 @@ func CreateToken(payload map[string]string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyToken(tokenString string) (*jwt.Token, error) {
+func VerifyToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
+		return "", fmt.Errorf("invalid token")
 	}
-	return token, nil
+
+	sub, err := token.Claims.GetSubject()
+
+	if err != nil {
+		return "", fmt.Errorf("Unable to parse claim")
+	}
+
+	return sub, nil
 }
