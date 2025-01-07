@@ -40,7 +40,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := jwt.CreateToken(map[string]string{"username": dbUser.USERNAME, "role": "user"})
+	tokenString, err := jwt.CreateToken(map[string]string{"username": dbUser.ID, "role": "user", "id": dbUser.ID})
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server error"})
@@ -49,7 +49,10 @@ func Login(c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": user.USERNAME, "role": jwt.GetRole("user")})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": gin.H{
+		"username": user.USERNAME, "role": jwt.GetRole("user"),
+		"id": dbUser.ID,
+	}})
 }
 
 func Register(c *gin.Context) {
