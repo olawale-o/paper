@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/authors"
 	"go-simple-rest/src/v1/jwt"
 	"log"
 	"net/http"
@@ -17,12 +18,12 @@ var client, ctx, err = db.Connect()
 var collection = client.Database("go").Collection("users")
 
 func Login(c *gin.Context) {
-	var user User
-	var dbUser User
+	var user LoginAuth
+	var dbUser authors.User
 
 	if err := c.BindJSON(&user); err != nil {
-		log.Println(err)
-		panic(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	err := collection.FindOne(context.TODO(), bson.D{{"username", user.USERNAME}}).Decode(&dbUser)
@@ -50,14 +51,14 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": gin.H{
-		"username": user.USERNAME, "role": jwt.GetRole("user"),
+		"username": dbUser.USERNAME, "role": jwt.GetRole("user"),
 		"id": dbUser.ID,
 	}})
 }
 
 func Register(c *gin.Context) {
-	var user User
-	var dbUser User
+	var user RegisterAuth
+	var dbUser authors.User
 
 	if err := c.BindJSON(&user); err != nil {
 		log.Println(err)
@@ -71,7 +72,7 @@ func Register(c *gin.Context) {
 		return
 	}
 	hash, _ := HashPassword(user.PASSWORD)
-	doc := User{FIRSTNAME: user.FIRSTNAME, LASTNAME: user.LASTNAME, USERNAME: user.USERNAME, PASSWORD: hash}
+	doc := authors.User{FIRSTNAME: user.FIRSTNAME, LASTNAME: user.LASTNAME, USERNAME: user.USERNAME, PASSWORD: hash}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
