@@ -37,7 +37,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	err := collection.FindOne(context.TODO(), bson.D{{"username", user.USERNAME}}).Decode(&dbUser)
+	err := collection.FindOne(context.TODO(), bson.M{"username": user.USERNAME}).Decode(&dbUser)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -85,7 +85,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	err := collection.FindOne(context.TODO(), bson.D{{"username", user.USERNAME}}).Decode(&dbUser)
+	err := collection.FindOne(context.TODO(), bson.M{"username": user.USERNAME}).Decode(&dbUser)
 
 	if dbUser.USERNAME != "" {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Unable to create user"})
