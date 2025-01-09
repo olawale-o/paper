@@ -22,7 +22,7 @@ func Create(article articles.Article, authorId primitive.ObjectID) (interface{},
 
 	filter := bson.M{"_id": authorId}
 	update := bson.M{
-		"$push": bson.M{"articles": bson.M{"$each": []articles.Article{articles.Article{TITLE: doc.TITLE, ID: res.InsertedID, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
+		"$push": bson.M{"articles": bson.M{"$each": []articles.Article{{TITLE: doc.TITLE, ID: res.InsertedID, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
 		"$inc":  bson.M{"articleCount": 1}}
 	opts := options.FindOneAndUpdate().SetUpsert(true)
 	var updatedDoc interface{}
