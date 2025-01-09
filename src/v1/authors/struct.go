@@ -6,7 +6,7 @@ type User struct {
 	ID                string             `bson:"_id,omitempty" json:"id,omitempty"`
 	FIRSTNAME         string             `bson:"firstName" json:"firstName"`
 	LASTNAME          string             `bson:"lastName" json:"lastName"`
-	USERNAME          string             `bson:"username" json:"username" binding:"required"`
+	USERNAME          string             `bson:"username" json:"username"`
 	PASSWORD          string             `bson:"password" json:"password"`
 	ARTICLECOUNT      int                `bson:"articleCount,omitempty" json:"articleCount,omitempty"`
 	ARTICLELIKESCOUNT int                `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
