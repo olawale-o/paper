@@ -5,15 +5,15 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func TranslateErrorToMap(err error, trans ut.Translator) map[string]string {
-	var errs map[string]string
+func TranslateErrorToMap(err error, trans ut.Translator) map[string]interface{} {
+	var errs map[string]interface{}
 	if err == nil {
 		return nil
 	}
 	validatorErrs := err.(validator.ValidationErrors)
 	for _, e := range validatorErrs {
 		translatedErr := e.Translate(trans)
-		errs = map[string]string{
+		errs = map[string]interface{}{
 			e.Field(): translatedErr,
 		}
 	}
@@ -25,7 +25,7 @@ func TranslateError(err error, trans ut.Translator) (errs []string) {
 	}
 	validatorErrs := err.(validator.ValidationErrors)
 	for _, e := range validatorErrs {
-		translatedErr := e.Translate(trans) // fmt.Errorf(e.Translate(trans))
+		translatedErr := e.Translate(trans)
 		errs = append(errs, translatedErr)
 	}
 	return errs

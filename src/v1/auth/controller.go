@@ -5,10 +5,12 @@ import (
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/authors"
 	"go-simple-rest/src/v1/jwt"
+	"go-simple-rest/src/v1/translator"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -23,6 +25,15 @@ func Login(c *gin.Context) {
 
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(user)
+	errs := translator.Translate(validate, err)
+
+	if len(errs) > 0 {
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"errors": errs})
 		return
 	}
 
@@ -63,6 +74,15 @@ func Register(c *gin.Context) {
 	if err := c.BindJSON(&user); err != nil {
 		log.Println(err)
 		panic(err)
+	}
+
+	validate := validator.New()
+	err = validate.Struct(user)
+	errs := translator.Translate(validate, err)
+
+	if len(errs) > 0 {
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"errors": errs})
+		return
 	}
 
 	err := collection.FindOne(context.TODO(), bson.D{{"username", user.USERNAME}}).Decode(&dbUser)

@@ -9,7 +9,7 @@ import (
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
 
-func Translate(validate *validator.Validate, err error) map[string]string {
+func Translate(validate *validator.Validate, err error) map[string]interface{} {
 	english := en.New()
 	uni := ut.New(english, english)
 	trans, _ := uni.GetTranslator("en")
