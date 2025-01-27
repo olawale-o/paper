@@ -2,6 +2,7 @@ package authors
 
 import (
 	"context"
+	"fmt"
 	"go-simple-rest/src/v1/articles"
 	"log"
 	"time"
@@ -11,7 +12,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Create(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
+func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
+
+	cursor, err := articleCollection.Find(context.TODO(), bson.M{"authorId": authorId})
+	if err != nil {
+		fmt.Println(err.Error())
+		panic(err)
+	}
+	var articles []articles.Article
+	if err = cursor.All(context.TODO(), &articles); err != nil {
+		panic(err)
+	}
+	return articles, nil
+}
+
+func CreateArtcile(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
 
 	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now()}
 	res, err := articleCollection.InsertOne(context.TODO(), doc)
@@ -31,7 +46,7 @@ func Create(article articles.Article, authorId primitive.ObjectID) (interface{},
 	return res.InsertedID, err
 }
 
-func Update(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
+func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 
 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
 	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
@@ -49,7 +64,7 @@ func Update(article articles.Article, authorId primitive.ObjectID, articleId pri
 	return res, nil
 }
 
-func Delete(authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
+func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 	filter := bson.M{"_id": authorId}
 	update := bson.M{"$pull": bson.M{"articles": bson.M{"_id": articleId}}}
 	opts := options.FindOneAndUpdate().SetUpsert(true)

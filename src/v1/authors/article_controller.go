@@ -2,7 +2,6 @@ package authors
 
 import (
 	"fmt"
-	"go-simple-rest/db"
 	"go-simple-rest/src/v1/articles"
 	"log"
 	"net/http"
@@ -11,15 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var client, ctx, err = db.Connect()
+// var client, ctx, err = db.Connect()
 
+// var userCollection = client.Database("go").Collection("users")
 var articleCollection = client.Database("go").Collection("articles")
-var userCollection = client.Database("go").Collection("users")
 
 func ArticleIndex(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	fmt.Println(authorId)
-	res, _ := GetAll(authorId)
+	res, _ := AllArticles(authorId)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article retrieved successfully", "article": res})
 }
 
@@ -31,7 +30,7 @@ func ArticleNew(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
 		return
 	}
-	res, err := Create(newArticle, authorId)
+	res, err := CreateArtcile(newArticle, authorId)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
@@ -51,7 +50,7 @@ func ArticleUpdate(c *gin.Context) {
 		return
 	}
 
-	res, err := Update(article, authorId, articleId)
+	res, err := UpdateArticle(article, authorId, articleId)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
@@ -65,7 +64,7 @@ func ArticleDelete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	res, err := Delete(authorId, articleId)
+	res, err := DeleteArticle(authorId, articleId)
 
 	if err != nil {
 		log.Println(err)
