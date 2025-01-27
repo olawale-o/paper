@@ -9,8 +9,18 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type Author struct {
+	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	FIRSTNAME string      `bson:"firstName" json:"firstName"`
+	LASTNAME  string      `bson:"lastName" json:"lastName"`
+	USERNAME  string      `bson:"username" json:"username"`
+	CREATEDAT time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UPDATEDAT time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+}
 
 func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 
@@ -78,4 +88,57 @@ func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) (i
 	}
 
 	return res.DeletedCount, nil
+}
+
+func ShowAuthors() ([]Author, error) {
+	var authors []Author
+	filter := bson.M{}
+	cursor, err := userCollection.Find(context.TODO(), filter)
+
+	if err = cursor.All(context.TODO(), &authors); err != nil {
+		panic(err)
+	}
+
+	return authors, nil
+}
+
+func ShowAuthor(authorId primitive.ObjectID) (Author, error) {
+	var author Author
+	filter := bson.M{"_id": authorId}
+	if err := userCollection.FindOne(context.TODO(), filter).Decode(&author); err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return author, err
+		}
+		return author, err
+	}
+	return author, nil
+}
+
+func UpdateAuthor(authorId primitive.ObjectID, updatedAuthor Author) (interface{}, error) {
+	filter := bson.M{"_id": authorId}
+	update := bson.M{"$set": bson.M{"firstName": updatedAuthor.FIRSTNAME, "username": updatedAuthor.USERNAME, "lastName": updatedAuthor.LASTNAME}}
+	opts := options.Update().SetUpsert(true)
+
+	result, err := userCollection.UpdateOne(context.TODO(), filter, update, opts)
+	if err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return updatedAuthor, err
+		}
+	}
+
+	return result.UpsertedID, nil
+}
+
+func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
+
+	filter := bson.M{"_id": authorId}
+	result, err := userCollection.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	return result.DeletedCount, nil
 }
