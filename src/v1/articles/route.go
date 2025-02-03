@@ -5,9 +5,11 @@ import (
 )
 
 func ArticleRoutes(r *gin.RouterGroup) {
-	r.GET("/articles", GetArticles)
-	r.POST("/articles", NewArticle)
-	r.GET("/articles/:id", ShowArticle)
-	r.PUT("/articles/:id", UpdateArticle)
-	r.DELETE("/articles/:id", DeleteArticle)
+
+	articles := r.Group("/articles")
+	articles.GET("/", GetArticles)
+	articles.POST("/", NewArticle)
+	articles.GET("/:id", ShowArticle)
+	articles.PUT("/:id", UpdateArticle)
+	articles.DELETE("/:id", DeleteArticle)
 }
