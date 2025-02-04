@@ -49,5 +49,5 @@ func main() {
 	r := gin.Default()
 	src.Routes(r)
 	log.Println("Starting server... on port ", 8080)
-	r.Run("localhost:8080")
+	r.Run("127.0.0.1:8080")
 }
