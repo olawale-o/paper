@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewArticleComment(c *gin.Context) {
+func New(c *gin.Context) {
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	var comment Comment
 	if err := c.BindJSON(&comment); err != nil {
@@ -24,4 +24,18 @@ func NewArticleComment(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment saved"})
+}
+
+func Show(c *gin.Context) {
+	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
+
+	err, res := GetComment(articleId, commentId)
+
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "comment", "data": res})
 }

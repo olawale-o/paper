@@ -2,6 +2,7 @@ package comment
 
 import (
 	"context"
+	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/articles"
 	"log"
@@ -38,4 +39,21 @@ func NewComment(c Comment, articleId primitive.ObjectID) (error, interface{}) {
 	id := res.InsertedID
 
 	return err, id
+}
+
+func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (error, interface{}) {
+	var comment Comment
+
+	filter := bson.M{"_id": commentId, "articleId": articleId}
+	if err := collection.FindOne(context.TODO(), filter).Decode(&comment); err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return err, "Comment not found"
+		}
+		return err, "Comment not found"
+	}
+
+	fmt.Println(comment)
+
+	return err, comment
 }
