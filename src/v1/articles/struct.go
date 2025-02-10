@@ -18,4 +18,9 @@ type Article struct {
 	STATUS     string             `bson:"status,omitempty" json:"status,omitempty"`
 	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
 	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
+	DELETEDAT  time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+}
+
+type ArticleCommentReq struct {
+	BODY string `bson:"body" json:"body"`
 }
