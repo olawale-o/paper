@@ -8,6 +8,7 @@ import (
 	"go-simple-rest/src/v1/translator"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -92,7 +93,7 @@ func Register(c *gin.Context) {
 		return
 	}
 	hash, _ := HashPassword(user.PASSWORD)
-	doc := authors.User{FIRSTNAME: user.FIRSTNAME, LASTNAME: user.LASTNAME, USERNAME: user.USERNAME, PASSWORD: hash}
+	doc := authors.User{FIRSTNAME: user.FIRSTNAME, LASTNAME: user.LASTNAME, USERNAME: user.USERNAME, PASSWORD: hash, ROLE: "author", CREATEDAT: time.Now().Format(time.DateTime)}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
