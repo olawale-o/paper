@@ -53,7 +53,20 @@ func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (err
 		return err, "Comment not found"
 	}
 
-	fmt.Println(comment)
-
 	return err, comment
+}
+
+func GetComments(articleId primitive.ObjectID) []Comment {
+	var comments []Comment
+
+	filter := bson.M{"articleId": articleId}
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println(err.Error())
+		panic(err)
+	}
+	if err = cursor.All(context.TODO(), &comments); err != nil {
+		panic(err)
+	}
+	return comments
 }

@@ -39,3 +39,10 @@ func Show(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "comment", "data": res})
 }
+
+func Index(c *gin.Context) {
+	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+
+	res := GetComments(articleId)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "comments", "data": res})
+}
