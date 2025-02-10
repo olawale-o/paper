@@ -4,6 +4,7 @@ import (
 	"go-simple-rest/src/v1/articles"
 	"go-simple-rest/src/v1/auth"
 	"go-simple-rest/src/v1/authors"
+	"go-simple-rest/src/v1/comment"
 	"go-simple-rest/src/v1/middlewares"
 
 	"github.com/gin-gonic/gin"
@@ -17,5 +18,6 @@ func Routes(r *gin.Engine) {
 		protected.Use(middlewares.Auth())
 		articles.ArticleRoutes(protected)
 		authors.AuthorRoutes(protected)
+		comment.CommentRoutes(protected)
 	}
 }
