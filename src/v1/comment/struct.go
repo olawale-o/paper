@@ -14,6 +14,7 @@ type Comment struct {
 	LIKES           int                `bson:"likes,omitempty" json:"likes,omitempty"`
 	CREATEDAT       time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
 	UPDATEDAT       time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	DELETEDAT       time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 	STATUS          string             `bson:"status,omitempty" json:"status,omitempty"`
 	PARENTCOMMENTID primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
 }
