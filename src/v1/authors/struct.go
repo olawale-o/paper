@@ -12,4 +12,5 @@ type User struct {
 	ARTICLELIKESCOUNT int                `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
 	CREATEDAT         string             `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
 	ARTICLES          []articles.Article `bson:"articles,omitempty" json:"articles,omitempty"`
+	ROLE              string             `bson:"role,omitempty" json:"role,omitempty"`
 }

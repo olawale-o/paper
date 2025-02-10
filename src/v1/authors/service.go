@@ -38,7 +38,7 @@ func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 
 func CreateArtcile(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
 
-	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now()}
+	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
 	res, err := articleCollection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
