@@ -51,7 +51,7 @@ func main() {
 	r := gin.New()
 	route.CommentRoutes(r)
 	s := &http.Server{
-		Addr:           "localhost:8083",
+		Addr:           "localhost:8084",
 		Handler:        r,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
