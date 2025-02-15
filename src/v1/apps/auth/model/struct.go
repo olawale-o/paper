@@ -51,6 +51,11 @@ type User struct {
 	ROLE              string    `bson:"role,omitempty" json:"role,omitempty"`
 }
 
+type LoginResponse struct {
+	TOKEN string `json:"token,omitempty"`
+	USER  User   `json:"user,omitempty"`
+}
+
 type Repository interface {
 	GetUser(ctx context.Context, collection string, username string) (User, error)
 	InsertUser(ctx context.Context, collection string, user User) (interface{}, error)

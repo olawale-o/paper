@@ -7,6 +7,6 @@ import (
 )
 
 type Service interface {
-	Login(ctx *gin.Context, payload model.LoginAuth) (string, gin.H)
+	Login(ctx *gin.Context, payload model.LoginAuth) (interface{}, gin.H)
 	Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H)
 }

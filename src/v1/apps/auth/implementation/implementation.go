@@ -21,7 +21,7 @@ func NewService(rep model.Repository) authSvc.Service {
 	return &service{repo: rep}
 }
 
-func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (string, gin.H) {
+func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (interface{}, gin.H) {
 	validate := validator.New()
 	err := validate.Struct(payload)
 	errs := translator.Translate(validate, err)
@@ -47,7 +47,7 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (string, gin.
 		return "", gin.H{"err": "Internal Server error"}
 	}
 
-	return tokenString, gin.H{}
+	return model.LoginResponse{TOKEN: tokenString, USER: dbUser}, gin.H{}
 }
 
 func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H) {
