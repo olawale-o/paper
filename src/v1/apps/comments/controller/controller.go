@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"comments/events"
 	"comments/model"
 	"comments/service"
 	"log"
@@ -9,24 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-func New(c *gin.Context) {
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var comment model.Comment
-	if err := c.BindJSON(&comment); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
-		return
-	}
-	err, _ := service.NewComment(comment, articleId)
-
-	if err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment saved"})
-}
 
 func Show(c *gin.Context) {
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
@@ -47,4 +30,16 @@ func Index(c *gin.Context) {
 
 	res := service.GetComments(articleId)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "comments", "data": res})
+}
+
+func Event(c *gin.Context) {
+	log.Println("Consuming comments")
+	var comment model.Payload
+	if err := c.BindJSON(&comment); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
+		return
+	}
+	events.ConsumeEvent(comment)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment saved"})
 }

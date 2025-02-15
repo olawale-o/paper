@@ -7,9 +7,7 @@ import (
 )
 
 func CommentRoutes(r *gin.Engine) {
-
-	// comments := v1.Group("articles/:id/comments")
-	r.GET("/articles/:id/comments", controller.Index)
-	r.GET("/articles/:id/comments/:cid", controller.Show)
-	r.POST("/articles/:id/comments", controller.New)
+	r.GET("/", controller.Index)
+	r.GET("/:cid", controller.Show)
+	r.POST("/app-event", controller.Event)
 }

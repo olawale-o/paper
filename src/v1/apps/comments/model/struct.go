@@ -37,3 +37,15 @@ type Article struct {
 type ArticleCommentReq struct {
 	BODY string `bson:"body" json:"body"`
 }
+
+type ArticleData struct {
+	ARTICLEID       string
+	BODY            string
+	USERID          string
+	PARENTCOMMENTID string
+}
+
+type Payload struct {
+	Data  interface{}
+	Event string
+}

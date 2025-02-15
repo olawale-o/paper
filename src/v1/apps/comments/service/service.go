@@ -18,19 +18,13 @@ var client, ctx, err = db.Connect()
 var articleCollection = client.Database("go").Collection("articles")
 var collection = client.Database("go").Collection("comments")
 
-func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
-	var article model.Article
+func NewComment(data model.ArticleData) (error, interface{}) {
 
-	filter := bson.M{"_id": articleId}
-	if err := articleCollection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
-		log.Println(err)
-		if err == mongo.ErrNoDocuments {
-			return err, "Article not found"
-		}
-		return err, "Article not found"
-	}
+	articleId, _ := primitive.ObjectIDFromHex(data.ARTICLEID)
+	userId, _ := primitive.ObjectIDFromHex(data.USERID)
+	parentCommentId, _ := primitive.ObjectIDFromHex(data.PARENTCOMMENTID)
 
-	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID}
+	doc := model.Comment{BODY: data.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), STATUS: "pending", PARENTCOMMENTID: parentCommentId}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
