@@ -43,7 +43,7 @@ time = false
 clean_on_exit = true
 
 [proxy]
-app_port = 8080
+app_port = 7000
 enabled = true
 proxy_port = 0
 
