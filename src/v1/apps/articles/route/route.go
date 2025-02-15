@@ -14,4 +14,7 @@ func ArticleRoutes(r *gin.Engine) {
 	r.GET("/:id", controller.ShowArticle)
 	r.PUT("/:id", controller.UpdateArticle)
 	r.DELETE("/:id", controller.DeleteArticle)
+	// r.GET("/:id/comments", controller.Index)
+	// r.GET("/:id/comments/:cid", controller.Show)
+	r.POST("/:id/comments", controller.NewComment)
 }

@@ -24,3 +24,33 @@ type Article struct {
 type ArticleCommentReq struct {
 	BODY string `bson:"body" json:"body"`
 }
+
+type Comment struct {
+	ID              interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	ARTICLEID       primitive.ObjectID `bson:"articleId" json:"articleId"`
+	BODY            string             `bson:"body" json:"body"`
+	USERID          primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
+	LIKES           int                `bson:"likes,omitempty" json:"likes,omitempty"`
+	CREATEDAT       time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UPDATEDAT       time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	DELETEDAT       time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	STATUS          string             `bson:"status,omitempty" json:"status,omitempty"`
+	PARENTCOMMENTID primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
+}
+
+type ArticleComment struct {
+	USERID          string `json:"userId,omitempty"`
+	PARENTCOMMENTID string `json:"parentCommentId,omitempty"`
+	BODY            string `json:"body,omitempty"`
+}
+
+type CommentData struct {
+	ARTICLEID       string
+	BODY            string
+	USERID          string
+	PARENTCOMMENTID string
+}
+type Payload struct {
+	Data  interface{}
+	Event string
+}

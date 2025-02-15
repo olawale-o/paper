@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"articles/model"
 	"articles/service"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -44,4 +46,24 @@ func DeleteArticle(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article deleted", "article": result})
+}
+
+// func ArticleComments(c *gin.Context) {
+// 	articleId := c.Param("id")
+// 	comments := service.GetComments(articleId)
+// 	c.IndentedJSON(http.StatusOK, comments)
+// }
+
+func NewComment(c *gin.Context) {
+	articleId := c.Param("id")
+
+	comment := model.ArticleComment{}
+	if err := c.BindJSON(&comment); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid data"})
+		return
+	}
+	service.CreateComment(articleId, comment)
+
+	c.IndentedJSON(http.StatusCreated, gin.H{"message": "Comment created"})
 }

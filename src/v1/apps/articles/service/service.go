@@ -2,6 +2,7 @@ package service
 
 import (
 	"articles/db"
+	"articles/events"
 	"articles/model"
 	"context"
 	"fmt"
@@ -95,4 +96,30 @@ func Delete(c *gin.Context) (int64, error) {
 	}
 
 	return result.DeletedCount, nil
+}
+
+// func GetComments(articleId string) []model.Comment {
+// 	filter := bson.M{"articleid": articleId}
+// 	var comments []model.Comment
+// 	// produce event to comment endpoint
+// 	return comments
+// }
+
+func CreateComment(articleId string, comment model.ArticleComment) error {
+	id, _ := primitive.ObjectIDFromHex(articleId)
+
+	filter := bson.M{"_id": id}
+	var article model.Article
+	if err = collection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return err
+		}
+		return err
+	}
+	events.PublishCommentEvent(
+		model.Payload{
+			Event: "NEW_COMMENT",
+			Data:  model.CommentData{ARTICLEID: articleId, USERID: comment.USERID, BODY: comment.BODY, PARENTCOMMENTID: comment.PARENTCOMMENTID},
+		})
+	return nil
 }
