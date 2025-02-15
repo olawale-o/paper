@@ -14,6 +14,6 @@ func main() {
 	r.Use(middleware.Logger)
 
 	routes.Routes(r)
-	log.Println("Starting server... on port ", 8080)
-	http.ListenAndServe(":8080", r) // Gateway listens on port 8000
+	log.Println("Starting server... on port ", 7000)
+	http.ListenAndServe(":7000", r) // Gateway listens on port 8000
 }

@@ -11,24 +11,27 @@ import (
 func Routes(r chi.Router) {
 
 	// Target service URL
-	targetURL, err := url.Parse("http://localhost:8083")       // Replace with your service URL
-	authTargetURL, err := url.Parse("http://localhost:8081")   // Replace with your service URL
-	authorTargetURL, err := url.Parse("http://localhost:8082") // Replace with your service URL
+	authTargetURL, err := url.Parse("http://localhost:8081")    // Replace with your service URL
+	authorTargetURL, err := url.Parse("http://localhost:8082")  // Replace with your service URL
+	articleTargetURL, err := url.Parse("http://localhost:8083") // Replace with your service URL
+	commentTargetURL, err := url.Parse("http://localhost:8084") // Replace with your service URL
 	if err != nil {
 		panic(err)
 	}
 
 	// Create a reverse proxy
-	proxy := httputil.NewSingleHostReverseProxy(targetURL)
+	articleProxy := httputil.NewSingleHostReverseProxy(articleTargetURL)
 	authProxy := httputil.NewSingleHostReverseProxy(authTargetURL)
 	authorProxy := httputil.NewSingleHostReverseProxy(authorTargetURL)
+	commentProxy := httputil.NewSingleHostReverseProxy(commentTargetURL)
 
 	r.Route("/api/v1", func(r chi.Router) {
 
-		r.Handle("/articles/*", http.StripPrefix("/api/v1/articles", proxy))   // Route /api/* to the service
-		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))       // Route /api/* to the service
-		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))       // Route /api/* to the service
-		r.Handle("/author/*", http.StripPrefix("/api/v1/author", authorProxy)) // Route /api/* to the service
+		r.Handle("/articles/*", http.StripPrefix("/api/v1/articles", articleProxy)) // Route /api/* to the service
+		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))            // Route /api/* to the service
+		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))            // Route /api/* to the service
+		r.Handle("/author/*", http.StripPrefix("/api/v1/author", authorProxy))      // Route /api/* to the service
+		r.Handle("/comments/*", http.StripPrefix("/api/v1/comments", commentProxy)) // Route /api/* to the service
 
 	})
 
