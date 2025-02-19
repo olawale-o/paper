@@ -13,14 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Author struct {
-	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
-	FIRSTNAME string      `bson:"firstName" json:"firstName"`
-	LASTNAME  string      `bson:"lastName" json:"lastName"`
-	USERNAME  string      `bson:"username" json:"username"`
-	CREATEDAT time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-}
+var articleCollection = client.Database("go").Collection("articles")
 
 func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 

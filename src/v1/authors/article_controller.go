@@ -10,11 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// var client, ctx, err = db.Connect()
-
-// var userCollection = client.Database("go").Collection("users")
-var articleCollection = client.Database("go").Collection("articles")
-
 func ArticleIndex(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	fmt.Println(authorId)
