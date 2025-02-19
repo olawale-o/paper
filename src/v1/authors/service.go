@@ -3,7 +3,10 @@ package authors
 import (
 	"context"
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/articles"
 	"go-simple-rest/src/v1/authors/repo"
+	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,13 +20,13 @@ var database = client.Database("go")
 
 func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 
-	res, err := repo.New(database)
+	r, err := repo.New(database)
 
 	if err != nil {
 		return nil, err
 	}
 
-	articles, err := res.Get(context.TODO(), "articles", bson.M{"authorId": authorId})
+	articles, err := r.Get(context.TODO(), "articles", bson.M{"authorId": authorId})
 
 	if err != nil {
 		return nil, err
@@ -31,25 +34,35 @@ func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 	return articles, nil
 }
 
-// func CreateArtcile(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
+func CreateArticle(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
 
-// 	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
-// 	res, err := articleCollection.InsertOne(context.TODO(), doc)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return "", err
-// 	}
+	r, err := repo.New(database)
 
-// 	filter := bson.M{"_id": authorId}
-// 	update := bson.M{
-// 		"$push": bson.M{"articles": bson.M{"$each": []articles.Article{{TITLE: doc.TITLE, ID: res.InsertedID, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
-// 		"$inc":  bson.M{"articleCount": 1}}
-// 	opts := options.FindOneAndUpdate().SetUpsert(true)
-// 	var updatedDoc interface{}
-// 	userCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updatedDoc)
+	if err != nil {
+		return nil, err
 
-// 	return res.InsertedID, err
-// }
+	}
+	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
+	insertedId, err := r.InsertOne(context.TODO(), "articles", doc)
+
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	filter := bson.M{"_id": authorId}
+	update := bson.M{
+		"$push": bson.M{"articles": bson.M{"$each": []articles.Article{{TITLE: doc.TITLE, ID: insertedId, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
+		"$inc":  bson.M{"articleCount": 1}}
+
+	res, err := r.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	return res, err
+}
 
 // func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 

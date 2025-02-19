@@ -7,10 +7,10 @@ import (
 	"log"
 
 	"go-simple-rest/src/v1/authors/model"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var client, ctx, err = db.Connect()
@@ -42,18 +42,21 @@ func (repo *repository) Get(ctx context.Context, collection string, filter bson.
 	return articles, nil
 }
 
-func (repo *repository) InsertUser(ctx context.Context, collection string, user model.User) (interface{}, error) {
-	doc := model.User{
-		FIRSTNAME: user.FIRSTNAME,
-		LASTNAME:  user.LASTNAME,
-		USERNAME:  user.USERNAME,
-		PASSWORD:  user.PASSWORD,
-		ROLE:      "author",
-		CREATEDAT: time.Now().Format(time.DateTime),
-	}
+func (repo *repository) InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error) {
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
 		return "", err
 	}
 	return res.InsertedID, nil
+}
+
+func (repo *repository) FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
+	var data interface{}
+	opts := options.FindOneAndUpdate().SetUpsert(upsert)
+	repo.db.Collection(collection).FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&data)
+
+	if err != nil {
+		return "", err
+	}
+	return data, nil
 }

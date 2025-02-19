@@ -9,7 +9,7 @@ func AuthorRoutes(r *gin.RouterGroup) {
 	// authors.PUT("/:id", Update)
 	// authors.DELETE("/:id", Delete)
 	authors.GET("/:id/articles", ArticleIndex)
-	// authors.POST("/:id/articles", ArticleNew)
+	authors.POST("/:id/articles", ArticleNew)
 	// authors.PUT("/:id/articles/:articleId", ArticleUpdate)
 	// authors.DELETE("/:id/articles/:articleId", ArticleDelete)
 }

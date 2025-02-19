@@ -52,5 +52,6 @@ type AuthorArticleResponse struct {
 
 type Repository interface {
 	Get(ctx context.Context, collection string, filter bson.M) ([]AuthorArticle, error)
-	InsertUser(ctx context.Context, collection string, user User) (interface{}, error)
+	InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error)
+	FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
 }
