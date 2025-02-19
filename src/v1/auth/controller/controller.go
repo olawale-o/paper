@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/auth"
 	"go-simple-rest/src/v1/auth/implementation"
@@ -17,11 +18,24 @@ var client, ctx, err = db.Connect()
 
 var database = client.Database("go")
 
+// Login godoc
+// @Tags User Authentication
+// @Summary Login user
+// @Description Login user with username and password
+// @Accept json
+// @Param data body auth.LoginAuth true "User"
+// @Produce json
+// @Success 200 {object} auth.LoginResponse "Response"
+// @Header 200 {string} Cookie "session_id"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /auth/login [post]
 func Login(c *gin.Context) {
 	var user auth.LoginAuth
 	var dbUser authors.User
 
 	if err := c.BindJSON(&user); err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -32,7 +46,7 @@ func Login(c *gin.Context) {
 	msg, error := s.Login(c, user)
 
 	if _, ok := error["err"]; ok {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"err": err})
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
