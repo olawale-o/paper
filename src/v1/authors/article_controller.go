@@ -16,7 +16,7 @@ import (
 // @Description Retrieves all articles written by a specific author.
 // @Param id path string true "Author ID"
 // @Produce json
-// @Success 201 {object} string "Response"
+// @Success 200 {object} string "Response"
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [get]
@@ -35,7 +35,7 @@ func ArticleIndex(c *gin.Context) {
 // @Param article body articles.Article true "Article"
 // @Produce json
 // Accept application/json
-// @Success 200 {object} string "Response"
+// @Success 201 {object} string "Response"
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [post]
