@@ -59,7 +59,7 @@ func Login(c *gin.Context) {
 // @Summary Register user
 // @Description Register user with username,password, firstname and lastname
 // @Accept json
-// @Param data body auth.RegisterAuth true "User"
+// @Param data body model.RegisterAuth true "User"
 // @Produce json
 // @Success 201 {object} string "Response"
 // @Failure 400 {object} string "Error"
