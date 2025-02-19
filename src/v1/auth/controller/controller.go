@@ -1,14 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/auth"
 	"go-simple-rest/src/v1/auth/implementation"
 	"go-simple-rest/src/v1/auth/repo"
 	"go-simple-rest/src/v1/authors"
 	"go-simple-rest/src/v1/jwt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +33,6 @@ func Login(c *gin.Context) {
 	var dbUser authors.User
 
 	if err := c.BindJSON(&user); err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -58,12 +55,23 @@ func Login(c *gin.Context) {
 	}})
 }
 
+// Sign up godoc
+// @Tags User Authentication
+// @Summary Register user
+// @Description Register user with username,password, firstname and lastname
+// @Accept json
+// @Param data body auth.RegisterAuth true "User"
+// @Produce json
+// @Success 201 {object} string "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /auth/sign-up [post]
 func Register(c *gin.Context) {
 	var user auth.RegisterAuth
 
 	if err := c.BindJSON(&user); err != nil {
-		log.Println(err)
-		panic(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	rep, _ := repo.New(database)
