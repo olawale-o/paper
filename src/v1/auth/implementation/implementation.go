@@ -3,10 +3,10 @@ package implementation
 import (
 	"context"
 	"go-simple-rest/src/v1/auth"
-	"go-simple-rest/src/v1/authors"
 	"go-simple-rest/src/v1/jwt"
 	"go-simple-rest/src/v1/translator"
 
+	"go-simple-rest/src/v1/auth/model"
 	authSvc "go-simple-rest/src/v1/auth/service"
 
 	"github.com/gin-gonic/gin"
@@ -14,14 +14,14 @@ import (
 )
 
 type service struct {
-	repo auth.Repository
+	repo model.Repository
 }
 
-func NewService(rep auth.Repository) authSvc.Service {
+func NewService(rep model.Repository) authSvc.Service {
 	return &service{repo: rep}
 }
 
-func (s *service) Login(ctx *gin.Context, payload auth.LoginAuth) (string, gin.H) {
+func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (string, gin.H) {
 	validate := validator.New()
 	err := validate.Struct(payload)
 	errs := translator.Translate(validate, err)
@@ -50,7 +50,7 @@ func (s *service) Login(ctx *gin.Context, payload auth.LoginAuth) (string, gin.H
 	return tokenString, gin.H{}
 }
 
-func (s *service) Register(ctx *gin.Context, payload auth.RegisterAuth) (string, gin.H) {
+func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H) {
 
 	validate := validator.New()
 	err := validate.Struct(payload)
@@ -69,7 +69,7 @@ func (s *service) Register(ctx *gin.Context, payload auth.RegisterAuth) (string,
 	}
 	hash, _ := auth.HashPassword(payload.PASSWORD)
 
-	_, err = s.repo.InsertUser(context.TODO(), "users", authors.User{
+	_, err = s.repo.InsertUser(context.TODO(), "users", model.User{
 		USERNAME:  payload.USERNAME,
 		FIRSTNAME: payload.FIRSTNAME,
 		LASTNAME:  payload.LASTNAME,

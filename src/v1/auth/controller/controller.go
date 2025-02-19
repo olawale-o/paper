@@ -2,10 +2,9 @@ package controller
 
 import (
 	"go-simple-rest/db"
-	"go-simple-rest/src/v1/auth"
 	"go-simple-rest/src/v1/auth/implementation"
+	"go-simple-rest/src/v1/auth/model"
 	"go-simple-rest/src/v1/auth/repo"
-	"go-simple-rest/src/v1/authors"
 	"go-simple-rest/src/v1/jwt"
 	"net/http"
 
@@ -29,8 +28,8 @@ var database = client.Database("go")
 // @Failure 500 {object} string "Error"
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
-	var user auth.LoginAuth
-	var dbUser authors.User
+	var user model.LoginAuth
+	var dbUser model.User
 
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -67,7 +66,7 @@ func Login(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /auth/sign-up [post]
 func Register(c *gin.Context) {
-	var user auth.RegisterAuth
+	var user model.RegisterAuth
 
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

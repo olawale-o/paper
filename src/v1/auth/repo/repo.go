@@ -5,8 +5,7 @@ import (
 	"go-simple-rest/db"
 	"log"
 
-	"go-simple-rest/src/v1/auth"
-	"go-simple-rest/src/v1/authors"
+	"go-simple-rest/src/v1/auth/model"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,15 +21,14 @@ type repository struct {
 	logger log.Logger
 }
 
-func New(db *mongo.Database) (auth.Repository, error) {
-	// return  repository
+func New(db *mongo.Database) (model.Repository, error) {
 	return &repository{
 		db: db,
 	}, nil
 }
 
-func (repo *repository) GetUser(ctx context.Context, collection string, username string) (authors.User, error) {
-	var dbUser authors.User
+func (repo *repository) GetUser(ctx context.Context, collection string, username string) (model.User, error) {
+	var dbUser model.User
 	err := repo.db.Collection(collection).FindOne(context.TODO(), bson.M{"username": username}).Decode(&dbUser)
 
 	if err != nil {
@@ -42,8 +40,8 @@ func (repo *repository) GetUser(ctx context.Context, collection string, username
 	return dbUser, nil
 }
 
-func (repo *repository) InsertUser(ctx context.Context, collection string, user authors.User) (interface{}, error) {
-	doc := authors.User{
+func (repo *repository) InsertUser(ctx context.Context, collection string, user model.User) (interface{}, error) {
+	doc := model.User{
 		FIRSTNAME: user.FIRSTNAME,
 		LASTNAME:  user.LASTNAME,
 		USERNAME:  user.USERNAME,
