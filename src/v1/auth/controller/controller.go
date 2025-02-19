@@ -20,9 +20,9 @@ var database = client.Database("go")
 // @Summary Login user
 // @Description Login user with username and password
 // @Accept json
-// @Param data body auth.LoginAuth true "User"
+// @Param data body model.LoginAuth true "User"
 // @Produce json
-// @Success 200 {object} auth.LoginResponse "Response"
+// @Success 200 {object} model.LoginResponse "Response"
 // @Header 200 {string} Cookie "session_id"
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
