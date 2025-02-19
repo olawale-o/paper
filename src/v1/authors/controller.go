@@ -1,66 +1,57 @@
 package authors
 
-import (
-	"go-simple-rest/db"
-	"log"
-	"net/http"
+// var client, ctx, err = db.Connect()
 
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+// var userCollection = client.Database("go").Collection("users")
 
-var client, ctx, err = db.Connect()
+// func Index(c *gin.Context) {
+// 	res, err := ShowAuthors()
+// 	if err != nil {
+// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+// 		return
+// 	}
+// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved all authors", "data": res})
+// }
+// func Show(c *gin.Context) {
+// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// 	res, err := ShowAuthor(authorId)
+// 	if err != nil {
+// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+// 		return
+// 	}
+// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single authors", "data": res})
+// }
 
-var userCollection = client.Database("go").Collection("users")
+// func Update(c *gin.Context) {
+// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
-func Index(c *gin.Context) {
-	res, err := ShowAuthors()
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved all authors", "data": res})
-}
-func Show(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	res, err := ShowAuthor(authorId)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single authors", "data": res})
-}
+// 	var author Author
+// 	if err := c.BindJSON(&author); err != nil {
+// 		log.Println(err)
+// 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+// 		return
+// 	}
 
-func Update(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// 	res, err := UpdateAuthor(authorId, author)
 
-	var author Author
-	if err := c.BindJSON(&author); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-		return
-	}
+// 	if err != nil {
+// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
+// 		return
+// 	}
 
-	res, err := UpdateAuthor(authorId, author)
+// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author updated successfully", "data": res})
+// }
 
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
-		return
-	}
+// func Delete(c *gin.Context) {
+// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author updated successfully", "data": res})
-}
+// 	res, err := DeleteAuthor(authorId)
 
-func Delete(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// 	if err != nil {
+// 		log.Println(err)
+// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+// 		return
+// 	}
 
-	res, err := DeleteAuthor(authorId)
-
-	if err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author deleted successfully", "data": res})
-}
+// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author deleted successfully", "data": res})
+// }
