@@ -11,5 +11,5 @@ func AuthorRoutes(r *gin.RouterGroup) {
 	authors.GET("/:id/articles", ArticleIndex)
 	authors.POST("/:id/articles", ArticleNew)
 	authors.PUT("/:id/articles/:articleId", ArticleUpdate)
-	// authors.DELETE("/:id/articles/:articleId", ArticleDelete)
+	authors.DELETE("/:id/articles/:articleId", ArticleDelete)
 }
