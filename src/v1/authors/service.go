@@ -70,7 +70,6 @@ func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articl
 
 	if err != nil {
 		return nil, err
-
 	}
 
 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
@@ -93,21 +92,31 @@ func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articl
 	return data, nil
 }
 
-// func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
-// 	filter := bson.M{"_id": authorId}
-// 	update := bson.M{"$pull": bson.M{"articles": bson.M{"_id": articleId}}}
-// 	opts := options.FindOneAndUpdate().SetUpsert(true)
+func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) error {
 
-// 	userCollection.FindOneAndUpdate(context.TODO(), filter, update, opts)
+	r, err := repo.New(database)
 
-// 	res, err := articleCollection.DeleteOne(context.TODO(), bson.M{"_id": articleId})
-// 	if err != nil {
-// 		log.Println(err)
-// 		return "", err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	return res.DeletedCount, nil
-// }
+	filter := bson.M{"_id": authorId}
+	update := bson.M{"$pull": bson.M{"articles": bson.M{"_id": articleId}}}
+
+	_, err = r.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	err = r.DeleteOne(context.TODO(), "articles", bson.M{"_id": articleId})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
 
 // func ShowAuthors() ([]Author, error) {
 // 	var authors []Author

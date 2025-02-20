@@ -90,17 +90,29 @@ func ArticleUpdate(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated successfully", "article": res})
 }
 
-// func ArticleDelete(c *gin.Context) {
-// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-// 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
+// AuthorArticleNew godoc
+// @Tags Authors
+// @Summary Delete an article written by a specific author
+// @Description Deletes an article written by a specific author.
+// @Param id path string true "Author ID"
+// @Param articleId path string true "Article ID"
+// @Produce json
+// Accept application/json
+// @Success 200 {object} model.AuthorArticleUpdateResponse "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /authors/{id}/articles/{articleId} [delete]
+func ArticleDelete(c *gin.Context) {
+	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-// 	res, err := DeleteArticle(authorId, articleId)
+	err := DeleteArticle(authorId, articleId)
 
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-// 		return
-// 	}
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		return
+	}
 
-// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article deleted successfully", "article": res})
-// }
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article deleted successfully"})
+}

@@ -60,3 +60,14 @@ func (repo *repository) FindOneAndUpdate(ctx context.Context, collection string,
 	}
 	return data, nil
 }
+
+func (repo *repository) DeleteOne(ctx context.Context, collection string, filter bson.M) error {
+	res, err := repo.db.Collection(collection).DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return fmt.Errorf("no document deleted")
+	}
+	return nil
+}
