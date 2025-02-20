@@ -64,23 +64,34 @@ func CreateArticle(article articles.Article, authorId primitive.ObjectID) (inter
 	return res, err
 }
 
-// func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
+func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 
-// 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
-// 	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
-// 	opts := options.FindOneAndUpdate().SetUpsert(true)
+	r, err := repo.New(database)
 
-// 	userCollection.FindOneAndUpdate(context.TODO(), filter, update, opts)
+	if err != nil {
+		return nil, err
 
-// 	var updatedDoc articles.Article
-// 	err := articleCollection.FindOneAndUpdate(context.TODO(), bson.M{"_id": articleId}, bson.M{"$set": bson.M{"title": article.TITLE, "content": article.CONTENT}}).Decode(&updatedDoc)
+	}
 
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	res, _ := bson.MarshalExtJSON(updatedDoc, false, false)
-// 	return res, nil
-// }
+	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
+	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
+
+	res, err := r.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	filter = bson.M{"_id": articleId}
+	update = bson.M{"$set": bson.M{"title": article.TITLE, "content": article.CONTENT}}
+	res, err = r.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	data, _ := bson.MarshalExtJSON(res, false, false)
+	return data, nil
+}
 
 // func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 // 	filter := bson.M{"_id": authorId}

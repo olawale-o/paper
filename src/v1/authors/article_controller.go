@@ -56,26 +56,39 @@ func ArticleNew(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article created successfully", "article": res})
 }
 
-// func ArticleUpdate(c *gin.Context) {
-// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-// 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
+// AuthorArticleNew godoc
+// @Tags Authors
+// @Summary Update an article written by a specific author
+// @Description Updates an article written by a specific author.
+// @Param id path string true "Author ID"
+// @Param articleId path string true "Article ID"
+// @Param article body model.AuthorArticleUpdateRequest true "Article"
+// @Produce json
+// Accept application/json
+// @Success 200 {object} model.AuthorArticleUpdateResponse "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /authors/{id}/articles/{articleId} [put]
+func ArticleUpdate(c *gin.Context) {
+	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-// 	var article articles.Article
-// 	if err := c.BindJSON(&article); err != nil {
-// 		log.Println(err)
-// 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-// 		return
-// 	}
+	var article articles.Article
+	if err := c.BindJSON(&article); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+		return
+	}
 
-// 	res, err := UpdateArticle(article, authorId, articleId)
+	res, err := UpdateArticle(article, authorId, articleId)
 
-// 	if err != nil {
-// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
-// 		return
-// 	}
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
+		return
+	}
 
-// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated successfully", "article": res})
-// }
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated successfully", "article": res})
+}
 
 // func ArticleDelete(c *gin.Context) {
 // 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))

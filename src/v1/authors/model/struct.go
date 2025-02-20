@@ -45,9 +45,18 @@ type AuthorArticle struct {
 	DELETEDAT  time.Time   `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
+type AuthorArticleUpdateRequest struct {
+	TITLE   string `bson:"title" json:"title"`
+	CONTENT string `bson:"content" json:"content"`
+}
+
 type AuthorArticleResponse struct {
 	MESSAGE  string          `json:"message,omitempty"`
 	ARTICLES []AuthorArticle `json:"articles,omitempty"`
+}
+
+type AuthorArticleUpdateResponse struct {
+	MESSAGE string `json:"message,omitempty"`
 }
 
 type Repository interface {
