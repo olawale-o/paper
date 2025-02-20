@@ -42,6 +42,13 @@ func (repo *repository) Get(ctx context.Context, collection string, filter bson.
 	return articles, nil
 }
 
+func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M) (interface{}, error) {
+	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter).Decode(&v); err != nil {
+		return nil, err
+	}
+	return v, nil
+}
+
 func (repo *repository) InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error) {
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {

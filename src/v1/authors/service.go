@@ -130,18 +130,24 @@ func DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) er
 // 	return authors, nil
 // }
 
-// func ShowAuthor(authorId primitive.ObjectID) (Author, error) {
-// 	var author Author
-// 	filter := bson.M{"_id": authorId}
-// 	if err := userCollection.FindOne(context.TODO(), filter).Decode(&author); err != nil {
-// 		log.Println(err)
-// 		if err == mongo.ErrNoDocuments {
-// 			return author, err
-// 		}
-// 		return author, err
-// 	}
-// 	return author, nil
-// }
+func ShowAuthor(authorId primitive.ObjectID) (interface{}, error) {
+	var author bson.M
+	r, err := repo.New(database)
+
+	if err != nil {
+		return author, err
+	}
+
+	filter := bson.M{"_id": authorId}
+
+	data, err := r.FindOne(context.TODO(), "users", filter, author)
+
+	if err != nil {
+		return author, err
+	}
+
+	return data, nil
+}
 
 // func UpdateAuthor(authorId primitive.ObjectID, updatedAuthor Author) (interface{}, error) {
 // 	filter := bson.M{"_id": authorId}

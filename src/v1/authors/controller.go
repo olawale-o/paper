@@ -1,5 +1,12 @@
 package authors
 
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 // var client, ctx, err = db.Connect()
 
 // var userCollection = client.Database("go").Collection("users")
@@ -12,15 +19,27 @@ package authors
 // 	}
 // 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved all authors", "data": res})
 // }
-// func Show(c *gin.Context) {
-// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-// 	res, err := ShowAuthor(authorId)
-// 	if err != nil {
-// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
-// 		return
-// 	}
-// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single authors", "data": res})
-// }
+//
+
+// Author godoc
+// @Tags Authors
+// @Summary Get author by id
+// @Description Retrieves a specific author by ID.
+// @Param id path string true "Author ID"
+// @Produce json
+// @Success 200 {object} model.Author "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /authors/{id} [get]
+func Show(c *gin.Context) {
+	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	res, err := ShowAuthor(authorId)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single author", "data": res})
+}
 
 // func Update(c *gin.Context) {
 // 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
