@@ -78,3 +78,16 @@ func (repo *repository) DeleteOne(ctx context.Context, collection string, filter
 	}
 	return nil
 }
+
+func (repo *repository) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
+	opts := options.Update().SetUpsert(upsert)
+	result, err := repo.db.Collection(collection).UpdateOne(context.TODO(), filter, update, opts)
+
+	if err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return nil, err
+		}
+	}
+	return result, nil
+}

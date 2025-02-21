@@ -156,6 +156,45 @@
                     }
                 }
             },
+            "put": {
+                "description": "Updates an author",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authors"
+                ],
+                "summary": "Update a specific author",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Author ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes an author",
                 "produces": [

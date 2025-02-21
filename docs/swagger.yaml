@@ -248,6 +248,32 @@ paths:
       summary: Get author by id
       tags:
       - Authors
+    put:
+      description: Updates an author
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "422":
+          description: Response
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Update a specific author
+      tags:
+      - Authors
   /authors/{id}/articles:
     get:
       description: Retrieves all articles written by a specific author.

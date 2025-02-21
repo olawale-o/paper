@@ -4,12 +4,14 @@ import (
 	"context"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/articles"
+	"go-simple-rest/src/v1/authors/model"
 	"go-simple-rest/src/v1/authors/repo"
 	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var articleCollection = client.Database("go").Collection("articles")
@@ -149,21 +151,28 @@ func ShowAuthor(authorId primitive.ObjectID) (interface{}, error) {
 	return data, nil
 }
 
-// func UpdateAuthor(authorId primitive.ObjectID, updatedAuthor Author) (interface{}, error) {
-// 	filter := bson.M{"_id": authorId}
-// 	update := bson.M{"$set": bson.M{"firstName": updatedAuthor.FIRSTNAME, "username": updatedAuthor.USERNAME, "lastName": updatedAuthor.LASTNAME}}
-// 	opts := options.Update().SetUpsert(true)
+func UpdateAuthor(authorId primitive.ObjectID, updatedAuthor model.Author) (interface{}, error) {
 
-// 	result, err := userCollection.UpdateOne(context.TODO(), filter, update, opts)
-// 	if err != nil {
-// 		log.Println(err)
-// 		if err == mongo.ErrNoDocuments {
-// 			return updatedAuthor, err
-// 		}
-// 	}
+	var author bson.M
+	r, err := repo.New(database)
 
-// 	return result.UpsertedID, nil
-// }
+	if err != nil {
+		return author, err
+	}
+
+	filter := bson.M{"_id": authorId}
+	update := bson.M{"$set": bson.M{"firstName": updatedAuthor.FIRSTNAME, "username": updatedAuthor.USERNAME, "lastName": updatedAuthor.LASTNAME}}
+
+	result, err := r.UpdateOne(context.TODO(), "users", filter, update, true)
+	if err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return updatedAuthor, err
+		}
+	}
+
+	return result, nil
+}
 
 func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
 

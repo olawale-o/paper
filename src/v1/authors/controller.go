@@ -1,6 +1,7 @@
 package authors
 
 import (
+	"go-simple-rest/src/v1/authors/model"
 	"log"
 	"net/http"
 
@@ -42,25 +43,36 @@ func Show(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single author", "data": res})
 }
 
-// func Update(c *gin.Context) {
-// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// AuthorUpdate godoc
+// @Tags Authors
+// @Summary Update a specific author
+// @Description Updates an author
+// @Param id path string true "Author ID"
+// @Produce json
+// Accept application/json
+// @Success 200 {string} message "Response"
+// @Success 422 {string} message "Response"
+// @Failure 500 {object} string "Error"
+// @Router /authors/{id} [put]
+func Update(c *gin.Context) {
+	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
-// 	var author Author
-// 	if err := c.BindJSON(&author); err != nil {
-// 		log.Println(err)
-// 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-// 		return
-// 	}
+	var author model.Author
+	if err := c.BindJSON(&author); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+		return
+	}
 
-// 	res, err := UpdateAuthor(authorId, author)
+	res, err := UpdateAuthor(authorId, author)
 
-// 	if err != nil {
-// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
-// 		return
-// 	}
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
+		return
+	}
 
-// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author updated successfully", "data": res})
-// }
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author updated successfully", "data": res})
+}
 
 // AuthorDelete godoc
 // @Tags Authors
