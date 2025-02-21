@@ -165,14 +165,20 @@ func ShowAuthor(authorId primitive.ObjectID) (interface{}, error) {
 // 	return result.UpsertedID, nil
 // }
 
-// func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
+func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
 
-// 	filter := bson.M{"_id": authorId}
-// 	result, err := userCollection.DeleteOne(context.TODO(), filter)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return 0, err
-// 	}
+	r, err := repo.New(database)
 
-// 	return result.DeletedCount, nil
-// }
+	if err != nil {
+		return 0, err
+	}
+
+	filter := bson.M{"_id": authorId}
+	err = r.DeleteOne(context.TODO(), "users", filter)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	return 1, nil
+}

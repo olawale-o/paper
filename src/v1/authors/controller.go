@@ -1,6 +1,7 @@
 package authors
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -61,16 +62,26 @@ func Show(c *gin.Context) {
 // 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author updated successfully", "data": res})
 // }
 
-// func Delete(c *gin.Context) {
-// 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// AuthorDelete godoc
+// @Tags Authors
+// @Summary Delete a specific author
+// @Description Deletes an author
+// @Param id path string true "Author ID"
+// @Produce json
+// Accept application/json
+// @Success 200 {string} message "Response"
+// @Failure 500 {object} string "Error"
+// @Router /authors/{id} [delete]
+func Delete(c *gin.Context) {
+	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
-// 	res, err := DeleteAuthor(authorId)
+	res, err := DeleteAuthor(authorId)
 
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-// 		return
-// 	}
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		return
+	}
 
-// 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author deleted successfully", "data": res})
-// }
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author deleted successfully", "data": res})
+}

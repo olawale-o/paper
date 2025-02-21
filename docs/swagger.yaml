@@ -1,0 +1,382 @@
+basePath: /api/v1
+definitions:
+  articles.Article:
+    properties:
+      authorId:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id: {}
+      likes:
+        type: integer
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+      views:
+        type: integer
+    type: object
+  go-simple-rest_src_v1_auth_model.User:
+    properties:
+      articleCount:
+        type: integer
+      articleLikesCount:
+        type: integer
+      articles:
+        items:
+          $ref: '#/definitions/articles.Article'
+        type: array
+      createdAt:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  model.Author:
+    properties:
+      createdAt:
+        type: string
+      firstName:
+        type: string
+      id: {}
+      lastName:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  model.AuthorArticleUpdateRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  model.AuthorArticleUpdateResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  model.LoginAuth:
+    properties:
+      password:
+        description: password
+        minLength: 4
+        type: string
+      username:
+        description: username
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.LoginResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/go-simple-rest_src_v1_auth_model.User'
+    type: object
+  model.RegisterAuth:
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - firstname
+    - lastname
+    - password
+    - username
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: 127.0.0.1:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user with username and password
+      parameters:
+      - description: User
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginAuth'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          headers:
+            Cookie:
+              description: session_id
+              type: string
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Login user
+      tags:
+      - User Authentication
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register user with username,password, firstname and lastname
+      parameters:
+      - description: User
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterAuth'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Register user
+      tags:
+      - User Authentication
+  /authors/{id}:
+    delete:
+      description: Deletes an author
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Delete a specific author
+      tags:
+      - Authors
+    get:
+      description: Retrieves a specific author by ID.
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            $ref: '#/definitions/model.Author'
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Get author by id
+      tags:
+      - Authors
+  /authors/{id}/articles:
+    get:
+      description: Retrieves all articles written by a specific author.
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Get all articles by author
+      tags:
+      - Authors
+    post:
+      description: Creates a new article written by a specific author.
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/articles.Article'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Create a new article written by a specific author
+      tags:
+      - Authors
+  /authors/{id}/articles/{articleId}:
+    delete:
+      description: Deletes an article written by a specific author.
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Article ID
+        in: path
+        name: articleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            $ref: '#/definitions/model.AuthorArticleUpdateResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Delete an article written by a specific author
+      tags:
+      - Authors
+    put:
+      description: Updates an article written by a specific author.
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Article ID
+        in: path
+        name: articleId
+        required: true
+        type: string
+      - description: Article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthorArticleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            $ref: '#/definitions/model.AuthorArticleUpdateResponse'
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Update an article written by a specific author
+      tags:
+      - Authors
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
