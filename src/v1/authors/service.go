@@ -3,7 +3,6 @@ package authors
 import (
 	"context"
 	"go-simple-rest/db"
-	"go-simple-rest/src/v1/articles"
 	"go-simple-rest/src/v1/authors/model"
 	"go-simple-rest/src/v1/authors/repo"
 	"log"
@@ -36,7 +35,7 @@ func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 	return articles, nil
 }
 
-func CreateArticle(article articles.Article, authorId primitive.ObjectID) (interface{}, error) {
+func CreateArticle(article model.Article, authorId primitive.ObjectID) (interface{}, error) {
 
 	r, err := repo.New(database)
 
@@ -44,7 +43,7 @@ func CreateArticle(article articles.Article, authorId primitive.ObjectID) (inter
 		return nil, err
 
 	}
-	doc := articles.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
+	doc := model.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
 	insertedId, err := r.InsertOne(context.TODO(), "articles", doc)
 
 	if err != nil {
@@ -54,7 +53,7 @@ func CreateArticle(article articles.Article, authorId primitive.ObjectID) (inter
 
 	filter := bson.M{"_id": authorId}
 	update := bson.M{
-		"$push": bson.M{"articles": bson.M{"$each": []articles.Article{{TITLE: doc.TITLE, ID: insertedId, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
+		"$push": bson.M{"articles": bson.M{"$each": []model.Article{{TITLE: doc.TITLE, ID: insertedId, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
 		"$inc":  bson.M{"articleCount": 1}}
 
 	res, err := r.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
@@ -66,7 +65,7 @@ func CreateArticle(article articles.Article, authorId primitive.ObjectID) (inter
 	return res, err
 }
 
-func UpdateArticle(article articles.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
+func UpdateArticle(article model.Article, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
 
 	r, err := repo.New(database)
 

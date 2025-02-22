@@ -2,7 +2,7 @@ package authors
 
 import (
 	"fmt"
-	"go-simple-rest/src/v1/articles"
+	"go-simple-rest/src/v1/authors/model"
 	"log"
 	"net/http"
 
@@ -41,7 +41,7 @@ func ArticleIndex(c *gin.Context) {
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var newArticle articles.Article
+	var newArticle model.Article
 	if err := c.BindJSON(&newArticle); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
@@ -73,7 +73,7 @@ func ArticleUpdate(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	var article articles.Article
+	var article model.Article
 	if err := c.BindJSON(&article); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
