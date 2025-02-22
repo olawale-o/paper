@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-simple-rest/db"
-	"go-simple-rest/src/v1/articles"
+	"go-simple-rest/src/v1/authors/model"
 	"log"
 	"time"
 
@@ -19,7 +19,7 @@ var articleCollection = client.Database("go").Collection("articles")
 var collection = client.Database("go").Collection("comments")
 
 func NewComment(c Comment, articleId primitive.ObjectID) (error, interface{}) {
-	var article articles.Article
+	var article model.Article
 
 	filter := bson.M{"_id": articleId}
 	if err := articleCollection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
