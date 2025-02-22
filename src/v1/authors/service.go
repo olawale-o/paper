@@ -13,8 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var articleCollection = client.Database("go").Collection("articles")
-
 var client, ctx, err = db.Connect()
 
 var database = client.Database("go")
