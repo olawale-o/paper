@@ -19,6 +19,16 @@ func NewArticle(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, gin.H{"message": "Article created", "id": id})
 }
 
+// Articles godoc
+// @Tags Articles
+// @Summary Get articles by id
+// @Description Retrieves a specific article by ID.
+// @Param id path string true "Article ID"
+// @Produce json
+// @Success 200 {object} model.Article "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /articles/{id} [get]
 func ShowArticle(c *gin.Context) {
 	article, err := GetArticle(c)
 	if err != nil {
