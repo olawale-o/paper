@@ -36,10 +36,6 @@ definitions:
         type: integer
       articleLikesCount:
         type: integer
-      articles:
-        items:
-          $ref: '#/definitions/articles.Article'
-        type: array
       createdAt:
         type: string
       firstName:
@@ -54,6 +50,36 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  model.Article:
+    properties:
+      authorId:
+        type: string
+      categories:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id: {}
+      likes:
+        type: integer
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+      views:
+        type: integer
     type: object
   model.Author:
     properties:
@@ -135,6 +161,59 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
+  /articles/{id}:
+    get:
+      description: Retrieves a specific article by ID.
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            $ref: '#/definitions/model.Article'
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Get articles by id
+      tags:
+      - Articles
+    put:
+      description: Updates a specific article by ID.
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Update articles by id
+      tags:
+      - Articles
   /auth/login:
     post:
       consumes:
