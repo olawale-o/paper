@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var client, ctx, err = db.Connect()
@@ -72,6 +71,11 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 }
 
 func Update(c *gin.Context) (interface{}, error) {
+	r, err := repo.New(database)
+
+	if err != nil {
+		return nil, err
+	}
 	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	var updatedArticle model.Article
 	if err := c.BindJSON(&updatedArticle); err != nil {
@@ -80,9 +84,9 @@ func Update(c *gin.Context) (interface{}, error) {
 	}
 	filter := bson.M{"_id": oid}
 	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHORID}}
-	opts := options.Update().SetUpsert(true)
 
-	result, err := collection.UpdateOne(context.TODO(), filter, update, opts)
+
+	result, err := r.UpdateOne(context.TODO(), "articles", filter, update, true)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -90,7 +94,7 @@ func Update(c *gin.Context) (interface{}, error) {
 		}
 	}
 
-	return result.UpsertedID, nil
+	return result, nil
 }
 
 func Delete(c *gin.Context) (int64, error) {
