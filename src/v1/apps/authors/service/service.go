@@ -33,7 +33,7 @@ func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 	return articles, nil
 }
 
-func CreateArtcile(article model.Article, authorId primitive.ObjectID) (interface{}, error) {
+func CreateArticle(article model.Article, authorId primitive.ObjectID) (interface{}, error) {
 
 	doc := model.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
 	res, err := articleCollection.InsertOne(context.TODO(), doc)

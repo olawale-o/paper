@@ -28,7 +28,7 @@ func ArticleNew(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
 		return
 	}
-	res, err := service.CreateArtcile(newArticle, authorId)
+	res, err := service.CreateArticle(newArticle, authorId)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
