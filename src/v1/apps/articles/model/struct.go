@@ -6,6 +6,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type Author struct {
+	ID                string    `bson:"_id,omitempty" json:"id,omitempty"`
+	FIRSTNAME         string    `bson:"firstName" json:"firstName"`
+	LASTNAME          string    `bson:"lastName" json:"lastName"`
+	USERNAME          string    `bson:"username" json:"username"`
+	PASSWORD          string    `bson:"password" json:"password"`
+	ARTICLECOUNT      int       `bson:"articleCount,omitempty" json:"articleCount,omitempty"`
+	ARTICLELIKESCOUNT int       `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
+	CREATEDAT         string    `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	ARTICLES          []Article `bson:"articles,omitempty" json:"articles,omitempty"`
+	ROLE              string    `bson:"role,omitempty" json:"role,omitempty"`
+}
+
 type Article struct {
 	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE      string             `bson:"title" json:"title"`
@@ -50,7 +63,19 @@ type CommentData struct {
 	USERID          string
 	PARENTCOMMENTID string
 }
-type Payload struct {
-	Data  interface{}
-	Event string
+
+type AuthorData struct {
+	AUTHORID   string
+	ID         string
+	TITLE      string
+	CONTENT    string
+	CREATEDAT  time.Time
+	UPDATEDAT  time.Time
+	CATEGORIES []string
+	TAGS       []string
+}
+
+type RequestPayload struct {
+	Data  interface{} `json:"data,omitempty"`
+	Event string      `json:"event,omitempty"`
 }
