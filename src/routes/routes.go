@@ -28,9 +28,8 @@ func Routes(r chi.Router) {
 	r.Route("/api/v1", func(r chi.Router) {
 
 		r.Handle("/articles/*", http.StripPrefix("/api/v1/articles", articleProxy)) // Route /api/* to the service
-		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))            // Route /api/* to the service
-		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))            // Route /api/* to the service
-		r.Handle("/author/*", http.StripPrefix("/api/v1/author", authorProxy))      // Route /api/* to the service
+		r.Handle("/auth/*", http.StripPrefix("/api/v1/auth", authProxy))            // Route /api/* to the service     // Route /api/* to the service
+		r.Handle("/authors/*", http.StripPrefix("/api/v1/authors", authorProxy))    // Route /api/* to the service
 		r.Handle("/comments/*", http.StripPrefix("/api/v1/comments", commentProxy)) // Route /api/* to the service
 
 	})
