@@ -2,6 +2,7 @@ package controller
 
 import (
 	"authors/db"
+	"authors/events"
 	"authors/model"
 	"authors/service"
 	"log"
@@ -65,4 +66,16 @@ func Delete(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author deleted successfully", "data": res})
+}
+
+func Event(c *gin.Context) {
+	log.Println("Consuming events")
+	var payload model.Payload
+	if err := c.BindJSON(&payload); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid crednetials"})
+		return
+	}
+	events.ConsumeEvent(payload)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Author saved"})
 }
