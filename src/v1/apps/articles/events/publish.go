@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func PublishCommentEvent(payload model.Payload) {
+func PublishCommentEvent(payload model.RequestPayload) {
 	payloadJson, err := json.Marshal(payload)
 	if err != nil {
 		log.Fatal(err)
@@ -16,7 +16,7 @@ func PublishCommentEvent(payload model.Payload) {
 	http.Post("http://localhost:7000/api/v1/comments/app-event", "application/json", bytes.NewBuffer(payloadJson))
 }
 
-func PublishAuthorEvent(payload model.Payload) {
+func PublishAuthorEvent(payload model.RequestPayload) {
 	payloadJson, err := json.Marshal(payload)
 	if err != nil {
 		log.Fatal(err)
