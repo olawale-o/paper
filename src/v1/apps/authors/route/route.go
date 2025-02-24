@@ -13,8 +13,9 @@ func AuthorRoutes(r *gin.Engine) {
 	r.PUT("/:id", controller.Update)
 	r.DELETE("/:id", controller.Delete)
 	r.GET("/:id/articles", controller.ArticleIndex)
-	r.POST("/:id/articles", controller.ArticleNew)
+	// r.POST("/:id/articles", controller.ArticleNew)
 	r.PUT("/:id/articles/:articleId", controller.ArticleUpdate)
 	r.DELETE("/:id/articles/:articleId", controller.ArticleDelete)
+	r.POST("/app-event", controller.Event)
 
 }
