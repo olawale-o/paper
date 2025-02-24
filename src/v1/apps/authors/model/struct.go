@@ -42,3 +42,19 @@ type Author struct {
 	CREATEDAT time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
 	UPDATEDAT time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
+
+type ArticleData struct {
+	AUTHORID   string
+	ID         string
+	TITLE      string
+	CONTENT    string
+	CREATEDAT  time.Time
+	UPDATEDAT  time.Time
+	CATEGORIES []string
+	TAGS       []string
+}
+
+type ResponsePayload struct {
+	Data  ArticleData
+	Event string
+}

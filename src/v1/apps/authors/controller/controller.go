@@ -70,7 +70,7 @@ func Delete(c *gin.Context) {
 
 func Event(c *gin.Context) {
 	log.Println("Consuming events")
-	var payload model.Payload
+	var payload model.ResponsePayload
 	if err := c.BindJSON(&payload); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid crednetials"})

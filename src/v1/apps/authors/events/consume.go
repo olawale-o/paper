@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func ConsumeEvent(payload model.Payload) {
+func ConsumeEvent(payload model.ResponsePayload) {
 	data, event := payload.Data, payload.Event
 	switch event {
 	case "UPDATE_AUTHOR":
