@@ -5,8 +5,10 @@ import (
 	"articles/events"
 	"articles/model"
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,20 +35,49 @@ func GetAll() []model.Article {
 }
 
 func CreateArticle(c *gin.Context) (error, interface{}) {
+	userId := c.MustGet("userId")
+	if userId == nil {
+		return errors.New("userId is required"), ""
+	}
+
+	val, ok := userId.(string)
+	if !ok {
+		return errors.New("userId is not a string"), ""
+	}
+
+	authorId, _ := primitive.ObjectIDFromHex(val)
 	var newArticle model.Article
 	if err := c.BindJSON(&newArticle); err != nil {
 		log.Println(err)
 		return err, ""
 	}
 
-	doc := model.Article{TITLE: newArticle.TITLE, AUTHORID: newArticle.AUTHORID, CONTENT: newArticle.CONTENT}
+	doc := model.Article{TITLE: newArticle.TITLE, AUTHORID: authorId, CONTENT: newArticle.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: newArticle.TAGS, CATEGORIES: newArticle.CATEGORIES}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
 		return err, ""
 	}
 	id := res.InsertedID
-
+	v, ok := id.(primitive.ObjectID)
+	if !ok {
+		return errors.New("id is not a primitive.ObjectID"), ""
+	}
+	articleId := v.Hex()
+	events.PublishAuthorEvent(
+		model.RequestPayload{
+			Event: "UPDATE_AUTHOR",
+			Data: model.AuthorData{
+				TITLE:      newArticle.TITLE,
+				CONTENT:    newArticle.CONTENT,
+				AUTHORID:   val,
+				ID:         articleId,
+				UPDATEDAT:  doc.UPDATEDAT,
+				CREATEDAT:  doc.CREATEDAT,
+				TAGS:       newArticle.TAGS,
+				CATEGORIES: newArticle.CATEGORIES,
+			},
+		})
 	return err, id
 }
 
@@ -117,7 +148,7 @@ func CreateComment(articleId string, comment model.ArticleComment) error {
 		return err
 	}
 	events.PublishCommentEvent(
-		model.Payload{
+		model.RequestPayload{
 			Event: "NEW_COMMENT",
 			Data:  model.CommentData{ARTICLEID: articleId, USERID: comment.USERID, BODY: comment.BODY, PARENTCOMMENTID: comment.PARENTCOMMENTID},
 		})
