@@ -26,6 +26,8 @@ func Auth() gin.HandlerFunc {
 		}
 		fmt.Printf("Token verified successfully. Claims: %+v\\n", token)
 		// before request
+		//
+		fmt.Println()
 
 		fmt.Printf("Username %v", token)
 
