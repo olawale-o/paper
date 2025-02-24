@@ -139,3 +139,36 @@ func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
 
 	return result.DeletedCount, nil
 }
+
+func UpdateAuthorWithArticle(data model.ArticleData) (interface{}, error) {
+	fmt.Println(data)
+	authorId, err := primitive.ObjectIDFromHex(data.AUTHORID)
+	artilcleId, err := primitive.ObjectIDFromHex(data.ID)
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.M{"_id": authorId}
+	update := bson.M{
+		"$push": bson.M{"articles": bson.M{"$each": []model.Article{{
+			TITLE:      data.TITLE,
+			ID:         artilcleId,
+			CONTENT:    data.CONTENT,
+			CREATEDAT:  data.CREATEDAT,
+			UPDATEDAT:  data.UPDATEDAT,
+			CATEGORIES: data.CATEGORIES,
+			TAGS:       data.TAGS,
+		}},
+			"$sort":  bson.M{"createdAt": -1},
+			"$slice": 2}},
+		"$inc": bson.M{"articleCount": 1}}
+	opts := options.FindOneAndUpdate().SetUpsert(true)
+	var updatedDoc interface{}
+	err = userCollection.FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&updatedDoc)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	fmt.Println(updatedDoc)
+
+	return updatedDoc, nil
+}

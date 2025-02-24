@@ -20,23 +20,6 @@ func ArticleIndex(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article retrieved successfully", "article": res})
 }
 
-func ArticleNew(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var newArticle model.Article
-	if err := c.BindJSON(&newArticle); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-		return
-	}
-	res, err := service.CreateArticle(newArticle, authorId)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article created successfully", "article": res})
-}
-
 func ArticleUpdate(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
