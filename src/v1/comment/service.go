@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-simple-rest/db"
-	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/comment/model"
 	"log"
 	"time"
 
@@ -18,7 +18,7 @@ var client, ctx, err = db.Connect()
 var articleCollection = client.Database("go").Collection("articles")
 var collection = client.Database("go").Collection("comments")
 
-func NewComment(c Comment, articleId primitive.ObjectID) (error, interface{}) {
+func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
 	var article model.Article
 
 	filter := bson.M{"_id": articleId}
@@ -30,7 +30,7 @@ func NewComment(c Comment, articleId primitive.ObjectID) (error, interface{}) {
 		return err, "Article not found"
 	}
 
-	doc := Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID}
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
@@ -42,7 +42,7 @@ func NewComment(c Comment, articleId primitive.ObjectID) (error, interface{}) {
 }
 
 func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (error, interface{}) {
-	var comment Comment
+	var comment model.Comment
 
 	filter := bson.M{"_id": commentId, "articleId": articleId}
 	if err := collection.FindOne(context.TODO(), filter).Decode(&comment); err != nil {
@@ -56,8 +56,8 @@ func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (err
 	return err, comment
 }
 
-func GetComments(articleId primitive.ObjectID) []Comment {
-	var comments []Comment
+func GetComments(articleId primitive.ObjectID) []model.Comment {
+	var comments []model.Comment
 
 	filter := bson.M{"articleId": articleId}
 	cursor, err := collection.Find(context.TODO(), filter)

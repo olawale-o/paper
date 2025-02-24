@@ -1,6 +1,7 @@
 package comment
 
 import (
+	"go-simple-rest/src/v1/comment/model"
 	"log"
 	"net/http"
 
@@ -10,7 +11,7 @@ import (
 
 func New(c *gin.Context) {
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var comment Comment
+	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
