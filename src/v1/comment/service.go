@@ -2,9 +2,9 @@ package comment
 
 import (
 	"context"
-	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/comment/model"
+	"go-simple-rest/src/v1/comment/repo"
 	"log"
 	"time"
 
@@ -14,9 +14,16 @@ import (
 )
 
 var client, ctx, err = db.Connect()
+var database = client.Database("go")
 
 var articleCollection = client.Database("go").Collection("articles")
 var collection = client.Database("go").Collection("comments")
+
+type Response struct {
+	Comments []model.Comment `json:"comments"`
+	HasNext  bool            `json:"hasNext"`
+	HasPrev  bool            `json:"hasPrev"`
+}
 
 func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
 	var article model.Article
@@ -56,17 +63,54 @@ func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (err
 	return err, comment
 }
 
-func GetComments(articleId primitive.ObjectID) []model.Comment {
-	var comments []model.Comment
+func GetComments(articleId primitive.ObjectID, l int) (Response, error) {
+	var filter bson.M
+	// var comments []model.Comment
+	var limit int64
+	var hasPrev bool
+	var hasNext bool
+	var lastId primitive.ObjectID
+	var firstId primitive.ObjectID
+	r, err := repo.New(database)
 
-	filter := bson.M{"articleId": articleId}
-	cursor, err := collection.Find(context.TODO(), filter)
 	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
+		return Response{}, err
 	}
-	if err = cursor.All(context.TODO(), &comments); err != nil {
-		panic(err)
+
+	if l < 1 {
+		limit = int64(4)
 	}
-	return comments
+
+	if l > 20 {
+		limit = int64(10)
+	}
+
+	filter = bson.M{"articleId": articleId}
+	sort := bson.M{"_id": -1}
+	result, err := r.Get(context.TODO(), "comments", filter, sort, limit)
+
+	if err != nil {
+		return Response{}, err
+	}
+
+	if len(result) > 0 {
+		var nextComment bson.M
+		lastId = result[len(result)-1].ID.(primitive.ObjectID)
+		firstId = result[0].ID.(primitive.ObjectID)
+		filter = bson.M{"articleId": articleId, "_id": bson.M{"$lt": lastId}}
+		nxtComment, _ := r.FindOne(context.TODO(), "comments", filter, nextComment)
+		if nxtComment != nil {
+			hasNext = true
+		}
+
+		var prevComment bson.M
+		filter = bson.M{"articleId": articleId, "_id": bson.M{"$gt": firstId}}
+		prvComment, _ := r.FindOne(context.TODO(), "comments", filter, prevComment)
+		if prvComment != nil {
+			hasPrev = true
+		}
+
+	}
+
+	return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev}, nil
 }
