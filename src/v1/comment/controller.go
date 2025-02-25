@@ -43,6 +43,17 @@ func Show(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "comment", "data": res})
 }
 
+// Comment godoc
+// @Tags Articles
+// @Summary Get article comments
+// @Description Retrieves comments for a specific article.
+// @Param id path string true "Article ID"
+// @Query limit query int true "Limit"
+// @Produce json
+// @Success 200 {object} string "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
 	var limit int
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))

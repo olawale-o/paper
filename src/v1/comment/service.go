@@ -65,7 +65,6 @@ func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (err
 
 func GetComments(articleId primitive.ObjectID, l int) (Response, error) {
 	var filter bson.M
-	// var comments []model.Comment
 	var limit int64
 	var hasPrev bool
 	var hasNext bool
