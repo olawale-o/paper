@@ -1,8 +1,10 @@
 package model
 
 import (
+	"context"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -32,4 +34,9 @@ type Article struct {
 	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
 	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
 	DELETEDAT  time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+}
+
+type Repository interface {
+	Get(ctx context.Context, collection string, filter bson.M, sort bson.M, limit int64) ([]Comment, error)
+	FindOne(ctx context.Context, collection string, filter bson.M, v bson.M) (interface{}, error)
 }
