@@ -32,7 +32,7 @@ func ArticleIndex(c *gin.Context) {
 // @Summary Create a new article written by a specific author
 // @Description Creates a new article written by a specific author.
 // @Param id path string true "Author ID"
-// @Param article body articles.Article true "Article"
+// @Param article body model.Article true "Article"
 // @Produce json
 // Accept application/json
 // @Success 201 {object} string "Response"
