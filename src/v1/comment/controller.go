@@ -48,7 +48,9 @@ func Show(c *gin.Context) {
 // @Summary Get article comments
 // @Description Retrieves comments for a specific article.
 // @Param id path string true "Article ID"
-// @Query limit query int true "Limit"
+// @Param limit query int true "Limit"
+// @Param prev query int true "Prev"
+// @Param next query int true "Next"
 // @Produce json
 // @Success 200 {object} string "Response"
 // @Failure 400 {object} string "Error"
@@ -58,13 +60,14 @@ func Index(c *gin.Context) {
 	var limit int
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	limit, err = strconv.Atoi(c.Query("limit"))
-
 	if err != nil {
-
 		limit = 0
 	}
 
-	res, err := GetComments(articleId, limit)
+	prev := c.Query("prev")
+	next := c.Query("next")
+
+	res, err := GetComments(articleId, limit, prev, next)
 	if err != nil {
 		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
