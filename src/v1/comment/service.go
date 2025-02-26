@@ -76,7 +76,7 @@ func GetComments(articleId primitive.ObjectID, l int, prev string, next string) 
 }
 
 func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
-	var sort bson.M
+	var sort bson.M = bson.M{"_id": -1}
 	var filter bson.M = bson.M{"articleId": articleId}
 	var limit int64
 	var hasPrev bool
@@ -92,13 +92,10 @@ func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next stri
 	if prev != "" {
 		id, _ := primitive.ObjectIDFromHex(prev)
 		filter["_id"] = bson.M{"$gt": id}
-		sort = bson.M{"_id": -1}
+		sort["_id"] = 1
 	} else if next != "" {
 		id, _ := primitive.ObjectIDFromHex(next)
 		filter["_id"] = bson.M{"$lt": id}
-		sort = bson.M{"_id": -1}
-	} else {
-		sort = bson.M{"_id": -1}
 	}
 
 	if l < 1 {
@@ -119,19 +116,18 @@ func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next stri
 		var nextComment bson.M
 		lastId = result[len(result)-1].ID.(primitive.ObjectID)
 		firstId = result[0].ID.(primitive.ObjectID)
-		filter = bson.M{"articleId": articleId, "_id": bson.M{"$lt": lastId}}
+		filter["_id"] = bson.M{"$lt": lastId}
 		nxtComment, _ := r.FindOne(context.TODO(), "comments", filter, nextComment)
 		if nxtComment != nil {
 			hasNext = true
 		}
 
 		var prevComment bson.M
-		filter = bson.M{"articleId": articleId, "_id": bson.M{"$gt": firstId}}
+		filter["_id"] = bson.M{"$gt": firstId}
 		prvComment, _ := r.FindOne(context.TODO(), "comments", filter, prevComment)
 		if prvComment != nil {
 			hasPrev = true
 		}
-
 	}
 
 	if prev != "" && hasPrev {
