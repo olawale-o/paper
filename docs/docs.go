@@ -25,45 +25,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/articles/{id}": {
-            "get": {
-                "description": "Retrieves a specific article by ID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Articles"
-                ],
-                "summary": "Get articles by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Article ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Response",
-                        "schema": {
-                            "$ref": "#/definitions/model.Article"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
             "put": {
                 "description": "Updates a specific article by ID.",
                 "produces": [
@@ -79,6 +40,68 @@ const docTemplate = `{
                         "description": "Article ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/{id}/comments": {
+            "get": {
+                "description": "Retrieves comments for a specific article.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Get article comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Article ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Prev",
+                        "name": "prev",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Next",
+                        "name": "next",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -225,7 +248,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Response",
                         "schema": {
-                            "$ref": "#/definitions/model.Author"
+                            "$ref": "#/definitions/go-simple-rest_src_v1_authors_model.Author"
                         }
                     },
                     "400": {
@@ -378,7 +401,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.Article"
+                            "$ref": "#/definitions/go-simple-rest_src_v1_authors_model.Article"
                         }
                     }
                 ],
@@ -509,51 +532,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "articles.Article": {
-            "type": "object",
-            "properties": {
-                "authorId": {
-                    "type": "string"
-                },
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "content": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "id": {},
-                "likes": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "views": {
-                    "type": "integer"
-                }
-            }
-        },
         "go-simple-rest_src_v1_auth_model.User": {
             "type": "object",
             "properties": {
@@ -586,7 +564,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Article": {
+        "go-simple-rest_src_v1_authors_model.Article": {
             "type": "object",
             "properties": {
                 "authorId": {
@@ -631,7 +609,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Author": {
+        "go-simple-rest_src_v1_authors_model.Author": {
             "type": "object",
             "properties": {
                 "createdAt": {

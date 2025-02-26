@@ -1,35 +1,5 @@
 basePath: /api/v1
 definitions:
-  articles.Article:
-    properties:
-      authorId:
-        type: string
-      categories:
-        items:
-          type: string
-        type: array
-      content:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        type: string
-      id: {}
-      likes:
-        type: integer
-      status:
-        type: string
-      tags:
-        items:
-          type: string
-        type: array
-      title:
-        type: string
-      updatedAt:
-        type: string
-      views:
-        type: integer
-    type: object
   go-simple-rest_src_v1_auth_model.User:
     properties:
       articleCount:
@@ -51,7 +21,7 @@ definitions:
       username:
         type: string
     type: object
-  model.Article:
+  go-simple-rest_src_v1_authors_model.Article:
     properties:
       authorId:
         type: string
@@ -81,7 +51,7 @@ definitions:
       views:
         type: integer
     type: object
-  model.Author:
+  go-simple-rest_src_v1_authors_model.Author:
     properties:
       createdAt:
         type: string
@@ -162,32 +132,6 @@ info:
   version: "1.0"
 paths:
   /articles/{id}:
-    get:
-      description: Retrieves a specific article by ID.
-      parameters:
-      - description: Article ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Response
-          schema:
-            $ref: '#/definitions/model.Article'
-        "400":
-          description: Error
-          schema:
-            type: string
-        "500":
-          description: Error
-          schema:
-            type: string
-      summary: Get articles by id
-      tags:
-      - Articles
     put:
       description: Updates a specific article by ID.
       parameters:
@@ -212,6 +156,48 @@ paths:
           schema:
             type: string
       summary: Update articles by id
+      tags:
+      - Articles
+  /articles/{id}/comments:
+    get:
+      description: Retrieves comments for a specific article.
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Prev
+        in: query
+        name: prev
+        required: true
+        type: integer
+      - description: Next
+        in: query
+        name: next
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Get article comments
       tags:
       - Articles
   /auth/login:
@@ -315,7 +301,7 @@ paths:
         "200":
           description: Response
           schema:
-            $ref: '#/definitions/model.Author'
+            $ref: '#/definitions/go-simple-rest_src_v1_authors_model.Author'
         "400":
           description: Error
           schema:
@@ -393,7 +379,7 @@ paths:
         name: article
         required: true
         schema:
-          $ref: '#/definitions/articles.Article'
+          $ref: '#/definitions/go-simple-rest_src_v1_authors_model.Article'
       produces:
       - application/json
       responses:
