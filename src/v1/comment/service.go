@@ -6,6 +6,7 @@ import (
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"log"
+	"slices"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,9 +21,11 @@ var articleCollection = client.Database("go").Collection("articles")
 var collection = client.Database("go").Collection("comments")
 
 type Response struct {
-	Comments []model.Comment `json:"comments"`
-	HasNext  bool            `json:"hasNext"`
-	HasPrev  bool            `json:"hasPrev"`
+	Comments   []model.Comment `json:"comments"`
+	HasNext    bool            `json:"hasNext"`
+	HasPrev    bool            `json:"hasPrev"`
+	PreviousID string          `json:"previousId,omitempty"`
+	NextID     string          `json:"nextId,omitempty"`
 }
 
 func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
@@ -63,7 +66,17 @@ func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (err
 	return err, comment
 }
 
-func GetComments(articleId primitive.ObjectID, l int) (Response, error) {
+func GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+	data, err := _HandlePaginate(articleId, l, prev, next)
+	if err != nil {
+		return Response{}, err
+	}
+
+	return data, nil
+}
+
+func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+	var sort bson.M
 	var filter bson.M
 	var limit int64
 	var hasPrev bool
@@ -76,16 +89,27 @@ func GetComments(articleId primitive.ObjectID, l int) (Response, error) {
 		return Response{}, err
 	}
 
+	if prev != "" {
+		id, _ := primitive.ObjectIDFromHex(prev)
+		filter = bson.M{"articleId": articleId, "_id": bson.M{"$gt": id}}
+		sort = bson.M{"_id": -1}
+	} else if next != "" {
+		id, _ := primitive.ObjectIDFromHex(next)
+		filter = bson.M{"articleId": articleId, "_id": bson.M{"$lt": id}}
+		sort = bson.M{"_id": -1}
+	} else {
+		filter = bson.M{"articleId": articleId}
+		sort = bson.M{"_id": -1}
+	}
+
 	if l < 1 {
-		limit = int64(4)
+		limit = int64(1)
 	}
 
 	if l > 20 {
 		limit = int64(10)
 	}
 
-	filter = bson.M{"articleId": articleId}
-	sort := bson.M{"_id": -1}
 	result, err := r.Get(context.TODO(), "comments", filter, sort, limit)
 
 	if err != nil {
@@ -111,5 +135,17 @@ func GetComments(articleId primitive.ObjectID, l int) (Response, error) {
 
 	}
 
-	return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev}, nil
+	if prev != "" && hasPrev {
+		slices.Reverse(result)
+		return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, PreviousID: firstId.Hex(), NextID: lastId.Hex()}, nil
+	}
+	if !hasPrev {
+		return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, NextID: firstId.Hex()}, nil
+	}
+
+	if !hasNext {
+		return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, PreviousID: lastId.Hex()}, nil
+	}
+
+	return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, PreviousID: firstId.Hex(), NextID: lastId.Hex()}, nil
 }
