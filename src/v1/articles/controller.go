@@ -6,12 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func GetArticles(c *gin.Context) {
-// 	userId := c.MustGet("userId").(string)
-// 	log.Printf("userId %s", userId)
-// 	articles := GetAll()
-// 	c.IndentedJSON(http.StatusOK, articles)
-// }
+func GetArticles(c *gin.Context) {
+	articles, err := GetAll()
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, articles)
+}
 
 // Articles godoc
 // @Tags Articles

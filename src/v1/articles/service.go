@@ -2,7 +2,6 @@ package articles
 
 import (
 	"context"
-	"fmt"
 	"go-simple-rest/db"
 
 	"go-simple-rest/src/v1/articles/model"
@@ -21,17 +20,16 @@ var collection = client.Database("go").Collection("articles")
 
 var database = client.Database("go")
 
-func GetAll() []model.Article {
+func GetAll() ([]model.Article, error) {
 	cursor, err := collection.Find(context.TODO(), bson.D{{}})
 	if err != nil {
-		fmt.Println(err.Error())
-		panic(err)
+		return nil, err
 	}
 	var articles []model.Article
 	if err = cursor.All(context.TODO(), &articles); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return articles
+	return articles, nil
 }
 
 func CreateArticle(c *gin.Context) (error, interface{}) {
