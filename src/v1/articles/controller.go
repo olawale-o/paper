@@ -23,6 +23,7 @@ import (
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [get]
+
 func ShowArticle(c *gin.Context) {
 	article, err := GetArticle(c)
 	if err != nil {

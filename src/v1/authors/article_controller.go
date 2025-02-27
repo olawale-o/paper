@@ -32,7 +32,7 @@ func ArticleIndex(c *gin.Context) {
 // @Summary Create a new article written by a specific author
 // @Description Creates a new article written by a specific author.
 // @Param id path string true "Author ID"
-// @Param article body model.Article true "Article"
+// @Param article body model.AuthorArticle true "Article"
 // @Produce json
 // Accept application/json
 // @Success 201 {object} string "Response"
@@ -41,7 +41,7 @@ func ArticleIndex(c *gin.Context) {
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var newArticle model.Article
+	var newArticle model.AuthorArticle
 	if err := c.BindJSON(&newArticle); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
@@ -73,7 +73,7 @@ func ArticleUpdate(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	var article model.Article
+	var article model.AuthorArticle
 	if err := c.BindJSON(&article); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})

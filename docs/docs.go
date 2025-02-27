@@ -401,7 +401,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/go-simple-rest_src_v1_authors_model.Article"
+                            "$ref": "#/definitions/go-simple-rest_src_v1_authors_model.AuthorArticle"
                         }
                     }
                 ],
@@ -532,31 +532,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "go-simple-rest_src_v1_auth_model.User": {
+        "go-simple-rest_src_v1_authors_model.Author": {
             "type": "object",
             "properties": {
-                "articleCount": {
-                    "type": "integer"
-                },
-                "articleLikesCount": {
-                    "type": "integer"
-                },
                 "createdAt": {
                     "type": "string"
                 },
                 "firstName": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
+                "id": {},
                 "lastName": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "username": {
@@ -564,7 +553,7 @@ const docTemplate = `{
                 }
             }
         },
-        "go-simple-rest_src_v1_authors_model.Article": {
+        "go-simple-rest_src_v1_authors_model.AuthorArticle": {
             "type": "object",
             "properties": {
                 "authorId": {
@@ -606,27 +595,6 @@ const docTemplate = `{
                 },
                 "views": {
                     "type": "integer"
-                }
-            }
-        },
-        "go-simple-rest_src_v1_authors_model.Author": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {},
-                "lastName": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -675,7 +643,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/go-simple-rest_src_v1_auth_model.User"
+                    "$ref": "#/definitions/model.User"
                 }
             }
         },
@@ -695,6 +663,38 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "articleCount": {
+                    "type": "integer"
+                },
+                "articleLikesCount": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 },
                 "username": {

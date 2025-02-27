@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/articles/model"
 	"log"
-
-	"go-simple-rest/src/v1/authors/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,16 +27,16 @@ func New(db *mongo.Database) (model.Repository, error) {
 	}, nil
 }
 
-func (repo *repository) Get(ctx context.Context, collection string, filter bson.M) ([]model.AuthorArticle, error) {
+func (repo *repository) Get(ctx context.Context, collection string, filter bson.M) ([]model.Article, error) {
 	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter)
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return []model.AuthorArticle{}, err
+		return []model.Article{}, err
 	}
-	var articles []model.AuthorArticle
+	var articles []model.Article
 	if err = cursor.All(context.TODO(), &articles); err != nil {
-		return []model.AuthorArticle{}, err
+		return []model.Article{}, err
 	}
 	return articles, nil
 }

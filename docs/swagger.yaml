@@ -1,27 +1,20 @@
 basePath: /api/v1
 definitions:
-  go-simple-rest_src_v1_auth_model.User:
+  go-simple-rest_src_v1_authors_model.Author:
     properties:
-      articleCount:
-        type: integer
-      articleLikesCount:
-        type: integer
       createdAt:
         type: string
       firstName:
         type: string
-      id:
-        type: string
+      id: {}
       lastName:
         type: string
-      password:
-        type: string
-      role:
+      updatedAt:
         type: string
       username:
         type: string
     type: object
-  go-simple-rest_src_v1_authors_model.Article:
+  go-simple-rest_src_v1_authors_model.AuthorArticle:
     properties:
       authorId:
         type: string
@@ -50,20 +43,6 @@ definitions:
         type: string
       views:
         type: integer
-    type: object
-  go-simple-rest_src_v1_authors_model.Author:
-    properties:
-      createdAt:
-        type: string
-      firstName:
-        type: string
-      id: {}
-      lastName:
-        type: string
-      updatedAt:
-        type: string
-      username:
-        type: string
     type: object
   model.AuthorArticleUpdateRequest:
     properties:
@@ -96,7 +75,7 @@ definitions:
       message:
         type: string
       user:
-        $ref: '#/definitions/go-simple-rest_src_v1_auth_model.User'
+        $ref: '#/definitions/model.User'
     type: object
   model.RegisterAuth:
     properties:
@@ -113,6 +92,27 @@ definitions:
     - lastname
     - password
     - username
+    type: object
+  model.User:
+    properties:
+      articleCount:
+        type: integer
+      articleLikesCount:
+        type: integer
+      createdAt:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -379,7 +379,7 @@ paths:
         name: article
         required: true
         schema:
-          $ref: '#/definitions/go-simple-rest_src_v1_authors_model.Article'
+          $ref: '#/definitions/go-simple-rest_src_v1_authors_model.AuthorArticle'
       produces:
       - application/json
       responses:

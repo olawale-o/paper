@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"go-simple-rest/db"
+
+	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repo"
-	"go-simple-rest/src/v1/authors/model"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -84,7 +85,6 @@ func Update(c *gin.Context) (interface{}, error) {
 	}
 	filter := bson.M{"_id": oid}
 	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHORID}}
-
 
 	result, err := r.UpdateOne(context.TODO(), "articles", filter, update, true)
 	if err != nil {
