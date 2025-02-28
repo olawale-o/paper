@@ -2,6 +2,7 @@ package articles
 
 import (
 	"context"
+	"fmt"
 	"go-simple-rest/db"
 
 	"go-simple-rest/src/v1/articles/model"
@@ -20,34 +21,17 @@ var collection = client.Database("go").Collection("articles")
 
 var database = client.Database("go")
 
-func GetAll() ([]model.Article, error) {
-	cursor, err := collection.Find(context.TODO(), bson.D{{}})
+func GetAll() (interface{}, error) {
+	var filter bson.M = bson.M{}
+	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
+	r, err := repo.New(database)
+
 	if err != nil {
 		return nil, err
 	}
-	var articles []model.Article
-	if err = cursor.All(context.TODO(), &articles); err != nil {
-		return nil, err
-	}
+	articles, err := r.Get(context.TODO(), "articles", filter, fields)
+	fmt.Println(err)
 	return articles, nil
-}
-
-func CreateArticle(c *gin.Context) (error, interface{}) {
-	var newArticle model.Article
-	if err := c.BindJSON(&newArticle); err != nil {
-		log.Println(err)
-		return err, ""
-	}
-
-	doc := model.Article{TITLE: newArticle.TITLE, AUTHORID: newArticle.AUTHORID, CONTENT: newArticle.CONTENT}
-	res, err := collection.InsertOne(context.TODO(), doc)
-	if err != nil {
-		log.Println(err)
-		return err, ""
-	}
-	id := res.InsertedID
-
-	return err, id
 }
 
 func GetArticle(c *gin.Context) (interface{}, error) {
