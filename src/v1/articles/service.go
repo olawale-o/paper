@@ -35,6 +35,7 @@ func GetAll() (interface{}, error) {
 }
 
 func GetArticle(c *gin.Context) (interface{}, error) {
+	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	var article bson.M
 	r, err := repo.New(database)
 
@@ -44,7 +45,7 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
 	filter := bson.M{"_id": oid}
-	data, err := r.FindOne(context.TODO(), "articles", filter, article)
+	data, err := r.FindOne(context.TODO(), "articles", filter, article, fields)
 
 	if err != nil {
 		return article, err

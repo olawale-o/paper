@@ -42,8 +42,9 @@ func (repo *repository) Get(ctx context.Context, collection string, filter bson.
 	return articles, nil
 }
 
-func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M) (interface{}, error) {
-	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter).Decode(&v); err != nil {
+func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M, opts bson.M) (interface{}, error) {
+	options := options.FindOne().SetProjection(opts)
+	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter, options).Decode(&v); err != nil {
 		return nil, err
 	}
 	return v, nil
