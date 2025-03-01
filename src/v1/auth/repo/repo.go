@@ -52,6 +52,7 @@ func (repo *repository) InsertUser(ctx context.Context, collection string, user 
 		UPDATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
 		CREATEDATIMESTAMP: time.Now().Local().UnixMilli(),
 		UPDATEDATIMESTAMP: time.Now().Local().UnixMilli(),
+		ARTICLECOUNT:      0,
 	}
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
