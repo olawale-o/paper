@@ -6,6 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Articles godoc
+// @Tags Articles
+// @Summary Get articles
+// @Description Retrieves articles
+// @Produce json
+// @Success 200 {object} []model.Article "Response"
+// @Failure 400 {object} string "Error"
+// @Failure 500 {object} string "Error"
+// @Router /articles [get]
 func GetArticles(c *gin.Context) {
 	articles, err := GetAll()
 	if err != nil {
@@ -25,7 +34,6 @@ func GetArticles(c *gin.Context) {
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [get]
-
 func ShowArticle(c *gin.Context) {
 	article, err := GetArticle(c)
 	if err != nil {

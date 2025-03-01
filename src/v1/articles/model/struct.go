@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,16 +14,12 @@ type Article struct {
 	AUTHORID   primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
 	LIKES      int                `bson:"likes,omitempty" json:"likes,omitempty"`
 	VIEWS      int                `bson:"views,omitempty" json:"views,omitempty"`
-	CREATEDAT  primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT  primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	CREATEDAT  primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
+	UPDATEDAT  primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty" swaggertype:"string"`
 	STATUS     string             `bson:"status,omitempty" json:"status,omitempty"`
 	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
 	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
-	DELETEDAT  primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
-}
-
-type ArticleCommentReq struct {
-	BODY string `bson:"body" json:"body"`
+	DELETEDAT  primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty" swaggertype:"string"`
 }
 
 type Comment struct {
@@ -33,9 +28,9 @@ type Comment struct {
 	BODY            string             `bson:"body" json:"body"`
 	USERID          primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
 	LIKES           int                `bson:"likes,omitempty" json:"likes,omitempty"`
-	CREATEDAT       time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT       time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	DELETEDAT       time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	CREATEDAT       primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
+	UPDATEDAT       primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty" swaggertype:"string"`
+	DELETEDAT       primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty" swaggertype:"string"`
 	STATUS          string             `bson:"status,omitempty" json:"status,omitempty"`
 	PARENTCOMMENTID primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
 }
@@ -45,23 +40,21 @@ type Author struct {
 	FIRSTNAME string      `bson:"firstName" json:"firstName"`
 	LASTNAME  string      `bson:"lastName" json:"lastName"`
 	USERNAME  string      `bson:"username" json:"username"`
-	CREATEDAT time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
 
 type AuthorArticle struct {
-	ID         interface{} `bson:"_id,omitempty" json:"id,omitempty"`
-	TITLE      string      `bson:"title" json:"title"`
-	CONTENT    string      `bson:"content" json:"content"`
-	AUTHOR     Author      `bson:"authorId,omitempty" json:"authorId,omitempty"`
-	LIKES      int         `bson:"likes,omitempty" json:"likes,omitempty"`
-	VIEWS      int         `bson:"views,omitempty" json:"views,omitempty"`
-	CREATEDAT  time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT  time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	STATUS     string      `bson:"status,omitempty" json:"status,omitempty"`
-	CATEGORIES []string    `bson:"categories,omitempty" json:"categories,omitempty"`
-	TAGS       []string    `bson:"tags,omitempty" json:"tags,omitempty"`
-	DELETEDAT  time.Time   `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	TITLE      string             `bson:"title" json:"title"`
+	CONTENT    string             `bson:"content" json:"content"`
+	AUTHOR     Author             `bson:"authorId,omitempty" json:"authorId,omitempty"`
+	LIKES      int                `bson:"likes,omitempty" json:"likes,omitempty"`
+	VIEWS      int                `bson:"views,omitempty" json:"views,omitempty"`
+	CREATEDAT  primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UPDATEDAT  primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	STATUS     string             `bson:"status,omitempty" json:"status,omitempty"`
+	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
+	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
+	DELETEDAT  primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
 type Repository interface {
