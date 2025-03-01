@@ -21,7 +21,7 @@ type Comment struct {
 	PARENTCOMMENTID primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
 }
 
-type Article struct {
+type CommentArticle struct {
 	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE      string             `bson:"title" json:"title"`
 	CONTENT    string             `bson:"content" json:"content"`

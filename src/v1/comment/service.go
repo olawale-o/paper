@@ -29,7 +29,7 @@ type Response struct {
 }
 
 func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
-	var article model.Article
+	var article model.CommentArticle
 
 	filter := bson.M{"_id": articleId}
 	if err := articleCollection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
