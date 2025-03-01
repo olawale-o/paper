@@ -2,7 +2,6 @@ package articles
 
 import (
 	"context"
-	"fmt"
 	"go-simple-rest/db"
 
 	"go-simple-rest/src/v1/articles/model"
@@ -21,16 +20,40 @@ var collection = client.Database("go").Collection("articles")
 
 var database = client.Database("go")
 
-func GetAll() (interface{}, error) {
-	var filter bson.M = bson.M{}
+func handleQueryParams(date, likes, views string) bson.M {
+	fieldValues := map[string]int{
+		"asc":  1,
+		"desc": -1,
+	}
+	filter := bson.M{}
+	if date == "desc" {
+		filter["createdAtTimestamp"] = -1
+	} else {
+		filter["createdAtTimestamp"] = fieldValues[date]
+	}
+	// if likes == "desc" {
+	// 	filter["likes"] = -1
+	// } else {
+	// 	filter["likes"] = fieldValues[likes]
+	// }
+	// if views == "desc" {
+	// 	filter["views"] = -1
+	// } else {
+	// 	filter["views"] = fieldValues[views]
+	// }
+	return filter
+}
+
+func GetAll(date, likes, views string) (interface{}, error) {
+	filter := bson.M{}
+	sort := handleQueryParams(date, likes, views)
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	r, err := repo.New(database)
 
 	if err != nil {
 		return nil, err
 	}
-	articles, err := r.Get(context.TODO(), "articles", filter, fields)
-	fmt.Println(err)
+	articles, err := r.Get(context.TODO(), "articles", filter, sort, fields)
 	return articles, nil
 }
 

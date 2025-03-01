@@ -16,7 +16,10 @@ import (
 // @Failure 500 {object} string "Error"
 // @Router /articles [get]
 func GetArticles(c *gin.Context) {
-	articles, err := GetAll()
+	date := c.DefaultQuery("date", "desc")
+	likes := c.DefaultQuery("likes", "desc")
+	views := c.DefaultQuery("views", "desc")
+	articles, err := GetAll(date, likes, views)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

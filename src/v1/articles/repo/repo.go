@@ -27,8 +27,8 @@ func New(db *mongo.Database) (model.Repository, error) {
 	}, nil
 }
 
-func (repo *repository) Get(ctx context.Context, collection string, filter bson.M, opts bson.M) ([]model.Article, error) {
-	options := options.Find().SetProjection(opts)
+func (repo *repository) Get(ctx context.Context, collection string, filter bson.M, sort bson.M, opts bson.M) ([]model.Article, error) {
+	options := options.Find().SetSort(sort).SetProjection(opts)
 	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter, options)
 
 	if err != nil {
