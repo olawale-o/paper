@@ -82,5 +82,5 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": msg})
+	c.IndentedJSON(http.StatusCreated, gin.H{"message": msg})
 }
