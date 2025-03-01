@@ -56,8 +56,12 @@ definitions:
         type: string
       createdAt:
         type: string
+      createdAtTimestamp:
+        type: integer
       deletedAt:
         type: string
+      deletedAtTimestamp:
+        type: integer
       id: {}
       likes:
         type: integer
@@ -71,6 +75,8 @@ definitions:
         type: string
       updatedAt:
         type: string
+      updatedAtTimestamp:
+        type: integer
       views:
         type: integer
     type: object
@@ -104,8 +110,10 @@ definitions:
     properties:
       message:
         type: string
+      token:
+        type: string
       user:
-        $ref: '#/definitions/model.User'
+        $ref: '#/definitions/model.UserResponseObject'
     type: object
   model.RegisterAuth:
     properties:
@@ -123,21 +131,9 @@ definitions:
     - password
     - username
     type: object
-  model.User:
+  model.UserResponseObject:
     properties:
-      articleCount:
-        type: integer
-      articleLikesCount:
-        type: integer
-      createdAt:
-        type: string
-      firstName:
-        type: string
       id:
-        type: string
-      lastName:
-        type: string
-      password:
         type: string
       role:
         type: string
@@ -164,6 +160,21 @@ paths:
   /articles:
     get:
       description: Retrieves articles
+      parameters:
+      - description: Sort by date
+        example: '"desc"'
+        in: query
+        name: date
+        type: string
+      - description: Sort by likes
+        example: '"desc"'
+        in: query
+        name: likes
+        type: string
+      - description: Sort by views
+        in: query
+        name: views
+        type: string
       produces:
       - application/json
       responses:

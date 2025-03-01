@@ -34,6 +34,28 @@ const docTemplate = `{
                     "Articles"
                 ],
                 "summary": "Get articles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"desc\"",
+                        "description": "Sort by date",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "\"desc\"",
+                        "description": "Sort by likes",
+                        "name": "likes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by views",
+                        "name": "views",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Response",
@@ -690,8 +712,14 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "createdAtTimestamp": {
+                    "type": "integer"
+                },
                 "deletedAt": {
                     "type": "string"
+                },
+                "deletedAtTimestamp": {
+                    "type": "integer"
                 },
                 "id": {},
                 "likes": {
@@ -711,6 +739,9 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "updatedAtTimestamp": {
+                    "type": "integer"
                 },
                 "views": {
                     "type": "integer"
@@ -761,8 +792,11 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
+                "token": {
+                    "type": "string"
+                },
                 "user": {
-                    "$ref": "#/definitions/model.User"
+                    "$ref": "#/definitions/model.UserResponseObject"
                 }
             }
         },
@@ -789,28 +823,10 @@ const docTemplate = `{
                 }
             }
         },
-        "model.User": {
+        "model.UserResponseObject": {
             "type": "object",
             "properties": {
-                "articleCount": {
-                    "type": "integer"
-                },
-                "articleLikesCount": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
                 "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "role": {

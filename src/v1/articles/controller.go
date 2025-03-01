@@ -10,6 +10,9 @@ import (
 // @Tags Articles
 // @Summary Get articles
 // @Description Retrieves articles
+// @Param date query string false "Sort by date" example("desc")
+// @Param likes query string false "Sort by likes" example("desc")
+// @Param views query string false "Sort by views"
 // @Produce json
 // @Success 200 {object} []model.Article "Response"
 // @Failure 400 {object} string "Error"
