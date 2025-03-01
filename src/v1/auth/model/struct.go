@@ -2,6 +2,8 @@ package model
 
 import (
 	"context"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // LoginAuth
@@ -32,18 +34,19 @@ type RegisterAuth struct {
 }
 
 type User struct {
-	ID                string `bson:"_id,omitempty" json:"id,omitempty"`
-	FIRSTNAME         string `bson:"firstName" json:"firstName"`
-	LASTNAME          string `bson:"lastName" json:"lastName"`
-	USERNAME          string `bson:"username" json:"username"`
-	PASSWORD          string `bson:"password" json:"password"`
-	ARTICLECOUNT      int    `bson:"articleCount,omitempty" json:"articleCount,omitempty"`
-	ARTICLELIKESCOUNT int    `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
-	CREATEDAT         string `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	ROLE              string `bson:"role,omitempty" json:"role,omitempty"`
-	CREATEDATIMESTAMP int    `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
-	UPDATEDATIMESTAMP int    `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
-	DELETEDATIMESTAMP int    `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
+	ID                string             `bson:"_id,omitempty" json:"id,omitempty"`
+	FIRSTNAME         string             `bson:"firstName" json:"firstName"`
+	LASTNAME          string             `bson:"lastName" json:"lastName"`
+	USERNAME          string             `bson:"username" json:"username"`
+	PASSWORD          string             `bson:"password" json:"password"`
+	ARTICLECOUNT      int                `bson:"articleCount,omitempty" json:"articleCount,omitempty"`
+	ARTICLELIKESCOUNT int                `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
+	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swagger:"string"`
+	UPDATEDAT         primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty" swagger:"string"`
+	ROLE              string             `bson:"role,omitempty" json:"role,omitempty"`
+	CREATEDATIMESTAMP int                `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+	UPDATEDATIMESTAMP int                `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
+	DELETEDATIMESTAMP int                `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
 }
 
 type Repository interface {

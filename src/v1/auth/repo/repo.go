@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -47,7 +48,7 @@ func (repo *repository) InsertUser(ctx context.Context, collection string, user 
 		USERNAME:  user.USERNAME,
 		PASSWORD:  user.PASSWORD,
 		ROLE:      "author",
-		CREATEDAT: time.Now().Format(time.DateTime),
+		CREATEDAT: primitive.NewDateTimeFromTime(time.Now()),
 	}
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
