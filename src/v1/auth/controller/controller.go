@@ -29,7 +29,6 @@ var database = client.Database("go")
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
 	var user model.LoginAuth
-	var dbUser model.User
 
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -39,18 +38,18 @@ func Login(c *gin.Context) {
 	rep, _ := repo.New(database)
 	s := implementation.NewService(rep)
 
-	msg, error := s.Login(c, user)
+	response, error := s.Login(c, user)
 
 	if _, ok := error["err"]; ok {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
-	c.SetCookie("token", msg, 3600, "/", "127.0.0.1", false, true)
+	c.SetCookie("token", response.TOKEN, 3600, "/", "127.0.0.1", false, true)
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": gin.H{
-		"username": dbUser.USERNAME, "role": jwt.GetRole("user"),
-		"id": dbUser.ID,
+		"username": response.USER.USERNAME, "role": jwt.GetRole("user"),
+		"id": response.USER.ID,
 	}})
 }
 

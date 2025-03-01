@@ -16,14 +16,15 @@ type LoginAuth struct {
 }
 
 type UserResponseObject struct {
-	USERNAME string `bson:"username" json:"username"`
-	ROLE     string `bson:"role" json:"role"`
-	ID       string `bson:"id" json:"id"`
+	USERNAME string `json:"username"`
+	ROLE     string `json:"role"`
+	ID       string `json:"id"`
 }
 
 type LoginResponse struct {
-	MESSAGE            string `json:"message"`
-	UserResponseObject User   `json:"user"`
+	MESSAGE string             `json:"message"`
+	TOKEN   string             `json:"token"`
+	USER    UserResponseObject `json:"user"`
 }
 
 type RegisterAuth struct {
