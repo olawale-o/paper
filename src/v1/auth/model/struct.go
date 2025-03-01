@@ -41,6 +41,9 @@ type User struct {
 	ARTICLELIKESCOUNT int    `bson:"articleLikesCount,omitempty" json:"articleLikesCount,omitempty"`
 	CREATEDAT         string `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
 	ROLE              string `bson:"role,omitempty" json:"role,omitempty"`
+	CREATEDATIMESTAMP int    `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+	UPDATEDATIMESTAMP int    `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
+	DELETEDATIMESTAMP int    `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
 }
 
 type Repository interface {
