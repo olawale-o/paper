@@ -43,12 +43,15 @@ func (repo *repository) GetUser(ctx context.Context, collection string, username
 
 func (repo *repository) InsertUser(ctx context.Context, collection string, user model.User) (interface{}, error) {
 	doc := model.User{
-		FIRSTNAME: user.FIRSTNAME,
-		LASTNAME:  user.LASTNAME,
-		USERNAME:  user.USERNAME,
-		PASSWORD:  user.PASSWORD,
-		ROLE:      "author",
-		CREATEDAT: primitive.NewDateTimeFromTime(time.Now()),
+		FIRSTNAME:         user.FIRSTNAME,
+		LASTNAME:          user.LASTNAME,
+		USERNAME:          user.USERNAME,
+		PASSWORD:          user.PASSWORD,
+		ROLE:              "author",
+		CREATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
+		UPDATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
+		CREATEDATIMESTAMP: time.Now().Local().UnixMilli(),
+		UPDATEDATIMESTAMP: time.Now().Local().UnixMilli(),
 	}
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
