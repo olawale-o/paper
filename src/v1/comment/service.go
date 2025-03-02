@@ -40,7 +40,7 @@ func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface
 		return err, "Article not found"
 	}
 
-	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID}
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
