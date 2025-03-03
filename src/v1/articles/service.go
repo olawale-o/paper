@@ -6,6 +6,7 @@ import (
 
 	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repo"
+	"go-simple-rest/src/v1/utils"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -20,33 +21,9 @@ var collection = client.Database("go").Collection("articles")
 
 var database = client.Database("go")
 
-func handleQueryParams(date, likes, views string) bson.M {
-	fieldValues := map[string]int{
-		"asc":  1,
-		"desc": -1,
-	}
-	filter := bson.M{}
-	if date == "desc" {
-		filter["createdAtTimestamp"] = -1
-	} else {
-		filter["createdAtTimestamp"] = fieldValues[date]
-	}
-	// if likes == "desc" {
-	// 	filter["likes"] = -1
-	// } else {
-	// 	filter["likes"] = fieldValues[likes]
-	// }
-	// if views == "desc" {
-	// 	filter["views"] = -1
-	// } else {
-	// 	filter["views"] = fieldValues[views]
-	// }
-	return filter
-}
-
 func GetAll(date, likes, views string) (interface{}, error) {
 	filter := bson.M{}
-	sort := handleQueryParams(date, likes, views)
+	sort := utils.HandleQueryParams(date, likes, views)
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	r, err := repo.New(database)
 
@@ -65,7 +42,11 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 	if err != nil {
 		return article, err
 	}
-	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+
+	if err != nil {
+		return article, err
+	}
 
 	filter := bson.M{"_id": oid}
 	data, err := r.FindOne(context.TODO(), "articles", filter, article, fields)

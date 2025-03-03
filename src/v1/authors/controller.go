@@ -2,6 +2,7 @@ package authors
 
 import (
 	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
 
@@ -34,7 +35,11 @@ import (
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [get]
 func Show(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid ID"})
+		return
+	}
 	res, err := ShowAuthor(authorId)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
@@ -55,7 +60,11 @@ func Show(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [put]
 func Update(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid ID"})
+		return
+	}
 
 	var author model.Author
 	if err := c.BindJSON(&author); err != nil {

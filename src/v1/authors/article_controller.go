@@ -3,6 +3,7 @@ package authors
 import (
 	"fmt"
 	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
 
@@ -70,8 +71,16 @@ func ArticleNew(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles/{articleId} [put]
 func ArticleUpdate(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
+	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid author ID"})
+		return
+	}
+	articleId, err := utils.ParseParamToPrimitiveObjectId(c.Param("articleId"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid article ID"})
+		return
+	}
 
 	var article model.AuthorArticle
 	if err := c.BindJSON(&article); err != nil {
