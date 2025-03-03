@@ -72,6 +72,7 @@ func init() {
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	docs.SwaggerInfo.Title = "Swagger Example API"
 	docs.SwaggerInfo.Description = "A simple REST API for managing users and posts."
