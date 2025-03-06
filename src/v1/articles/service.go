@@ -2,10 +2,13 @@ package articles
 
 import (
 	"context"
+	"encoding/json"
 	"go-simple-rest/db"
+	"time"
 
 	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repo"
+	"go-simple-rest/src/v1/natsclient"
 	"go-simple-rest/src/v1/utils"
 	"log"
 
@@ -50,6 +53,21 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 
 	filter := bson.M{"_id": oid}
 	data, err := r.FindOne(context.TODO(), "articles", filter, article, fields)
+
+	if err != nil {
+		return article, err
+	}
+
+	value, err := json.Marshal(model.ArticleInteraction{
+		ARTICLEID:         oid,
+		TYPE:              "view",
+		CREATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
+		CREATEDATIMESTAMP: time.Now().Local().UnixMilli(),
+	})
+	if err != nil {
+		return article, err
+	}
+	natsclient.PublishMessage(context.Background(), "INTERACTIONS.view", value)
 
 	if err != nil {
 		return article, err
