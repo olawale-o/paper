@@ -6,6 +6,7 @@ import (
 	"go-simple-rest/db"
 	docs "go-simple-rest/docs"
 	"go-simple-rest/src"
+	"go-simple-rest/src/v1/natsclient"
 	"log"
 	"sync"
 
@@ -47,6 +48,8 @@ func init() {
 	// 		panic(err)
 	// 	}
 	// }()
+	//
+
 }
 
 //	@title			Swagger Example API
@@ -80,8 +83,15 @@ func main() {
 	docs.SwaggerInfo.Host = "127.0.0.1:8080"
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	src.Routes(r)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	cc, err := natsclient.Consumer()
+	if err != nil {
+		log.Println(err)
+	}
+	defer cc.Stop()
 
 	log.Println("Starting server... on port ", 8080)
 	r.Run("127.0.0.1:8080")
