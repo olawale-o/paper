@@ -7,6 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type ArticleInteraction struct {
+	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	ARTICLEID         primitive.ObjectID `bson:"articleId,omitempty" json:"articleId,omitempty"`
+	USERID            primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
+	TYPE              string             `bson:"type,omitempty" json:"type,omitempty"`
+	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
+	CREATEDATIMESTAMP int64              `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+}
+
 type Article struct {
 	ID                interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE             string             `bson:"title" json:"title"`
