@@ -8,10 +8,11 @@ import (
 
 	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repo"
-	"go-simple-rest/src/v1/natsclient"
+	"go-simple-rest/src/v1/kafkaclient"
 	"go-simple-rest/src/v1/utils"
 	"log"
 
+	"github.com/IBM/sarama"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,9 +25,9 @@ var collection = client.Database("go").Collection("articles")
 
 var database = client.Database("go")
 
-func GetAll(date, likes, views string) (interface{}, error) {
+func GetAll(params model.QueryParams) (interface{}, error) {
 	filter := bson.M{}
-	sort := utils.HandleQueryParams(date, likes, views)
+	sort := utils.HandleQueryParams(params)
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	r, err := repo.New(database)
 
@@ -58,7 +59,7 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 		return article, err
 	}
 
-	value, err := json.Marshal(model.ArticleInteraction{
+	_, err = json.Marshal(model.ArticleInteraction{
 		ARTICLEID:         oid,
 		TYPE:              "view",
 		CREATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
@@ -67,7 +68,12 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 	if err != nil {
 		return article, err
 	}
-	natsclient.PublishMessage(context.Background(), "INTERACTIONS.view", value)
+	producer := kafkaclient.KafkaAsyncProducer()
+	message := &sarama.ProducerMessage{Topic: "test", Value: sarama.StringEncoder("Hello World! async producer")}
+
+	kafkaclient.ProduceAsyncMessage(producer, message)
+
+	// natsclient.PublishMessage(context.Background(), "INTERACTIONS.view", value)
 
 	if err != nil {
 		return article, err

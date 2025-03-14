@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"go-simple-rest/src/v1/articles/model"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -13,26 +15,26 @@ func ParseParamToPrimitiveObjectId(param string) (primitive.ObjectID, error) {
 	return oid, nil
 }
 
-func HandleQueryParams(date, likes, views string) bson.M {
+func HandleQueryParams(params model.QueryParams) bson.M {
 	fieldValues := map[string]int{
 		"asc":  1,
 		"desc": -1,
 	}
 	filter := bson.M{}
-	if date == "desc" {
+	if params.Date == "desc" {
 		filter["createdAtTimestamp"] = -1
 	} else {
-		filter["createdAtTimestamp"] = fieldValues[date]
+		filter["createdAtTimestamp"] = fieldValues[params.Date]
 	}
-	// if likes == "desc" {
-	// 	filter["likes"] = -1
+	// if params.Likes == "desc" {
+	// 	filter["params.Likes"] = -1
 	// } else {
-	// 	filter["likes"] = fieldValues[likes]
+	// 	filter["params.Likes"] = fieldValues[params.Likes]
 	// }
-	// if views == "desc" {
-	// 	filter["views"] = -1
+	// if params.Views == "desc" {
+	// 	filter["params.Views"] = -1
 	// } else {
-	// 	filter["views"] = fieldValues[views]
+	// 	filter["params.Views"] = fieldValues[params.Views]
 	// }
 	return filter
 }

@@ -1,9 +1,6 @@
 package model
 
 import (
-	"context"
-
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -69,11 +66,8 @@ type AuthorArticle struct {
 	DELETEDAT  primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
-type Repository interface {
-	Get(ctx context.Context, collection string, filter bson.M, sort bson.M, opts bson.M) ([]Article, error)
-	FindOne(ctx context.Context, collection string, filter bson.M, v bson.M, opts bson.M) (interface{}, error)
-	InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error)
-	FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
-	DeleteOne(ctx context.Context, collection string, filter bson.M) error
-	UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
+type QueryParams struct {
+	Date  string `json:"date"`
+	Likes string `json:"likes"`
+	Views string `json:"views"`
 }

@@ -1,6 +1,7 @@
 package articles
 
 import (
+	"go-simple-rest/src/v1/articles/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,12 @@ func GetArticles(c *gin.Context) {
 	date := c.DefaultQuery("date", "desc")
 	likes := c.DefaultQuery("likes", "desc")
 	views := c.DefaultQuery("views", "desc")
-	articles, err := GetAll(date, likes, views)
+	params := model.QueryParams{
+		Date:  date,
+		Likes: likes,
+		Views: views,
+	}
+	articles, err := GetAll(params)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
