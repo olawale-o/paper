@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"go-simple-rest/src/v1/articles/model"
-	"go-simple-rest/src/v1/articles/repo"
+	"go-simple-rest/src/v1/articles/repository"
 	"go-simple-rest/src/v1/kafkaclient"
 	"go-simple-rest/src/v1/utils"
 	"log"
@@ -21,46 +21,34 @@ import (
 
 var client, ctx, err = db.Connect()
 
-var collection = client.Database("go").Collection("articles")
+// var collection = client.Database("go").Collection("articles")
 
-var database = client.Database("go")
+// var database = client.Database("go")
 
-func GetAll(params model.QueryParams) (interface{}, error) {
+func GetAll(repo repository.Repository, params model.QueryParams) (interface{}, error) {
 	filter := bson.M{}
 	sort := utils.HandleQueryParams(params)
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
-	r, err := repo.New(database)
-
+	articles, err := repo.Get(context.TODO(), "articles", filter, sort, fields)
 	if err != nil {
 		return nil, err
 	}
-	articles, err := r.Get(context.TODO(), "articles", filter, sort, fields)
 	return articles, nil
 }
 
-func GetArticle(c *gin.Context) (interface{}, error) {
+func GetArticle(repo repository.Repository, articleId primitive.ObjectID) (interface{}, error) {
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	var article bson.M
-	r, err := repo.New(database)
 
-	if err != nil {
-		return article, err
-	}
-	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
-
-	if err != nil {
-		return article, err
-	}
-
-	filter := bson.M{"_id": oid}
-	data, err := r.FindOne(context.TODO(), "articles", filter, article, fields)
+	filter := bson.M{"_id": articleId}
+	data, err := repo.FindOne(context.TODO(), "articles", filter, article, fields)
 
 	if err != nil {
 		return article, err
 	}
 
 	_, err = json.Marshal(model.ArticleInteraction{
-		ARTICLEID:         oid,
+		ARTICLEID:         articleId,
 		TYPE:              "view",
 		CREATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
 		CREATEDATIMESTAMP: time.Now().Local().UnixMilli(),
@@ -82,26 +70,16 @@ func GetArticle(c *gin.Context) (interface{}, error) {
 	return data, nil
 }
 
-func Update(c *gin.Context) (interface{}, error) {
-	r, err := repo.New(database)
+func Update(repo repository.Repository, articleId primitive.ObjectID, article model.Article) (interface{}, error) {
 
-	if err != nil {
-		return nil, err
-	}
-	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	var updatedArticle model.Article
-	if err := c.BindJSON(&updatedArticle); err != nil {
-		log.Println(err)
-		return updatedArticle, err
-	}
-	filter := bson.M{"_id": oid}
-	update := bson.M{"$set": bson.M{"title": updatedArticle.TITLE, "author": updatedArticle.AUTHORID}}
+	filter := bson.M{"_id": articleId}
+	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
 
-	result, err := r.UpdateOne(context.TODO(), "articles", filter, update, true)
+	result, err := repo.UpdateOne(context.TODO(), "articles", filter, update, true)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
-			return updatedArticle, err
+			return result, err
 		}
 	}
 

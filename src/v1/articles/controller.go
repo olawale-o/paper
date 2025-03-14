@@ -2,10 +2,17 @@ package articles
 
 import (
 	"go-simple-rest/src/v1/articles/model"
+	"go-simple-rest/src/v1/articles/repository/implementation"
+	"go-simple-rest/src/v1/utils"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+var collection = client.Database("go").Collection("articles")
+
+var database = client.Database("go")
 
 // Articles godoc
 // @Tags Articles
@@ -28,7 +35,12 @@ func GetArticles(c *gin.Context) {
 		Likes: likes,
 		Views: views,
 	}
-	articles, err := GetAll(params)
+	repo, err := implementation.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	articles, err := GetAll(repo, params)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -47,7 +59,17 @@ func GetArticles(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [get]
 func ShowArticle(c *gin.Context) {
-	article, err := GetArticle(c)
+	repo, err := implementation.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	article, err := GetArticle(repo, oid)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
 		return
@@ -66,7 +88,25 @@ func ShowArticle(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [put]
 func UpdateArticle(c *gin.Context) {
-	result, err := Update(c)
+	repo, err := implementation.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	var updatedArticle model.Article
+	if err := c.BindJSON(&updatedArticle); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": err.Error()})
+		return
+	}
+	result, err := Update(repo, oid, updatedArticle)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
 		return
