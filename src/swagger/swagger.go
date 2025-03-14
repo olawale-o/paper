@@ -2,7 +2,7 @@ package swagger
 
 import "go-simple-rest/docs"
 
-func Config() {
+func Initialize() {
 	docs.SwaggerInfo.Title = "Swagger Example API"
 	docs.SwaggerInfo.Description = "A simple REST API for managing users and posts."
 	docs.SwaggerInfo.Version = "1.0"
