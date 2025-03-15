@@ -1,4 +1,4 @@
-package articles
+package controller
 
 import (
 	"go-simple-rest/db"
