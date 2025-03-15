@@ -1,4 +1,4 @@
-package articles
+package service
 
 import (
 	"context"
@@ -13,7 +13,6 @@ import (
 	"log"
 
 	"github.com/IBM/sarama"
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,27 +20,31 @@ import (
 
 var client, ctx, err = db.Connect()
 
-// var collection = client.Database("go").Collection("articles")
+type ServiceManager struct {
+	repo repository.Repository
+}
 
-// var database = client.Database("go")
+func New(repo repository.Repository) (Service, error) {
+	return &ServiceManager{repo: repo}, nil
+}
 
-func GetAll(repo repository.Repository, params model.QueryParams) (interface{}, error) {
+func (sm *ServiceManager) GetAll(params model.QueryParams) (interface{}, error) {
 	filter := bson.M{}
 	sort := utils.HandleQueryParams(params)
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
-	articles, err := repo.Get(context.TODO(), "articles", filter, sort, fields)
+	articles, err := sm.repo.Get(context.TODO(), "articles", filter, sort, fields)
 	if err != nil {
 		return nil, err
 	}
 	return articles, nil
 }
 
-func GetArticle(repo repository.Repository, articleId primitive.ObjectID) (interface{}, error) {
+func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{}, error) {
 	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 	var article bson.M
 
 	filter := bson.M{"_id": articleId}
-	data, err := repo.FindOne(context.TODO(), "articles", filter, article, fields)
+	data, err := sm.repo.FindOne(context.TODO(), "articles", filter, article, fields)
 
 	if err != nil {
 		return article, err
@@ -70,12 +73,12 @@ func GetArticle(repo repository.Repository, articleId primitive.ObjectID) (inter
 	return data, nil
 }
 
-func Update(repo repository.Repository, articleId primitive.ObjectID, article model.Article) (interface{}, error) {
+func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Article) (interface{}, error) {
 
 	filter := bson.M{"_id": articleId}
 	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
 
-	result, err := repo.UpdateOne(context.TODO(), "articles", filter, update, true)
+	result, err := sm.repo.UpdateOne(context.TODO(), "articles", filter, update, true)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -86,14 +89,15 @@ func Update(repo repository.Repository, articleId primitive.ObjectID, article mo
 	return result, nil
 }
 
-func Delete(c *gin.Context) (int64, error) {
-	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	filter := bson.M{"_id": oid}
-	result, err := collection.DeleteOne(context.TODO(), filter)
-	if err != nil {
-		log.Println(err)
-		return 0, err
-	}
+// func (sm *ServiceManager) Delete(c *gin.Context) (int64, error) {
+// oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
+// filter := bson.M{"_id": oid}
+// result, err := collection.DeleteOne(context.TODO(), filter)
+// if err != nil {
+// 	log.Println(err)
+// 	return 0, err
+// }
 
-	return result.DeletedCount, nil
-}
+// return result.DeletedCount, nil
+// return 0, nil
+// }

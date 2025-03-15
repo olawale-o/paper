@@ -1,8 +1,10 @@
 package articles
 
 import (
+	"go-simple-rest/db"
 	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repository/implementation"
+	"go-simple-rest/src/v1/articles/service"
 	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
@@ -10,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var client, ctx, err = db.Connect()
 var collection = client.Database("go").Collection("articles")
-
 var database = client.Database("go")
 
 // Articles godoc
@@ -40,7 +42,12 @@ func GetArticles(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
-	articles, err := GetAll(repo, params)
+	service, err := service.New(repo)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	articles, err := service.GetAll(params)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -69,7 +76,12 @@ func ShowArticle(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	article, err := GetArticle(repo, oid)
+	service, err := service.New(repo)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	article, err := service.GetArticle(oid)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
 		return
@@ -106,7 +118,12 @@ func UpdateArticle(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": err.Error()})
 		return
 	}
-	result, err := Update(repo, oid, updatedArticle)
+	service, err := service.New(repo)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	result, err := service.Update(oid, updatedArticle)
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
 		return
