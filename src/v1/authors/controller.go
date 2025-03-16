@@ -2,6 +2,8 @@ package authors
 
 import (
 	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/authors/repo"
+	"go-simple-rest/src/v1/authors/service"
 	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
@@ -40,7 +42,17 @@ func Show(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid ID"})
 		return
 	}
-	res, err := ShowAuthor(authorId)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	res, err := service.ShowAuthor(authorId)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})
 		return
@@ -73,7 +85,18 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	res, err := UpdateAuthor(authorId, author)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	res, err := service.UpdateAuthor(authorId, author)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
@@ -96,7 +119,19 @@ func Update(c *gin.Context) {
 func Delete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
-	res, err := DeleteAuthor(authorId)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	res, err := service.DeleteAuthor(authorId)
 
 	if err != nil {
 		log.Println(err)

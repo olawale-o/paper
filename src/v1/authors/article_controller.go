@@ -1,8 +1,10 @@
 package authors
 
 import (
-	"fmt"
+	"go-simple-rest/db"
 	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/authors/repo"
+	"go-simple-rest/src/v1/authors/service"
 	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
@@ -10,6 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var client, ctx, err = db.Connect()
+
+var database = client.Database("go")
 
 // AuthorArticleIndex godoc
 // @Tags Authors
@@ -22,9 +28,22 @@ import (
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [get]
 func ArticleIndex(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	fmt.Println(authorId)
-	res, _ := AllArticles(authorId)
+	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	res, _ := service.AllArticles(oid)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article retrieved successfully", "articles": res})
 }
 
@@ -41,14 +60,28 @@ func ArticleIndex(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
 	var newArticle model.AuthorArticle
 	if err := c.BindJSON(&newArticle); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
 		return
 	}
-	res, err := CreateArticle(newArticle, authorId)
+	res, err := service.CreateArticle(newArticle, oid)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
@@ -89,7 +122,24 @@ func ArticleUpdate(c *gin.Context) {
 		return
 	}
 
-	res, err := UpdateArticle(article, authorId, articleId)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	var newArticle model.AuthorArticle
+	if err := c.BindJSON(&newArticle); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+		return
+	}
+
+	res, err := service.UpdateArticle(article, authorId, articleId)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
@@ -115,7 +165,24 @@ func ArticleDelete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	err := DeleteArticle(authorId, articleId)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	service, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	var newArticle model.AuthorArticle
+	if err := c.BindJSON(&newArticle); err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+		return
+	}
+
+	err = service.DeleteArticle(authorId, articleId)
 
 	if err != nil {
 		log.Println(err)
