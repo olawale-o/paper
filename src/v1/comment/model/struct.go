@@ -1,10 +1,8 @@
 package model
 
 import (
-	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -40,9 +38,4 @@ type CommentArticle struct {
 	CREATEDATIMESTAMP int                `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
 	UPDATEDATIMESTAMP int                `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
 	DELETEDATIMESTAMP int                `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
-}
-
-type Repository interface {
-	Get(ctx context.Context, collection string, filter bson.M, sort bson.M, limit int64) ([]Comment, error)
-	FindOne(ctx context.Context, collection string, filter bson.M, v bson.M) (interface{}, error)
 }

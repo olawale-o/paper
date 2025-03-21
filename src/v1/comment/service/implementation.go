@@ -1,8 +1,8 @@
-package comment
+package service
 
 import (
 	"context"
-	"go-simple-rest/db"
+	"errors"
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"log"
@@ -14,60 +14,62 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var client, ctx, err = db.Connect()
-var database = client.Database("go")
-
-var articleCollection = client.Database("go").Collection("articles")
-var collection = client.Database("go").Collection("comments")
-
-type Response struct {
-	Comments   []model.Comment `json:"comments"`
-	HasNext    bool            `json:"hasNext"`
-	HasPrev    bool            `json:"hasPrev"`
-	PreviousID string          `json:"previousId,omitempty"`
-	NextID     string          `json:"nextId,omitempty"`
+type ServiceManager struct {
+	repo repo.Repository
 }
 
-func NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
-	var article model.CommentArticle
+func New(repo repo.Repository) (Service, error) {
+	return &ServiceManager{repo: repo}, nil
+}
+
+func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
+	var article bson.M
+	var opts bson.M
 
 	filter := bson.M{"_id": articleId}
-	if err := articleCollection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
+	data, err := sm.repo.FindOne(context.TODO(), "articles", filter, article, opts)
+	if err != nil {
 		log.Println(err)
-		if err == mongo.ErrNoDocuments {
-			return err, "Article not found"
-		}
 		return err, "Article not found"
 	}
 
+	if data == nil {
+		return err, nil
+	}
+
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	res, err := collection.InsertOne(context.TODO(), doc)
+	res, err := sm.repo.InsertOne(context.TODO(), "comments", doc)
 	if err != nil {
 		log.Println(err)
 		return err, ""
 	}
-	id := res.InsertedID
 
-	return err, id
+	return err, res
 }
 
-func GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (error, interface{}) {
-	var comment model.Comment
+func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error) {
+	var comment bson.M
+	var opts bson.M
 
 	filter := bson.M{"_id": commentId, "articleId": articleId}
-	if err := collection.FindOne(context.TODO(), filter).Decode(&comment); err != nil {
+	data, err := sm.repo.FindOne(context.TODO(), "comments", filter, comment, opts)
+	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
-			return err, "Comment not found"
+			return nil, errors.New("Comment not found")
 		}
-		return err, "Comment not found"
+		return nil, err
 	}
 
-	return err, comment
+	if data == nil {
+		return nil, err
+	}
+
+	return data, err
 }
 
-func GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
-	data, err := _HandlePaginate(articleId, l, prev, next)
+func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+	data, err := _HandlePaginate(sm.repo, articleId, l, prev, next)
 	if err != nil {
 		return Response{}, err
 	}
@@ -75,7 +77,7 @@ func GetComments(articleId primitive.ObjectID, l int, prev string, next string) 
 	return data, nil
 }
 
-func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
 	var sort bson.M = bson.M{"_id": -1}
 	var filter bson.M = bson.M{"articleId": articleId}
 	var limit int64
@@ -83,11 +85,6 @@ func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next stri
 	var hasNext bool
 	var lastId primitive.ObjectID
 	var firstId primitive.ObjectID
-	r, err := repo.New(database)
-
-	if err != nil {
-		return Response{}, err
-	}
 
 	if prev != "" {
 		id, _ := primitive.ObjectIDFromHex(prev)
@@ -106,25 +103,26 @@ func _HandlePaginate(articleId primitive.ObjectID, l int, prev string, next stri
 		limit = int64(10)
 	}
 
-	result, err := r.Get(context.TODO(), "comments", filter, sort, limit)
+	result, err := repository.Get(context.TODO(), "comments", filter, sort, limit)
 
 	if err != nil {
 		return Response{}, err
 	}
 
 	if len(result) > 0 {
+		var opts bson.M = bson.M{}
 		var nextComment bson.M
 		lastId = result[len(result)-1].ID.(primitive.ObjectID)
 		firstId = result[0].ID.(primitive.ObjectID)
 		filter["_id"] = bson.M{"$lt": lastId}
-		nxtComment, _ := r.FindOne(context.TODO(), "comments", filter, nextComment)
+		nxtComment, _ := repository.FindOne(context.TODO(), "comments", filter, nextComment, opts)
 		if nxtComment != nil {
 			hasNext = true
 		}
 
 		var prevComment bson.M
 		filter["_id"] = bson.M{"$gt": firstId}
-		prvComment, _ := r.FindOne(context.TODO(), "comments", filter, prevComment)
+		prvComment, _ := repository.FindOne(context.TODO(), "comments", filter, prevComment, opts)
 		if prvComment != nil {
 			hasPrev = true
 		}

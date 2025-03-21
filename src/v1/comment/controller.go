@@ -2,7 +2,10 @@ package comment
 
 import (
 	"fmt"
+	"go-simple-rest/db"
 	"go-simple-rest/src/v1/comment/model"
+	"go-simple-rest/src/v1/comment/repo"
+	"go-simple-rest/src/v1/comment/service"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,7 +14,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var client, ctx, err = db.Connect()
+var database = client.Database("go")
+
 func New(c *gin.Context) {
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	commentService, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {
@@ -19,7 +36,7 @@ func New(c *gin.Context) {
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
 		return
 	}
-	err, _ = NewComment(comment, articleId)
+	err, _ = commentService.NewComment(comment, articleId)
 
 	if err != nil {
 		log.Println(err)
@@ -33,11 +50,21 @@ func Show(c *gin.Context) {
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
 
-	err, res := GetComment(articleId, commentId)
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	commentService, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+
+	res, err := commentService.GetComment(articleId, commentId)
 
 	if err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "comment", "data": res})
@@ -57,6 +84,17 @@ func Show(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	commentService, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
 	var limit int
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	limit, err = strconv.Atoi(c.Query("limit"))
@@ -67,7 +105,7 @@ func Index(c *gin.Context) {
 	prev := c.Query("prev")
 	next := c.Query("next")
 
-	res, err := GetComments(articleId, limit, prev, next)
+	res, err := commentService.GetComments(articleId, limit, prev, next)
 	if err != nil {
 		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
