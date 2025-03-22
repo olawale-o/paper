@@ -13,5 +13,6 @@ type Repository interface {
 	InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error)
 	// FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
 	// DeleteOne(ctx context.Context, collection string, filter bson.M) error
-	// UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
+	UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error)
+	Aggregate(ctx context.Context, collection string, pipeline []bson.M) ([]model.ArticleWithComments, error)
 }

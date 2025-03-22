@@ -57,3 +57,24 @@ func (repo *RepositoryManager) InsertOne(ctx context.Context, collection string,
 	}
 	return result.InsertedID, nil
 }
+
+func (repo *RepositoryManager) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
+	result, err := repo.db.Collection(collection).UpdateOne(context.TODO(), filter, update, options.Update().SetUpsert(upsert))
+	if err != nil {
+		return nil, err
+	}
+	return result.UpsertedID, nil
+}
+
+func (repo *RepositoryManager) Aggregate(ctx context.Context, collection string, pipeline []bson.M) ([]model.ArticleWithComments, error) {
+	cursor, err := repo.db.Collection(collection).Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	var results []model.ArticleWithComments
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
