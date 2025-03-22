@@ -39,3 +39,16 @@ type CommentArticle struct {
 	UPDATEDATIMESTAMP int                `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
 	DELETEDATIMESTAMP int                `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
 }
+
+type Reply struct {
+	ID                 interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	BODY               string      `bson:"body,omitempty" json:"body,omitempty"`
+	COMMENTID          interface{} `bson:"commentId,omitempty" json:"commentId,omitempty"`
+	CREATEDATTIMESTAMP int         `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+}
+
+type ArticleWithComments struct {
+	ID      interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	BODY    string      `bson:"body,omitempty" json:"body,omitempty"`
+	REPLIES []Reply     `bson:"replies,omitempty" json:"replies,omitempty"`
+}
