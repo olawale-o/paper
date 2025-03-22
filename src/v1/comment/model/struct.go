@@ -48,7 +48,7 @@ type Reply struct {
 }
 
 type ArticleWithComments struct {
-	ID      interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	ID      interface{} `bson:"id,omitempty" json:"id,omitempty"`
 	BODY    string      `bson:"body,omitempty" json:"body,omitempty"`
 	REPLIES []Reply     `bson:"replies,omitempty" json:"replies,omitempty"`
 }
