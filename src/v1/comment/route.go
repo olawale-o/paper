@@ -10,4 +10,5 @@ func CommentRoutes(r *gin.RouterGroup) {
 	comments.GET("/", Index)
 	comments.GET("/:cid", Show)
 	comments.POST("/", New)
+	comments.POST("/:cid/reply", ReplyComment)
 }

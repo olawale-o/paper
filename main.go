@@ -6,7 +6,6 @@ import (
 	"go-simple-rest/db"
 	"go-simple-rest/src"
 	"go-simple-rest/src/swagger"
-	"go-simple-rest/src/v1/kafkaclient"
 	"log"
 	"sync"
 
@@ -55,7 +54,7 @@ func main() {
 	// }
 	// defer cc.Stop()
 	//
-	go kafkaclient.ConsumerWithAutoCommit("test-group")
+	// go kafkaclient.ConsumerWithAutoCommit("test-group")
 	log.Println("Starting server... on port ", 8080)
 	r.Run("127.0.0.1:8080")
 

@@ -18,4 +18,6 @@ type Service interface {
 	NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{})
 	GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error)
 	GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error)
+	ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error)
+	ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, interface{}, error)
 }

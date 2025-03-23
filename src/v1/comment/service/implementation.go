@@ -38,7 +38,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	}
 
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	res, err := sm.repo.InsertOne(context.TODO(), "comments", doc)
+	res, err := sm.repo.InsertOne(context.TODO(), "article_comments", doc)
 	if err != nil {
 		log.Println(err)
 		return err, ""
@@ -52,7 +52,7 @@ func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId pri
 	var opts bson.M
 
 	filter := bson.M{"_id": commentId, "articleId": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), "comments", filter, comment, opts)
+	data, err := sm.repo.FindOne(context.TODO(), "article_comments", filter, comment, opts)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -75,6 +75,131 @@ func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev 
 	}
 
 	return data, nil
+}
+
+func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error) {
+	var comment bson.M
+	var opts bson.M
+
+	filter := bson.M{"_id": commentId, "articleId": articleId}
+	data, err := sm.repo.FindOne(context.TODO(), "article_comments", filter, comment, opts)
+	if err != nil {
+		log.Println(err)
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("Comment not found")
+		}
+		return nil, err
+	}
+
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
+	data, err = sm.repo.InsertOne(context.TODO(), "article_comments", doc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	val, ok := data.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("Invalid data type")
+	}
+
+	data, err = sm.repo.UpdateOne(
+		context.TODO(),
+		"article_comments",
+		filter,
+		bson.M{"$push": bson.M{"replies": bson.M{"$each": []primitive.ObjectID{val},
+			"$slice": 2},
+		}},
+		false,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, interface{}, error) {
+
+	var matchStage bson.M
+	var limitStage bson.M
+	var unwindStage bson.M = bson.M{"$unwind": bson.M{"path": "$replies", "preserveNullAndEmptyArrays": true}}
+	var sortStage bson.M = bson.M{"$sort": bson.M{"createdAtTimestamp": -1}}
+	var lookupStage bson.M = bson.M{
+		"$lookup": bson.M{
+			"from":         "article_comments",
+			"localField":   "replies",
+			"foreignField": "_id",
+			"as":           "comment_replies",
+		},
+	}
+
+	var projectStage bson.M = bson.M{
+		"$project": bson.M{
+			"body":               1,
+			"articleId":          1,
+			"createdAtTimestamp": 1,
+			"reply":              bson.M{"$arrayElemAt": []interface{}{"$comment_replies", 0}},
+		},
+	}
+
+	var groupStage bson.M = bson.M{
+		"$group": bson.M{
+			"_id":                bson.M{"id": "$_id", "parentId": "$reply.parentCommentId"},
+			"id":                 bson.M{"$first": "$_id"},
+			"body":               bson.M{"$first": "$body"},
+			"articleId":          bson.M{"$first": "$articleId"},
+			"createdAtTimestamp": bson.M{"$first": "$createdAtTimestamp"},
+			"replies":            bson.M{"$push": bson.M{"commentId": "$reply._id", "body": "$reply.body", "articleId": "$reply.articleId", "createdAtTimestamp": "$reply.createdAtTimestamp"}},
+		},
+	}
+
+	if next != primitive.NilObjectID {
+		matchStage = bson.M{
+			"$match": bson.M{"$and": []bson.M{
+				bson.M{"articleId": articleId},
+				bson.M{"parentCommentId": nil},
+				bson.M{"_id": bson.M{"$lte": next}},
+			},
+			},
+		}
+		limitStage = bson.M{"$limit": 10}
+	} else {
+		matchStage = bson.M{
+			"$match": bson.M{"$and": []bson.M{
+				bson.M{"articleId": articleId},
+				bson.M{"parentCommentId": nil},
+			},
+			},
+		}
+		limitStage = bson.M{"$limit": 3}
+	}
+
+	pipeline := []bson.M{
+		matchStage,
+		unwindStage,
+		lookupStage,
+		projectStage,
+		groupStage,
+		sortStage,
+		limitStage,
+	}
+
+	data, err := sm.repo.Aggregate(context.TODO(), "article_comments", pipeline)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if len(data) > 2 && next == primitive.NilObjectID {
+		return data[:2], data[2].ID, nil
+	}
+
+	return data, nil, nil
 }
 
 func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
@@ -103,7 +228,7 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 		limit = int64(10)
 	}
 
-	result, err := repository.Get(context.TODO(), "comments", filter, sort, limit)
+	result, err := repository.Get(context.TODO(), "article_comments", filter, sort, limit)
 
 	if err != nil {
 		return Response{}, err
@@ -115,14 +240,14 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 		lastId = result[len(result)-1].ID.(primitive.ObjectID)
 		firstId = result[0].ID.(primitive.ObjectID)
 		filter["_id"] = bson.M{"$lt": lastId}
-		nxtComment, _ := repository.FindOne(context.TODO(), "comments", filter, nextComment, opts)
+		nxtComment, _ := repository.FindOne(context.TODO(), "article_comments", filter, nextComment, opts)
 		if nxtComment != nil {
 			hasNext = true
 		}
 
 		var prevComment bson.M
 		filter["_id"] = bson.M{"$gt": firstId}
-		prvComment, _ := repository.FindOne(context.TODO(), "comments", filter, prevComment, opts)
+		prvComment, _ := repository.FindOne(context.TODO(), "article_comments", filter, prevComment, opts)
 		if prvComment != nil {
 			hasPrev = true
 		}
