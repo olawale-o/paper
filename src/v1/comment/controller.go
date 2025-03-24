@@ -60,7 +60,20 @@ func Show(c *gin.Context) {
 		return
 	}
 
-	res, err := commentService.GetComment(articleId, commentId)
+	var next primitive.ObjectID
+	nextCursor := c.Query("nextCursor")
+
+	if nextCursor == "" {
+		next = primitive.NilObjectID
+	} else {
+		next, err = primitive.ObjectIDFromHex(nextCursor)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	}
+
+	res, err := commentService.GetComment(articleId, commentId, next)
 
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
@@ -169,4 +182,41 @@ func ReplyComment(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment Saved"})
+}
+
+func MoreCommentReplies(c *gin.Context) {
+	repository, err := repo.New(database)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	commentService, err := service.New(repository)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
+
+	var next primitive.ObjectID
+	nextCursor := c.Query("nextCursor")
+
+	if nextCursor == "" {
+		next = primitive.NilObjectID
+	} else {
+		next, err = primitive.ObjectIDFromHex(nextCursor)
+		if err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+	}
+
+	res, err := commentService.MoreReplies(articleId, commentId, next)
+	if err != nil {
+		fmt.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "comments", "data": res})
 }

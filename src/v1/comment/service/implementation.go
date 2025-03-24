@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"log"
@@ -47,24 +48,25 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	return err, res
 }
 
-func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error) {
-	var comment bson.M
-	var opts bson.M
+func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) (interface{}, error) {
+	// var comment bson.M
+	// var opts bson.M
 
-	filter := bson.M{"_id": commentId, "articleId": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), "article_comments", filter, comment, opts)
-	if err != nil {
-		log.Println(err)
-		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("Comment not found")
-		}
-		return nil, err
-	}
+	// filter := bson.M{"_id": commentId, "articleId": articleId}
+	// data, err := sm.repo.FindOne(context.TODO(), "article_comments", filter, comment, opts)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	if err == mongo.ErrNoDocuments {
+	// 		return nil, errors.New("Comment not found")
+	// 	}
+	// 	return nil, err
+	// }
 
-	if data == nil {
-		return nil, err
-	}
+	// if data == nil {
+	// 	return nil, err
+	// }
 
+	data, err := _FetchCommentWithReplies(sm.repo, articleId, commentId, next)
 	return data, err
 }
 
@@ -91,7 +93,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 		return nil, err
 	}
 
-	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: commentId, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
 	data, err = sm.repo.InsertOne(context.TODO(), "article_comments", doc)
 
 	if err != nil {
@@ -107,8 +109,12 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 		context.TODO(),
 		"article_comments",
 		filter,
-		bson.M{"$push": bson.M{"replies": bson.M{"$each": []primitive.ObjectID{val},
-			"$slice": 2},
+		bson.M{"$push": bson.M{"replies": bson.M{"$each": []model.Reply{
+			model.Reply{ID: val, CREATEDATTIMESTAMP: int(doc.CREATEDATIMESTAMP)},
+		},
+			"$slice": 2,
+			"$sort":  bson.M{"createdAtTimestamp": -1},
+		},
 		}},
 		false,
 	)
@@ -125,7 +131,6 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 }
 
 func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, interface{}, error) {
-
 	var matchStage bson.M
 	var limitStage bson.M
 	var unwindStage bson.M = bson.M{"$unwind": bson.M{"path": "$replies", "preserveNullAndEmptyArrays": true}}
@@ -133,7 +138,7 @@ func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next pri
 	var lookupStage bson.M = bson.M{
 		"$lookup": bson.M{
 			"from":         "article_comments",
-			"localField":   "replies",
+			"localField":   "replies._id",
 			"foreignField": "_id",
 			"as":           "comment_replies",
 		},
@@ -202,6 +207,38 @@ func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next pri
 	return data, nil, nil
 }
 
+func (sm *ServiceManager) MoreReplies(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
+	var comments []model.Comment
+	data, err := _HandleMoreReplies(sm.repo, articleId, commentId, next)
+
+	if err != nil {
+		return comments, err
+	}
+
+	return data, nil
+}
+
+func _HandleMoreReplies(repository repo.Repository, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
+
+	filter := bson.M{
+		"$and": []bson.M{
+			bson.M{"articleId": articleId},
+			bson.M{"parentCommentId": commentId},
+			bson.M{"_id": bson.M{"$lt": next}},
+		},
+	}
+
+	sort := bson.M{"createdAtTimestamp": -1}
+	limt := int64(0)
+
+	data, err := repository.Find(context.TODO(), "article_comments", filter, sort, limt)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
 	var sort bson.M = bson.M{"_id": -1}
 	var filter bson.M = bson.M{"articleId": articleId}
@@ -228,7 +265,7 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 		limit = int64(10)
 	}
 
-	result, err := repository.Get(context.TODO(), "article_comments", filter, sort, limit)
+	result, err := repository.Find(context.TODO(), "article_comments", filter, sort, limit)
 
 	if err != nil {
 		return Response{}, err
@@ -266,4 +303,27 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 	}
 
 	return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, PreviousID: firstId.Hex(), NextID: lastId.Hex()}, nil
+}
+
+func _FetchCommentWithReplies(repository repo.Repository, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
+	fmt.Println(articleId)
+	fmt.Println(commentId)
+	fmt.Println(next)
+	filter := bson.M{
+		"$and": []bson.M{
+			bson.M{"articleId": articleId},
+			bson.M{"parentCommentId": commentId},
+			bson.M{"_id": bson.M{"$lt": next}},
+		},
+	}
+	sort := bson.M{"createdAtTimestamp": -1}
+	limit := int64(10)
+
+	result, err := repository.Find(context.TODO(), "article_comments", filter, sort, limit)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

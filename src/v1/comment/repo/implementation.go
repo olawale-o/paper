@@ -27,9 +27,10 @@ func New(db *mongo.Database) (Repository, error) {
 	}, nil
 }
 
-func (repo *RepositoryManager) Get(ctx context.Context, collection string, filter bson.M, sort bson.M, limit int64) ([]model.Comment, error) {
-	// options := options.Find().SetSort(sort).SetProjection(opts)
-	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter)
+func (repo *RepositoryManager) Find(ctx context.Context, collection string, filter bson.M, sort bson.M, limit int64) ([]model.Comment, error) {
+	options := options.Find().SetSort(sort)
+	// .SetProjection(opts)
+	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter, options)
 
 	if err != nil {
 		fmt.Println(err.Error())
