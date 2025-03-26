@@ -290,6 +290,44 @@ paths:
       summary: Get article comments
       tags:
       - Articles
+  /articles/{id}/comments/{cid}/reply:
+    post:
+      description: Replies to a specific comment.
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comment ID
+        in: path
+        name: cid
+        required: true
+        type: string
+      - description: Content
+        in: body
+        name: content
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Response
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            type: string
+        "500":
+          description: Error
+          schema:
+            type: string
+      summary: Reply to a comment
+      tags:
+      - Articles
   /auth/login:
     post:
       consumes:

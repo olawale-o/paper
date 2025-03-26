@@ -18,7 +18,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const collectionName = "articles"
+
 var client, ctx, err = db.Connect()
+var exclude bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 
 type ServiceManager struct {
 	repo repository.Repository
@@ -28,23 +31,23 @@ func New(repo repository.Repository) (Service, error) {
 	return &ServiceManager{repo: repo}, nil
 }
 
-func (sm *ServiceManager) GetAll(params model.QueryParams) (interface{}, error) {
+func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, error) {
 	filter := bson.M{}
 	sort := utils.HandleQueryParams(params)
-	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
-	articles, err := sm.repo.Get(context.TODO(), "articles", filter, sort, fields)
+
+	articles, err := sm.repo.Find(context.TODO(), collectionName, filter, sort, exclude)
 	if err != nil {
-		return nil, err
+		return []model.Article{}, err
 	}
 	return articles, nil
 }
 
 func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{}, error) {
-	var fields bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
+
 	var article bson.M
 
 	filter := bson.M{"_id": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), "articles", filter, article, fields)
+	data, err := sm.repo.FindOne(context.TODO(), collectionName, filter, article, exclude)
 
 	if err != nil {
 		return article, err
@@ -78,7 +81,7 @@ func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Art
 	filter := bson.M{"_id": articleId}
 	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
 
-	result, err := sm.repo.UpdateOne(context.TODO(), "articles", filter, update, true)
+	result, err := sm.repo.UpdateOne(context.TODO(), collectionName, filter, update, true)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {

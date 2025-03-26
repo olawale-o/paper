@@ -15,8 +15,6 @@ import (
 
 var client, ctx, err = db.Connect()
 
-var collection = client.Database("go").Collection("articles")
-
 type RepositoryManager struct {
 	db     *mongo.Database
 	logger log.Logger
@@ -28,7 +26,7 @@ func New(db *mongo.Database) (repository.Repository, error) {
 	}, nil
 }
 
-func (repo *RepositoryManager) Get(ctx context.Context, collection string, filter bson.M, sort bson.M, opts bson.M) ([]model.Article, error) {
+func (repo *RepositoryManager) Find(ctx context.Context, collection string, filter bson.M, sort bson.M, opts bson.M) ([]model.Article, error) {
 	options := options.Find().SetSort(sort).SetProjection(opts)
 	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter, options)
 
