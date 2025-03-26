@@ -31,19 +31,6 @@ type Article struct {
 	DELETEDATIMESTAMP int                `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
 }
 
-type Comment struct {
-	ID              interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
-	ARTICLEID       primitive.ObjectID `bson:"articleId" json:"articleId"`
-	BODY            string             `bson:"body" json:"body"`
-	USERID          primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
-	LIKES           int                `bson:"likes,omitempty" json:"likes,omitempty"`
-	CREATEDAT       primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
-	UPDATEDAT       primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty" swaggertype:"string"`
-	DELETEDAT       primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty" swaggertype:"string"`
-	STATUS          string             `bson:"status,omitempty" json:"status,omitempty"`
-	PARENTCOMMENTID primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
-}
-
 type Author struct {
 	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
 	FIRSTNAME string      `bson:"firstName" json:"firstName"`

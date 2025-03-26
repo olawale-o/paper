@@ -32,11 +32,6 @@ func GetArticles(c *gin.Context) {
 	date := c.DefaultQuery("date", "desc")
 	likes := c.DefaultQuery("likes", "desc")
 	views := c.DefaultQuery("views", "desc")
-	params := model.QueryParams{
-		Date:  date,
-		Likes: likes,
-		Views: views,
-	}
 	repo, err := implementation.New(database)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -47,7 +42,11 @@ func GetArticles(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
-	articles, err := service.GetAll(params)
+	articles, err := service.GetAll(model.QueryParams{
+		Date:  date,
+		Likes: likes,
+		Views: views,
+	})
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
