@@ -12,9 +12,9 @@ type Comment struct {
 	BODY              string             `bson:"body" json:"body"`
 	USERID            primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
 	LIKES             int                `bson:"likes,omitempty" json:"likes,omitempty"`
-	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT         primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	DELETEDAT         primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
+	UPDATEDAT         primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty" swaggertype:"string"`
+	DELETEDAT         primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty" swaggertype:"string"`
 	STATUS            string             `bson:"status,omitempty" json:"status,omitempty"`
 	PARENTCOMMENTID   primitive.ObjectID `bson:"parentCommentId,omitempty" json:"parentCommentId,omitempty"`
 	CREATEDATIMESTAMP int64              `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`

@@ -92,6 +92,34 @@ definitions:
       message:
         type: string
     type: object
+  model.Comment:
+    properties:
+      articleId:
+        type: string
+      body:
+        type: string
+      createdAt:
+        type: string
+      createdAtTimestamp:
+        type: integer
+      deletedAt:
+        type: string
+      deletedAtTimestamp:
+        type: integer
+      id: {}
+      likes:
+        type: integer
+      parentCommentId:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+      updatedAtTimestamp:
+        type: integer
+      userId:
+        type: string
+    type: object
   model.LoginAuth:
     properties:
       password:
@@ -280,16 +308,50 @@ paths:
           schema:
             type: string
         "400":
-          description: Error
+          description: Bad Request
           schema:
             type: string
         "500":
-          description: Error
+          description: Internal Server Error
           schema:
             type: string
       summary: Get article comments
       tags:
       - Articles
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment for an article
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comment details
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/model.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment saved
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new comment
+      tags:
+      - articles
   /articles/{id}/comments/{cid}/reply:
     post:
       description: Replies to a specific comment.

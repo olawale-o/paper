@@ -16,6 +16,18 @@ import (
 var client, ctx, err = db.Connect()
 var database = client.Database("go")
 
+// Comment godoc
+// @Summary Create a new comment
+// @Description Create a new comment for an article
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Param id path string true "Article ID"
+// @Param comment body model.Comment true "Comment details"
+// @Success 200 {object} string "Comment saved"
+// @Failure 400 {object} string "Bad Request"
+// @Failure 500 {object} string "Internal Server Error"
+// @Router /articles/{id}/comments [post]
 func New(c *gin.Context) {
 	repository, err := repo.New(database)
 	if err != nil {
@@ -92,8 +104,8 @@ func Show(c *gin.Context) {
 // @Param next query int true "Next"
 // @Produce json
 // @Success 200 {object} string "Response"
-// @Failure 400 {object} string "Error"
-// @Failure 500 {object} string "Error"
+// @Failure 400 {object} string "Bad Request"
+// @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
 	repository, err := repo.New(database)
@@ -182,41 +194,4 @@ func ReplyComment(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment Saved"})
-}
-
-func MoreCommentReplies(c *gin.Context) {
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	commentService, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
-
-	var next primitive.ObjectID
-	nextCursor := c.Query("nextCursor")
-
-	if nextCursor == "" {
-		next = primitive.NilObjectID
-	} else {
-		next, err = primitive.ObjectIDFromHex(nextCursor)
-		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-	}
-
-	res, err := commentService.MoreReplies(articleId, commentId, next)
-	if err != nil {
-		fmt.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
-		return
-	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "comments", "data": res})
 }
