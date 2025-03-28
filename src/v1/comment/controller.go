@@ -29,6 +29,7 @@ var database = client.Database("go")
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [post]
 func New(c *gin.Context) {
+
 	repository, err := repo.New(database)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -41,13 +42,14 @@ func New(c *gin.Context) {
 	}
 
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	userId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
 	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
 		return
 	}
-	err, _ = commentService.NewComment(comment, articleId)
+	err, _ = commentService.NewComment(comment, articleId, userId)
 
 	if err != nil {
 		log.Println(err)
@@ -179,6 +181,7 @@ func ReplyComment(c *gin.Context) {
 
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
+	userId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
 
 	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {
@@ -187,7 +190,7 @@ func ReplyComment(c *gin.Context) {
 		return
 	}
 
-	_, err = commentService.ReplyComment(comment, articleId, commentId)
+	_, err = commentService.ReplyComment(comment, articleId, commentId, userId)
 	if err != nil {
 		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})

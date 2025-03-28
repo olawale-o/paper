@@ -44,6 +44,7 @@ type Reply struct {
 	ID                 interface{} `bson:"_id,omitempty" json:"id,omitempty"`
 	BODY               string      `bson:"body,omitempty" json:"body,omitempty"`
 	COMMENTID          interface{} `bson:"commentId,omitempty" json:"commentId,omitempty"`
+	USERID             interface{} `bson:"userId,omitempty" json:"userId,omitempty"`
 	CREATEDATTIMESTAMP int         `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
 }
 
