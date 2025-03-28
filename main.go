@@ -7,7 +7,10 @@ import (
 	"go-simple-rest/src"
 	"go-simple-rest/src/swagger"
 	"log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -55,21 +58,22 @@ func main() {
 	// defer cc.Stop()
 	//
 	// go kafkaclient.ConsumerWithAutoCommit("test-group")
+	// go gracefulShutdown()
 	log.Println("Starting server... on port ", 8080)
 	r.Run("127.0.0.1:8080")
 
 }
 
-func terminate() {
-	if r := recover(); r != nil {
-		fmt.Println("An error occured ", r)
-		fmt.Println("Application terminated gracefully")
-	} else {
-		fmt.Println("Application executed succcesfully")
-	}
+func gracefulShutdown() {
+	quitSignals := make(chan os.Signal, 1)
+	signal.Notify(quitSignals, syscall.SIGINT, syscall.SIGTERM)
+	s := <-quitSignals
+	log.Println("Shutting down gracefully...")
+	log.Printf("Received signal: %s", s.String())
+	os.Exit(0)
 }
 
-func iterateChangeStream(routineCtx context.Context, waitGroup sync.WaitGroup, stream *mongo.ChangeStream) {
+func iterateChangeStream(routineCtx context.Context, waitGroup *sync.WaitGroup, stream *mongo.ChangeStream) {
 	defer stream.Close(routineCtx)
 	defer waitGroup.Done()
 	for stream.Next(routineCtx) {
