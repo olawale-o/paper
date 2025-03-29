@@ -15,6 +15,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const collectionName = "article_comments"
+const articleCollection = "articles"
+
 type ServiceManager struct {
 	repo repo.Repository
 }
@@ -28,7 +31,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	var opts bson.M
 
 	filter := bson.M{"_id": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), "articles", filter, article, opts)
+	data, err := sm.repo.FindOne(context.TODO(), articleCollection, filter, article, opts)
 	if err != nil {
 		log.Println(err)
 		return err, "Article not found"
@@ -39,7 +42,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	}
 
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	res, err := sm.repo.InsertOne(context.TODO(), "article_comments", doc)
+	res, err := sm.repo.InsertOne(context.TODO(), collectionName, doc)
 	if err != nil {
 		log.Println(err)
 		return err, ""
@@ -84,7 +87,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 	var opts bson.M
 
 	filter := bson.M{"_id": commentId, "articleId": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), "article_comments", filter, comment, opts)
+	data, err := sm.repo.FindOne(context.TODO(), collectionName, filter, comment, opts)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -94,7 +97,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 	}
 
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: commentId, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	data, err = sm.repo.InsertOne(context.TODO(), "article_comments", doc)
+	data, err = sm.repo.InsertOne(context.TODO(), collectionName, doc)
 
 	if err != nil {
 		return nil, err
@@ -195,7 +198,7 @@ func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next pri
 		limitStage,
 	}
 
-	data, err := sm.repo.Aggregate(context.TODO(), "article_comments", pipeline)
+	data, err := sm.repo.Aggregate(context.TODO(), collectionName, pipeline)
 	if err != nil {
 		return nil, "", err
 	}
@@ -231,7 +234,7 @@ func _HandleMoreReplies(repository repo.Repository, articleId primitive.ObjectID
 	sort := bson.M{"createdAtTimestamp": -1}
 	limt := int64(0)
 
-	data, err := repository.Find(context.TODO(), "article_comments", filter, sort, limt)
+	data, err := repository.Find(context.TODO(), collectionName, filter, sort, limt)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +268,7 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 		limit = int64(10)
 	}
 
-	result, err := repository.Find(context.TODO(), "article_comments", filter, sort, limit)
+	result, err := repository.Find(context.TODO(), collectionName, filter, sort, limit)
 
 	if err != nil {
 		return Response{}, err
@@ -277,14 +280,14 @@ func _HandlePaginate(repository repo.Repository, articleId primitive.ObjectID, l
 		lastId = result[len(result)-1].ID.(primitive.ObjectID)
 		firstId = result[0].ID.(primitive.ObjectID)
 		filter["_id"] = bson.M{"$lt": lastId}
-		nxtComment, _ := repository.FindOne(context.TODO(), "article_comments", filter, nextComment, opts)
+		nxtComment, _ := repository.FindOne(context.TODO(), collectionName, filter, nextComment, opts)
 		if nxtComment != nil {
 			hasNext = true
 		}
 
 		var prevComment bson.M
 		filter["_id"] = bson.M{"$gt": firstId}
-		prvComment, _ := repository.FindOne(context.TODO(), "article_comments", filter, prevComment, opts)
+		prvComment, _ := repository.FindOne(context.TODO(), collectionName, filter, prevComment, opts)
 		if prvComment != nil {
 			hasPrev = true
 		}
@@ -319,7 +322,7 @@ func _FetchCommentWithReplies(repository repo.Repository, articleId primitive.Ob
 	sort := bson.M{"createdAtTimestamp": -1}
 	limit := int64(10)
 
-	result, err := repository.Find(context.TODO(), "article_comments", filter, sort, limit)
+	result, err := repository.Find(context.TODO(), collectionName, filter, sort, limit)
 
 	if err != nil {
 		return nil, err
