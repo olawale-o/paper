@@ -23,7 +23,7 @@ func New(repo repo.Repository) (Service, error) {
 	return &ServiceManager{repo: repo}, nil
 }
 
-func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID) (error, interface{}) {
+func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, interface{}) {
 	var article bson.M
 	var opts bson.M
 
@@ -38,7 +38,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 		return err, nil
 	}
 
-	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
 	res, err := sm.repo.InsertOne(context.TODO(), "article_comments", doc)
 	if err != nil {
 		log.Println(err)
@@ -79,7 +79,7 @@ func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev 
 	return data, nil
 }
 
-func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID) (interface{}, error) {
+func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID, userId primitive.ObjectID) (interface{}, error) {
 	var comment bson.M
 	var opts bson.M
 
@@ -93,7 +93,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 		return nil, err
 	}
 
-	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: c.USERID, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: commentId, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
+	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: commentId, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
 	data, err = sm.repo.InsertOne(context.TODO(), "article_comments", doc)
 
 	if err != nil {
@@ -110,7 +110,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 		"article_comments",
 		filter,
 		bson.M{"$push": bson.M{"replies": bson.M{"$each": []model.Reply{
-			model.Reply{ID: val, CREATEDATTIMESTAMP: int(doc.CREATEDATIMESTAMP)},
+			model.Reply{ID: val, USERID: userId, CREATEDATTIMESTAMP: int(doc.CREATEDATIMESTAMP)},
 		},
 			"$slice": 2,
 			"$sort":  bson.M{"createdAtTimestamp": -1},
