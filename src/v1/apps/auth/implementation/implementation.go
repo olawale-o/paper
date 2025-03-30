@@ -33,7 +33,7 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (interface{},
 	dbUser, err := s.repo.GetUser(context.TODO(), "users", payload.USERNAME)
 
 	if err != nil {
-		return "", gin.H{"err": "Cannot find user"}
+		return model.LoginResponse{}, gin.H{"err": "Cannot find user"}
 	}
 
 	match := bcrypt.CheckPasswordHash(payload.PASSWORD, dbUser.PASSWORD)
@@ -47,7 +47,11 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (interface{},
 		return "", gin.H{"err": "Internal Server error"}
 	}
 
-	return model.LoginResponse{TOKEN: tokenString, USER: dbUser}, gin.H{}
+	return model.LoginResponse{TOKEN: tokenString, USER: model.UserResponseObject{
+		USERNAME: dbUser.USERNAME,
+		ID:       dbUser.ID,
+		ROLE:     dbUser.ROLE,
+	}}, gin.H{}
 }
 
 func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H) {

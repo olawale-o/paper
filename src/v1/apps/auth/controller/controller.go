@@ -38,7 +38,7 @@ func Login(c *gin.Context) {
 	c.SetCookie("token", data.TOKEN, 3600, "/", "localhost", false, true)
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": gin.H{
-		"username": data.USER.FIRSTNAME, "role": jwt.GetRole("user"),
+		"username": data.USER.USERNAME, "role": jwt.GetRole("user"),
 		"id": data.USER.ID,
 	}})
 }

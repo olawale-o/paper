@@ -4,17 +4,17 @@ import (
 	"auth/db"
 	"auth/model"
 	"context"
+	"fmt"
 
 	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var client, ctx, err = db.Connect()
-
-var collection = client.Database("go").Collection("users")
 
 type repository struct {
 	db     *mongo.Database
@@ -31,7 +31,7 @@ func New(db *mongo.Database) (model.Repository, error) {
 func (repo *repository) GetUser(ctx context.Context, collection string, username string) (model.User, error) {
 	var dbUser model.User
 	err := repo.db.Collection(collection).FindOne(context.TODO(), bson.M{"username": username}).Decode(&dbUser)
-
+	fmt.Println(err)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return dbUser, err
@@ -48,7 +48,7 @@ func (repo *repository) InsertUser(ctx context.Context, collection string, user 
 		USERNAME:  user.USERNAME,
 		PASSWORD:  user.PASSWORD,
 		ROLE:      "author",
-		CREATEDAT: time.Now().Format(time.DateTime),
+		CREATEDAT: primitive.NewDateTimeFromTime(time.Now()),
 	}
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
