@@ -34,6 +34,12 @@ type Article struct {
 	DELETEDAT  time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
+type ArticleView struct {
+	ID                 primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	USERID             primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
+	CREATEDATTIMESTAMP int64              `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+}
+
 type ArticleCommentReq struct {
 	BODY string `bson:"body" json:"body"`
 }

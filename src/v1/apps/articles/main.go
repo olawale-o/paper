@@ -2,6 +2,7 @@ package main
 
 import (
 	"articles/db"
+	"articles/kafkaclient"
 	"articles/route"
 	"context"
 	"fmt"
@@ -24,7 +25,7 @@ func terminate() {
 	}
 }
 
-func iterateChangeStream(routineCtx context.Context, waitGroup sync.WaitGroup, stream *mongo.ChangeStream) {
+func iterateChangeStream(routineCtx context.Context, waitGroup *sync.WaitGroup, stream *mongo.ChangeStream) {
 	defer stream.Close(routineCtx)
 	defer waitGroup.Done()
 	for stream.Next(routineCtx) {
@@ -36,18 +37,14 @@ func iterateChangeStream(routineCtx context.Context, waitGroup sync.WaitGroup, s
 	}
 }
 
-func init() {
-
-	// defer terminate()
+func initializeDB() {
 	db.Connect()
-	// defer func() {
-	// 	if err = client.Disconnect(ctx); err != nil {
-	// 		panic(err)
-	// 	}
-	// }()
+
 }
 
 func main() {
+
+	initializeDB()
 	r := gin.New()
 
 	route.ArticleRoutes(r)
@@ -58,6 +55,7 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
+	go kafkaclient.ConsumerWithAutoCommit("views-group")
 	log.Println("Starting server... on port ", 8083)
 	s.ListenAndServe()
 }

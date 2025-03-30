@@ -3,8 +3,10 @@ package service
 import (
 	"articles/db"
 	"articles/events"
+	"articles/kafkaclient"
 	"articles/model"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -82,7 +84,18 @@ func CreateArticle(c *gin.Context) (error, interface{}) {
 }
 
 func GetArticle(c *gin.Context) (model.Article, error) {
+	var userId primitive.ObjectID
 	oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	uid, ok := c.Get("userId")
+	if !ok {
+		return model.Article{}, errors.New("userId not found")
+	} else {
+		userId, err = primitive.ObjectIDFromHex(uid.(string))
+		if err != nil {
+			return model.Article{}, err
+		}
+	}
+
 	var article model.Article
 	filter := bson.M{"_id": oid}
 	if err := collection.FindOne(context.TODO(), filter).Decode(&article); err != nil {
@@ -90,6 +103,14 @@ func GetArticle(c *gin.Context) (model.Article, error) {
 		if err == mongo.ErrNoDocuments {
 			return article, err
 		}
+		return article, err
+	}
+	producer := kafkaclient.KafkaAsyncProducer()
+	value, err := json.Marshal(model.ArticleView{ID: oid, USERID: userId, CREATEDATTIMESTAMP: time.Now().Local().UnixMilli()})
+	message := kafkaclient.KafkaMessage("article.views", string(value))
+	err = kafkaclient.ProduceAsyncMessage(producer, message)
+	if err != nil {
+		log.Println(err)
 		return article, err
 	}
 	return article, nil
