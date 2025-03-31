@@ -30,7 +30,7 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.LoginR
 		return response, gin.H{"err": errs}
 	}
 
-	dbUser, err := s.repo.GetUser(context.TODO(), "users", payload.USERNAME)
+	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if err != nil {
 		return response, gin.H{"err": "Cannot find user"}
@@ -71,7 +71,7 @@ func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string
 		return "", gin.H{"err": errs}
 	}
 
-	dbUser, err := s.repo.GetUser(context.TODO(), "users", payload.USERNAME)
+	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if dbUser.USERNAME != "" {
 
@@ -79,7 +79,7 @@ func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string
 	}
 	hash, _ := auth.HashPassword(payload.PASSWORD)
 
-	_, err = s.repo.InsertUser(context.TODO(), "users", model.User{
+	_, err = s.repo.InsertOne(context.TODO(), "users", model.User{
 		USERNAME:  payload.USERNAME,
 		FIRSTNAME: payload.FIRSTNAME,
 		LASTNAME:  payload.LASTNAME,

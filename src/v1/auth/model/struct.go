@@ -51,6 +51,6 @@ type User struct {
 }
 
 type Repository interface {
-	GetUser(ctx context.Context, collection string, username string) (User, error)
-	InsertUser(ctx context.Context, collection string, user User) (interface{}, error)
+	FindOne(ctx context.Context, collection string, username string) (User, error)
+	InsertOne(ctx context.Context, collection string, user User) (interface{}, error)
 }

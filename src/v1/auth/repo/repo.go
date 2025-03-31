@@ -28,7 +28,7 @@ func New(db *mongo.Database) (model.Repository, error) {
 	}, nil
 }
 
-func (repo *repository) GetUser(ctx context.Context, collection string, username string) (model.User, error) {
+func (repo *repository) FindOne(ctx context.Context, collection string, username string) (model.User, error) {
 	var dbUser model.User
 	err := repo.db.Collection(collection).FindOne(context.TODO(), bson.M{"username": username}).Decode(&dbUser)
 
@@ -41,7 +41,7 @@ func (repo *repository) GetUser(ctx context.Context, collection string, username
 	return dbUser, nil
 }
 
-func (repo *repository) InsertUser(ctx context.Context, collection string, user model.User) (interface{}, error) {
+func (repo *repository) InsertOne(ctx context.Context, collection string, user model.User) (interface{}, error) {
 	doc := model.User{
 		FIRSTNAME:         user.FIRSTNAME,
 		LASTNAME:          user.LASTNAME,
