@@ -7,6 +7,7 @@ import (
 	"go-simple-rest/src/v1/translator"
 
 	"go-simple-rest/src/v1/auth/model"
+	"go-simple-rest/src/v1/auth/repo"
 	authSvc "go-simple-rest/src/v1/auth/service"
 
 	"github.com/gin-gonic/gin"
@@ -14,10 +15,10 @@ import (
 )
 
 type service struct {
-	repo model.Repository
+	repo repo.Repository
 }
 
-func NewService(rep model.Repository) authSvc.Service {
+func NewService(rep repo.Repository) authSvc.Service {
 	return &service{repo: rep}
 }
 

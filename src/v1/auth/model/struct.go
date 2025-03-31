@@ -1,8 +1,6 @@
 package model
 
 import (
-	"context"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -48,9 +46,4 @@ type User struct {
 	CREATEDATIMESTAMP int64              `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
 	UPDATEDATIMESTAMP int64              `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
 	DELETEDATIMESTAMP int64              `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
-}
-
-type Repository interface {
-	FindOne(ctx context.Context, collection string, username string) (User, error)
-	InsertOne(ctx context.Context, collection string, user User) (interface{}, error)
 }
