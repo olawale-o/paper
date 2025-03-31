@@ -35,7 +35,19 @@ func AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 
 func CreateArticle(article model.Article, authorId primitive.ObjectID) (interface{}, error) {
 
-	doc := model.Article{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
+	doc := model.Article{
+		TITLE:              article.TITLE,
+		AUTHORID:           authorId,
+		CONTENT:            article.CONTENT,
+		LIKES:              0,
+		VIEWS:              0,
+		CREATEDAT:          primitive.NewDateTimeFromTime(time.Now()),
+		UPDATEDAT:          primitive.NewDateTimeFromTime(time.Now()),
+		TAGS:               article.TAGS,
+		CATEGORIES:         article.CATEGORIES,
+		CREATEDATTIMESTAMP: time.Now().Local().UnixMilli(),
+		UPDATEDATTIMESTAMP: time.Now().Local().UnixMilli(),
+	}
 	res, err := articleCollection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
@@ -142,21 +154,21 @@ func DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
 
 func UpdateAuthorWithArticle(data model.ArticleData) (interface{}, error) {
 	fmt.Println(data)
-	authorId, err := primitive.ObjectIDFromHex(data.AUTHORID)
-	artilcleId, err := primitive.ObjectIDFromHex(data.ID)
+	authorId, err := primitive.ObjectIDFromHex(data.AUTHORID.Hex())
+	artilcleId, err := primitive.ObjectIDFromHex(data.ID.Hex())
 	if err != nil {
 		return nil, err
 	}
 	filter := bson.M{"_id": authorId}
 	update := bson.M{
 		"$push": bson.M{"articles": bson.M{"$each": []model.Article{{
-			TITLE:      data.TITLE,
-			ID:         artilcleId,
-			CONTENT:    data.CONTENT,
-			CREATEDAT:  data.CREATEDAT,
-			UPDATEDAT:  data.UPDATEDAT,
-			CATEGORIES: data.CATEGORIES,
-			TAGS:       data.TAGS,
+			TITLE:              data.TITLE,
+			ID:                 artilcleId,
+			CONTENT:            data.CONTENT,
+			CREATEDATTIMESTAMP: data.CREATEDATTIMESTAMP,
+			UPDATEDATTIMESTAMP: data.UPDATEDATTIMESTAMP,
+			CATEGORIES:         data.CATEGORIES,
+			TAGS:               data.TAGS,
 		}},
 			"$sort":  bson.M{"createdAt": -1},
 			"$slice": 2}},
