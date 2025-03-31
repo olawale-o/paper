@@ -7,6 +7,7 @@ import (
 	"go-simple-rest/src/v1/translator"
 
 	"go-simple-rest/src/v1/auth/model"
+	"go-simple-rest/src/v1/auth/repo"
 	authSvc "go-simple-rest/src/v1/auth/service"
 
 	"github.com/gin-gonic/gin"
@@ -14,10 +15,10 @@ import (
 )
 
 type service struct {
-	repo model.Repository
+	repo repo.Repository
 }
 
-func NewService(rep model.Repository) authSvc.Service {
+func NewService(rep repo.Repository) authSvc.Service {
 	return &service{repo: rep}
 }
 
@@ -30,7 +31,7 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.LoginR
 		return response, gin.H{"err": errs}
 	}
 
-	dbUser, err := s.repo.GetUser(context.TODO(), "users", payload.USERNAME)
+	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if err != nil {
 		return response, gin.H{"err": "Cannot find user"}
@@ -71,7 +72,7 @@ func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string
 		return "", gin.H{"err": errs}
 	}
 
-	dbUser, err := s.repo.GetUser(context.TODO(), "users", payload.USERNAME)
+	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if dbUser.USERNAME != "" {
 
@@ -79,7 +80,7 @@ func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string
 	}
 	hash, _ := auth.HashPassword(payload.PASSWORD)
 
-	_, err = s.repo.InsertUser(context.TODO(), "users", model.User{
+	_, err = s.repo.InsertOne(context.TODO(), "users", model.User{
 		USERNAME:  payload.USERNAME,
 		FIRSTNAME: payload.FIRSTNAME,
 		LASTNAME:  payload.LASTNAME,

@@ -4,7 +4,7 @@ import (
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/auth/implementation"
 	"go-simple-rest/src/v1/auth/model"
-	"go-simple-rest/src/v1/auth/repo"
+	repo "go-simple-rest/src/v1/auth/repo/implementation"
 	"go-simple-rest/src/v1/jwt"
 	"net/http"
 
