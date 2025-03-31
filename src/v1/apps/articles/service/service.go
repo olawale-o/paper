@@ -54,7 +54,20 @@ func CreateArticle(c *gin.Context) (error, interface{}) {
 		return err, ""
 	}
 
-	doc := model.Article{TITLE: newArticle.TITLE, AUTHORID: authorId, CONTENT: newArticle.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: newArticle.TAGS, CATEGORIES: newArticle.CATEGORIES}
+	doc := model.Article{
+		TITLE:             newArticle.TITLE,
+		AUTHORID:          authorId,
+		CONTENT:           newArticle.CONTENT,
+		LIKES:             0,
+		VIEWS:             0,
+		CREATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
+		UPDATEDAT:         primitive.NewDateTimeFromTime(time.Now()),
+		TAGS:              newArticle.TAGS,
+		CATEGORIES:        newArticle.CATEGORIES,
+		CREATEDATIMESTAMP: time.Now().Local().UnixMilli(),
+		UPDATEDATIMESTAMP: time.Now().Local().UnixMilli(),
+	}
+
 	res, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
 		log.Println(err)
@@ -65,21 +78,25 @@ func CreateArticle(c *gin.Context) (error, interface{}) {
 	if !ok {
 		return errors.New("id is not a primitive.ObjectID"), ""
 	}
-	articleId := v.Hex()
-	events.PublishAuthorEvent(
-		model.RequestPayload{
-			Event: "UPDATE_AUTHOR",
-			Data: model.AuthorData{
-				TITLE:      newArticle.TITLE,
-				CONTENT:    newArticle.CONTENT,
-				AUTHORID:   val,
-				ID:         articleId,
-				UPDATEDAT:  doc.UPDATEDAT,
-				CREATEDAT:  doc.CREATEDAT,
-				TAGS:       newArticle.TAGS,
-				CATEGORIES: newArticle.CATEGORIES,
-			},
-		})
+	// articleId := v.Hex()
+
+	producer := kafkaclient.KafkaAsyncProducer()
+	value, err := json.Marshal(model.AuthorData{
+		AUTHORID:           authorId,
+		ID:                 v,
+		TITLE:              newArticle.TITLE,
+		CONTENT:            newArticle.CONTENT,
+		TAGS:               newArticle.TAGS,
+		CATEGORIES:         newArticle.CATEGORIES,
+		CREATEDATTIMESTAMP: doc.CREATEDATIMESTAMP,
+		UPDATEDATTIMESTAMP: doc.UPDATEDATIMESTAMP,
+	})
+	message := kafkaclient.KafkaMessage("articles.new", string(value))
+	err = kafkaclient.ProduceAsyncMessage(producer, message)
+	if err != nil {
+		log.Println(err)
+		return err, nil
+	}
 	return err, id
 }
 

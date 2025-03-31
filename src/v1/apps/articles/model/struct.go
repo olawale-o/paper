@@ -20,18 +20,21 @@ type Author struct {
 }
 
 type Article struct {
-	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
-	TITLE      string             `bson:"title" json:"title"`
-	CONTENT    string             `bson:"content" json:"content"`
-	AUTHORID   primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
-	LIKES      int                `bson:"likes,omitempty" json:"likes,omitempty"`
-	VIEWS      int                `bson:"views,omitempty" json:"views,omitempty"`
-	CREATEDAT  time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT  time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
-	STATUS     string             `bson:"status,omitempty" json:"status,omitempty"`
-	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
-	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
-	DELETEDAT  time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	ID                interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	TITLE             string             `bson:"title" json:"title"`
+	CONTENT           string             `bson:"content" json:"content"`
+	AUTHORID          primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
+	LIKES             int                `bson:"likes,omitempty" json:"likes,omitempty"`
+	VIEWS             int                `bson:"views,omitempty" json:"views,omitempty"`
+	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UPDATEDAT         primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	STATUS            string             `bson:"status,omitempty" json:"status,omitempty"`
+	CATEGORIES        []string           `bson:"categories,omitempty" json:"categories,omitempty"`
+	TAGS              []string           `bson:"tags,omitempty" json:"tags,omitempty"`
+	DELETEDAT         primitive.DateTime `bson:"deletedAt,omitempty" json:"deletedAt,omitempty" swaggertype:"string"`
+	CREATEDATIMESTAMP int64              `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+	UPDATEDATIMESTAMP int64              `bson:"updatedAtTimestamp,omitempty" json:"updatedAtTimestamp,omitempty"`
+	DELETEDATIMESTAMP int64              `bson:"deletedAtTimestamp,omitempty" json:"deletedAtTimestamp,omitempty"`
 }
 
 type ArticleView struct {
@@ -71,14 +74,16 @@ type CommentData struct {
 }
 
 type AuthorData struct {
-	AUTHORID   string
-	ID         string
-	TITLE      string
-	CONTENT    string
-	CREATEDAT  time.Time
-	UPDATEDAT  time.Time
-	CATEGORIES []string
-	TAGS       []string
+	AUTHORID           primitive.ObjectID
+	ID                 primitive.ObjectID
+	TITLE              string
+	CONTENT            string
+	CREATEDAT          time.Time
+	UPDATEDAT          time.Time
+	CATEGORIES         []string
+	TAGS               []string
+	CREATEDATTIMESTAMP int64
+	UPDATEDATTIMESTAMP int64
 }
 
 type RequestPayload struct {

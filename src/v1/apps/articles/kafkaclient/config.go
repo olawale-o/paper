@@ -3,7 +3,7 @@ package kafkaclient
 import "github.com/IBM/sarama"
 
 var (
-	TOPICS    = []string{"article.views", "article.likes", "article.comments", "article.shares", "article.ratings"}
+	TOPICS    = []string{"article.views", "article.new", "article.likes", "article.comments", "article.shares", "article.ratings"}
 	Version   = sarama.V3_9_0_0
 	KAFKA_URL = "localhost:9092"
 	BROKERS   = []string{KAFKA_URL}
