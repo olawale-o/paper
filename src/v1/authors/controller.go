@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // var client, ctx, err = db.Connect()
@@ -117,7 +116,7 @@ func Update(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [delete]
 func Delete(c *gin.Context) {
-	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	authorId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 
 	repository, err := repo.New(database)
 	if err != nil {
