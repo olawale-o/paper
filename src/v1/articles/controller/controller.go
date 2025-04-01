@@ -13,7 +13,7 @@ import (
 )
 
 var client, ctx, err = db.Connect()
-var collection = client.Database("go").Collection("articles")
+
 var database = client.Database("go")
 
 // Articles godoc
