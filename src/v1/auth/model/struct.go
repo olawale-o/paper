@@ -10,7 +10,7 @@ type LoginAuth struct {
 	// username
 	USERNAME string `bson:"username" json:"username" validate:"required,min=1"`
 	// password
-	PASSWORD string `bson:"username" json:"password" validate:"required,min=4"`
+	PASSWORD string `bson:"password" json:"password" validate:"required,min=4"`
 }
 
 type UserResponseObject struct {
