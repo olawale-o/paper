@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var client, ctx, err = db.Connect()
+var client, _, err = db.Connect()
 
 var database = client.Database("go")
 
@@ -28,17 +28,12 @@ var database = client.Database("go")
 // @Failure 500 {object} string "Error"
 // @Router /auth/login [post]
 func Login(c *gin.Context) {
-	var user model.LoginAuth
 
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+	payload := c.MustGet("body").(model.LoginAuth)
 	rep, _ := repo.New(database)
 	s := implementation.NewService(rep)
 
-	response, error := s.Login(c, user)
+	response, error := s.Login(c, payload)
 
 	if _, ok := error["err"]; ok {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err})

@@ -6,6 +6,7 @@ import (
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"go-simple-rest/src/v1/comment/service"
+	"go-simple-rest/src/v1/utils"
 	"log"
 	"net/http"
 
@@ -41,8 +42,8 @@ func New(c *gin.Context) {
 		return
 	}
 
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	userId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
+	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
 	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {
 		log.Println(err)
@@ -60,8 +61,8 @@ func New(c *gin.Context) {
 }
 
 func Show(c *gin.Context) {
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
+	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 
 	repository, err := repo.New(database)
 	if err != nil {
@@ -80,7 +81,7 @@ func Show(c *gin.Context) {
 	if nextCursor == "" {
 		next = primitive.NilObjectID
 	} else {
-		next, err = primitive.ObjectIDFromHex(nextCursor)
+		next, err = utils.ParseParamToPrimitiveObjectId(nextCursor)
 		if err != nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -122,7 +123,7 @@ func Index(c *gin.Context) {
 	}
 
 	// var limit int
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
+	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	// limit, err = strconv.Atoi(c.Query("limit"))
 	// if err != nil {
 	// 	limit = 0
@@ -139,7 +140,7 @@ func Index(c *gin.Context) {
 	if nextCursor == "" {
 		next = primitive.NilObjectID
 	} else {
-		next, err = primitive.ObjectIDFromHex(nextCursor)
+		next, err = utils.ParseParamToPrimitiveObjectId(nextCursor)
 		if err != nil {
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -179,9 +180,9 @@ func ReplyComment(c *gin.Context) {
 		return
 	}
 
-	articleId, _ := primitive.ObjectIDFromHex(c.Param("id"))
-	commentId, _ := primitive.ObjectIDFromHex(c.Param("cid"))
-	userId, _ := primitive.ObjectIDFromHex(c.MustGet("userId").(string))
+	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
+	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
 
 	var comment model.Comment
 	if err := c.BindJSON(&comment); err != nil {

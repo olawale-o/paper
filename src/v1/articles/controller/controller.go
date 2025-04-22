@@ -6,14 +6,13 @@ import (
 	"go-simple-rest/src/v1/articles/repository/implementation"
 	"go-simple-rest/src/v1/articles/service"
 	"go-simple-rest/src/v1/utils"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 var client, ctx, err = db.Connect()
-var collection = client.Database("go").Collection("articles")
+
 var database = client.Database("go")
 
 // Articles godoc
@@ -113,7 +112,6 @@ func UpdateArticle(c *gin.Context) {
 
 	var updatedArticle model.Article
 	if err := c.BindJSON(&updatedArticle); err != nil {
-		log.Println(err)
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": err.Error()})
 		return
 	}
