@@ -23,13 +23,7 @@ func NewService(rep repo.Repository) authSvc.Service {
 }
 
 func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.LoginResponse, gin.H) {
-	validate := validator.New()
-	err := validate.Struct(payload)
-	errs := translator.Translate(validate, err)
 	var response model.LoginResponse
-	if len(errs) > 0 {
-		return response, gin.H{"err": errs}
-	}
 
 	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
