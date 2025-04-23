@@ -10,7 +10,7 @@ import (
 func AuthRoutes(r *gin.RouterGroup) {
 	// r.Use(middlewares.Logger())
 
-	r.Use(middlewares.RequestToJSON(), middlewares.Validator())
+	r.Use(middlewares.RequestToJSON("login"), middlewares.Validator("login"))
 	{
 		r.POST("/auth/login", controller.Login)
 	}
