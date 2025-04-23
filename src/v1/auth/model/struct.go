@@ -42,6 +42,13 @@ type RegisterAuth struct {
 	LASTNAME  string `bson:"lastname" json:"lastname" validate:"required"`
 }
 
+func (registerAuth RegisterAuth) Validate() map[string]interface{} {
+	validate := validator.New()
+	err := validate.Struct(&registerAuth)
+	errs := translator.Translate(validate, err)
+	return errs
+}
+
 type User struct {
 	ID                string             `bson:"_id,omitempty" json:"id,omitempty"`
 	FIRSTNAME         string             `bson:"firstName" json:"firstName"`
