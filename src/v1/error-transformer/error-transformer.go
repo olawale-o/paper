@@ -13,6 +13,7 @@ func TranslateErrorToMap(err error, trans ut.Translator) map[string]interface{} 
 		return nil
 	}
 	validatorErrs := err.(validator.ValidationErrors)
+	fmt.Println("validatorErrs", validatorErrs)
 	for _, e := range validatorErrs {
 		fmt.Printf("Field: %s, Tag: %s, StructField: %s, Namespace: %s\n", e.Field(), e.ActualTag(), e.StructField(), e.Namespace())
 		translatedErr := e.Translate(trans)
