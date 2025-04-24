@@ -1,6 +1,9 @@
 package model
 
 import (
+	"go-simple-rest/src/v1/translator"
+
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -11,6 +14,13 @@ type LoginAuth struct {
 	USERNAME string `bson:"username" json:"username" validate:"required,min=1"`
 	// password
 	PASSWORD string `bson:"password" json:"password" validate:"required,min=4"`
+}
+
+func (loginAuth LoginAuth) Validate() map[string]interface{} {
+	validate := validator.New()
+	err := validate.Struct(&loginAuth)
+	errs := translator.Translate(validate, err)
+	return errs
 }
 
 type UserResponseObject struct {
@@ -30,6 +40,13 @@ type RegisterAuth struct {
 	PASSWORD  string `bson:"username" json:"password" validate:"required"`
 	FIRSTNAME string `bson:"firstname" json:"firstname" validate:"required"`
 	LASTNAME  string `bson:"lastname" json:"lastname" validate:"required"`
+}
+
+func (registerAuth RegisterAuth) Validate() map[string]interface{} {
+	validate := validator.New()
+	err := validate.Struct(&registerAuth)
+	errs := translator.Translate(validate, err)
+	return errs
 }
 
 type User struct {
