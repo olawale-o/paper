@@ -11,7 +11,7 @@ import (
 func bindData(c *gin.Context, data any) bool {
 	if err := c.BindJSON(&data); err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return false
 	}
 	return true
