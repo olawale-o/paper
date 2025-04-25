@@ -11,7 +11,7 @@ import (
 type Reponse struct {
 	StatusCode int         `json:"status"`
 	Success    bool        `json:"success"`
-	Message    string      `json:"message"`
+	Message    interface{} `json:"message"`
 	Data       interface{} `json:"data"`
 }
 
@@ -49,4 +49,8 @@ func HandleQueryParams(params model.QueryParams) bson.M {
 
 func TransformResponse(c *gin.Context, reponse Reponse) {
 	c.IndentedJSON(reponse.StatusCode, gin.H{"message": reponse.Message, "success": reponse.Success, "data": reponse.Data})
+}
+
+func AbortResponse(c *gin.Context, reponse Reponse) {
+	c.AbortWithStatusJSON(reponse.StatusCode, gin.H{"message": reponse.Message, "success": reponse.Success, "data": reponse.Data})
 }
