@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"go-simple-rest/src/v1/translator"
+	"go-simple-rest/src/v1/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +12,7 @@ import (
 func isBodyValid[T any](c *gin.Context) (T, bool) {
 	payload, ok := c.MustGet("body").(T)
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
+		utils.AbortResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Validation error", Data: nil})
 		return *new(T), false
 	}
 	return payload, true
@@ -33,7 +34,7 @@ func Validator[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		errs := validateRequest[T](c)
 		if len(errs) > 0 {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": errs})
+			utils.AbortResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: errs, Data: nil})
 			return
 		}
 		c.Next()

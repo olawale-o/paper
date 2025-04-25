@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"go-simple-rest/src/v1/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 func BindJSONData[T any](c *gin.Context) (T, bool) {
 	var data T
 	if err := c.BindJSON(&data); err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		utils.AbortResponse(c, utils.Reponse{StatusCode: http.StatusUnprocessableEntity, Success: false, Message: err.Error(), Data: nil})
 		return *new(T), false // Return the zero value and false
 	}
 	return data, true
