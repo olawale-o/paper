@@ -50,13 +50,13 @@ func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId pri
 		"$push": bson.M{"articles": bson.M{"$each": []model.AuthorArticle{{TITLE: doc.TITLE, ID: insertedId, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
 		"$inc":  bson.M{"articleCount": 1}}
 
-	res, err := s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	_, err = s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
 	if err != nil {
 		log.Println(err)
 		return "", err
 	}
 
-	return res, err
+	return insertedId, err
 }
 
 func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
@@ -64,7 +64,7 @@ func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId pri
 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
 	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
 
-	res, err := s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	_, err := s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -72,13 +72,12 @@ func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId pri
 
 	filter = bson.M{"_id": articleId}
 	update = bson.M{"$set": bson.M{"title": article.TITLE, "content": article.CONTENT}}
-	res, err = s.repo.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
+	res, err := s.repo.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
 	if err != nil {
 		log.Println(err)
 		return "", err
 	}
-	data, _ := bson.MarshalExtJSON(res, false, false)
-	return data, nil
+	return res.ID, nil
 }
 
 func (s *ServiceManager) DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) error {

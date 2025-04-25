@@ -1,6 +1,11 @@
 package authors
 
-import "github.com/gin-gonic/gin"
+import (
+	"go-simple-rest/src/v1/authors/model"
+	"go-simple-rest/src/v1/middlewares"
+
+	"github.com/gin-gonic/gin"
+)
 
 func AuthorRoutes(r *gin.RouterGroup) {
 	authors := r.Group("/authors")
@@ -9,7 +14,7 @@ func AuthorRoutes(r *gin.RouterGroup) {
 	authors.PUT("/:id", Update)
 	authors.DELETE("/:id", Delete)
 	authors.GET("/:id/articles", ArticleIndex)
-	authors.POST("/:id/articles", ArticleNew)
-	authors.PUT("/:id/articles/:articleId", ArticleUpdate)
+	authors.POST("/:id/articles", middlewares.RequestToJSON[model.AuthorArticle](), middlewares.Validator[model.AuthorArticle](), ArticleNew)
+	authors.PUT("/:id/articles/:articleId", middlewares.RequestToJSON[model.AuthorArticle](), middlewares.Validator[model.AuthorArticle](), ArticleUpdate)
 	authors.DELETE("/:id/articles/:articleId", ArticleDelete)
 }

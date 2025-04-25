@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BindJSONData[T any](c *gin.Context) (T, bool) {
+func bindJSONData[T any](c *gin.Context) (T, bool) {
 	var data T
 	if err := c.BindJSON(&data); err != nil {
 		utils.AbortResponse(c, utils.Reponse{StatusCode: http.StatusUnprocessableEntity, Success: false, Message: err.Error(), Data: nil})
@@ -19,7 +19,7 @@ func BindJSONData[T any](c *gin.Context) (T, bool) {
 func RequestToJSON[T any]() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		data, ok := BindJSONData[T](c)
+		data, ok := bindJSONData[T](c)
 		if !ok {
 			return
 		}
