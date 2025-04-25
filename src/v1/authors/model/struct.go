@@ -17,16 +17,16 @@ type Author struct {
 
 type AuthorArticle struct {
 	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
-	TITLE      string             `bson:"title" json:"title"`
-	CONTENT    string             `bson:"content" json:"content"`
+	TITLE      string             `bson:"title" json:"title" validate:"required,min=1"`
+	CONTENT    string             `bson:"content" json:"content" validate:"required,min=1"`
 	AUTHORID   primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
 	LIKES      int                `bson:"likes,omitempty" json:"likes,omitempty"`
 	VIEWS      int                `bson:"views,omitempty" json:"views,omitempty"`
 	CREATEDAT  time.Time          `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
 	UPDATEDAT  time.Time          `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 	STATUS     string             `bson:"status,omitempty" json:"status,omitempty"`
-	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty"`
-	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty"`
+	CATEGORIES []string           `bson:"categories,omitempty" json:"categories,omitempty" validate:"required"`
+	TAGS       []string           `bson:"tags,omitempty" json:"tags,omitempty" validate:"required"`
 	DELETEDAT  time.Time          `bson:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
@@ -41,5 +41,5 @@ type AuthorArticleResponse struct {
 }
 
 type AuthorArticleUpdateResponse struct {
-	MESSAGE string `json:"message,omitempty"`
+	ID interface{} `bson:"_id,omitempty" json:"id,omitempty"`
 }

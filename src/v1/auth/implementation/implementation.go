@@ -4,14 +4,12 @@ import (
 	"context"
 	"go-simple-rest/src/v1/auth"
 	"go-simple-rest/src/v1/jwt"
-	"go-simple-rest/src/v1/translator"
 
 	"go-simple-rest/src/v1/auth/model"
 	"go-simple-rest/src/v1/auth/repo"
 	authSvc "go-simple-rest/src/v1/auth/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 type service struct {
@@ -57,24 +55,15 @@ func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.LoginR
 
 func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H) {
 
-	validate := validator.New()
-	err := validate.Struct(payload)
-	errs := translator.Translate(validate, err)
-
-	if len(errs) > 0 {
-
-		return "", gin.H{"err": errs}
-	}
-
-	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
+	dbUser, _ := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if dbUser.USERNAME != "" {
-
-		return "", gin.H{"err": "Unable to create user"}
+		return "", gin.H{"err": "Kindly login with your credentials"}
 	}
+
 	hash, _ := auth.HashPassword(payload.PASSWORD)
 
-	_, err = s.repo.InsertOne(context.TODO(), "users", model.User{
+	_, err := s.repo.InsertOne(context.TODO(), "users", model.User{
 		USERNAME:  payload.USERNAME,
 		FIRSTNAME: payload.FIRSTNAME,
 		LASTNAME:  payload.LASTNAME,

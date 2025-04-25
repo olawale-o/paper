@@ -2,7 +2,8 @@ package route
 
 import (
 	"go-simple-rest/src/v1/auth/controller"
-	"go-simple-rest/src/v1/auth/middlewares"
+	"go-simple-rest/src/v1/auth/model"
+	"go-simple-rest/src/v1/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,9 +11,8 @@ import (
 func AuthRoutes(r *gin.RouterGroup) {
 	// r.Use(middlewares.Logger())
 
-	r.Use(middlewares.RequestToJSON("login"), middlewares.Validator("login"))
-	{
-		r.POST("/auth/login", controller.Login)
-	}
-	r.POST("/auth/sign-up", controller.Register)
+	r.POST("/auth/login", middlewares.RequestToJSON[model.LoginAuth](), middlewares.Validator[model.LoginAuth](), controller.Login)
+
+	r.POST("/auth/sign-up", middlewares.RequestToJSON[model.RegisterAuth](), middlewares.Validator[model.RegisterAuth](), controller.Register)
+
 }

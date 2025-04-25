@@ -3,9 +3,17 @@ package utils
 import (
 	"go-simple-rest/src/v1/articles/model"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type Reponse struct {
+	StatusCode int         `json:"status"`
+	Success    bool        `json:"success"`
+	Message    interface{} `json:"message"`
+	Data       interface{} `json:"data"`
+}
 
 func ParseParamToPrimitiveObjectId(param string) (primitive.ObjectID, error) {
 	oid, err := primitive.ObjectIDFromHex(param)
@@ -37,4 +45,12 @@ func HandleQueryParams(params model.QueryParams) bson.M {
 	// 	filter["params.Views"] = fieldValues[params.Views]
 	// }
 	return filter
+}
+
+func TransformResponse(c *gin.Context, reponse Reponse) {
+	c.IndentedJSON(reponse.StatusCode, gin.H{"message": reponse.Message, "success": reponse.Success, "data": reponse.Data})
+}
+
+func AbortResponse(c *gin.Context, reponse Reponse) {
+	c.AbortWithStatusJSON(reponse.StatusCode, gin.H{"message": reponse.Message, "success": reponse.Success, "data": reponse.Data})
 }

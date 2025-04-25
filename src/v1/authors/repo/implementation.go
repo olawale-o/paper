@@ -3,7 +3,6 @@ package repo
 import (
 	"context"
 	"fmt"
-	"go-simple-rest/db"
 	"log"
 
 	"go-simple-rest/src/v1/authors/model"
@@ -12,10 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var client, ctx, err = db.Connect()
-
-var collection = client.Database("go").Collection("articles")
 
 type repository struct {
 	db     *mongo.Database
@@ -57,14 +52,14 @@ func (repo *repository) InsertOne(ctx context.Context, collection string, doc in
 	return res.InsertedID, nil
 }
 
-func (repo *repository) FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
-	var data interface{}
+func (repo *repository) FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (model.AuthorArticleUpdateResponse, error) {
+	var data model.AuthorArticleUpdateResponse
 	opts := options.FindOneAndUpdate().SetUpsert(upsert)
 	repo.db.Collection(collection).FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&data)
 
-	if err != nil {
-		return "", err
-	}
+	//if err != nil {
+	//	return data, err
+	//}
 	return data, nil
 }
 

@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var client, ctx, err = db.Connect()
+var client, _, _ = db.Connect()
 
 var database = client.Database("go")
 
@@ -30,21 +30,21 @@ var database = client.Database("go")
 func ArticleIndex(c *gin.Context) {
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
 	repository, err := repo.New(database)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 	service, err := service.New(repository)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 	res, _ := service.AllArticles(oid)
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article retrieved successfully", "articles": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Retrieved all articles", Data: res})
 }
 
 // AuthorArticleNew godoc
@@ -62,32 +62,29 @@ func ArticleIndex(c *gin.Context) {
 func ArticleNew(c *gin.Context) {
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
 	repository, err := repo.New(database)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 	service, err := service.New(repository)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
-	var newArticle model.AuthorArticle
-	if err := c.BindJSON(&newArticle); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-		return
-	}
+
+	newArticle := c.MustGet("body").(model.AuthorArticle)
 	res, err := service.CreateArticle(newArticle, oid)
 
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
+
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article created successfully", "article": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusCreated, Success: true, Message: "Article created successfully", Data: res})
 }
 
 // AuthorArticleNew godoc
@@ -106,50 +103,39 @@ func ArticleNew(c *gin.Context) {
 func ArticleUpdate(c *gin.Context) {
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid author ID"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
 	articleId, err := utils.ParseParamToPrimitiveObjectId(c.Param("articleId"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid article ID"})
-		return
-	}
-
-	var article model.AuthorArticle
-	if err := c.BindJSON(&article); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
 
 	repository, err := repo.New(database)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 	service, err := service.New(repository)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
-	var newArticle model.AuthorArticle
-	if err := c.BindJSON(&newArticle); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-		return
-	}
+
+	article := c.MustGet("body").(model.AuthorArticle)
 
 	res, err := service.UpdateArticle(article, authorId, articleId)
 
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "An error occured"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated successfully", "article": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Article updated successfully", Data: res})
 }
 
-// AuthorArticleNew godoc
+// AuthorArticleDelete godoc
 // @Tags Authors
 // @Summary Delete an article written by a specific author
 // @Description Deletes an article written by a specific author.

@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/auth/implementation"
 	"go-simple-rest/src/v1/auth/model"
 	repo "go-simple-rest/src/v1/auth/repo/implementation"
 	"go-simple-rest/src/v1/jwt"
+	"go-simple-rest/src/v1/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +44,7 @@ func Login(c *gin.Context) {
 
 	c.SetCookie("token", response.TOKEN, 3600, "/", "127.0.0.1", false, true)
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Logged in successfully", "user": gin.H{
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Logged in successfully", Data: gin.H{
 		"username": response.USER.USERNAME, "role": jwt.GetRole("user"),
 		"id": response.USER.ID,
 	}})
@@ -60,22 +62,17 @@ func Login(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /auth/sign-up [post]
 func Register(c *gin.Context) {
-	var user model.RegisterAuth
-
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+	payload := c.MustGet("body").(model.RegisterAuth)
 	rep, _ := repo.New(database)
 	s := implementation.NewService(rep)
 
-	msg, error := s.Register(c, user)
+	msg, error := s.Register(c, payload)
 
 	if _, ok := error["err"]; ok {
+		fmt.Println(error["err"])
 		c.IndentedJSON(http.StatusInternalServerError, error)
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, gin.H{"message": msg})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusCreated, Success: true, Message: msg, Data: nil})
 }
