@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"go-simple-rest/src/v1/auth/model"
 	"net/http"
 
@@ -9,7 +10,8 @@ import (
 
 func bindData(c *gin.Context, data any) bool {
 	if err := c.BindJSON(&data); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err})
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return false
 	}
 	return true
@@ -24,12 +26,17 @@ func RequestToJSON(requestType string) gin.HandlerFunc {
 				return
 			}
 			c.Set("body", data)
+			return
 		case "register":
 			var data model.RegisterAuth
 			if !bindData(c, &data) {
 				return
 			}
 			c.Set("body", data)
+			return
+		case "default":
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request type"})
+			return
 		}
 		c.Next()
 	}

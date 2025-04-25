@@ -22,9 +22,11 @@ func Validator(requestType string) gin.HandlerFunc {
 				return
 			}
 			c.Set("body", payload)
+			return
 		case "register":
 			payload, ok := c.MustGet("body").(model.RegisterAuth)
 			if !ok {
+
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 				return
 			}
@@ -34,6 +36,7 @@ func Validator(requestType string) gin.HandlerFunc {
 				return
 			}
 			c.Set("body", payload)
+			return
 		case "default":
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request type"})
 			return

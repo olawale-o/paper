@@ -37,7 +37,7 @@ type LoginResponse struct {
 
 type RegisterAuth struct {
 	USERNAME  string `bson:"username" json:"username" validate:"required"`
-	PASSWORD  string `bson:"username" json:"password" validate:"required"`
+	PASSWORD  string `bson:"password" json:"password" validate:"required"`
 	FIRSTNAME string `bson:"firstname" json:"firstname" validate:"required"`
 	LASTNAME  string `bson:"lastname" json:"lastname" validate:"required"`
 }
