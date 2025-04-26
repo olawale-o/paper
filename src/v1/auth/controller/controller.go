@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/auth/implementation"
 	"go-simple-rest/src/v1/auth/model"
@@ -13,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var client, _, err = db.Connect()
+var client, _, _ = db.Connect()
 
 var database = client.Database("go")
 
@@ -35,18 +34,21 @@ func Login(c *gin.Context) {
 	rep, _ := repo.New(database)
 	s := implementation.NewService(rep)
 
-	response, error := s.Login(c, payload)
+	response, ok := s.Login(c, payload)
 
-	if _, ok := error["err"]; ok {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err})
+	if ok {
+		c.IndentedJSON(http.StatusInternalServerError, response.MESSAGE)
 		return
 	}
 
-	c.SetCookie("token", response.TOKEN, 3600, "/", "127.0.0.1", false, true)
+	data := response.DATA.(map[string]interface{})
+	userData := data["USER"].(model.UserResponseObject)
+
+	c.SetCookie("token", data["TOKEN"].(string), 3600, "/", "127.0.0.1", false, true)
 	c.SetSameSite(http.SameSiteStrictMode)
-	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Logged in successfully", Data: gin.H{
-		"username": response.USER.USERNAME, "role": jwt.GetRole("user"),
-		"id": response.USER.ID,
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: response.MESSAGE, Data: gin.H{
+		"username": userData.USERNAME, "role": jwt.GetRole("user"),
+		"id": userData.ID,
 	}})
 }
 
@@ -66,13 +68,12 @@ func Register(c *gin.Context) {
 	rep, _ := repo.New(database)
 	s := implementation.NewService(rep)
 
-	msg, error := s.Register(c, payload)
+	response, ok := s.Register(c, payload)
 
-	if _, ok := error["err"]; ok {
-		fmt.Println(error["err"])
-		c.IndentedJSON(http.StatusInternalServerError, error)
+	if ok {
+		c.IndentedJSON(http.StatusInternalServerError, response.MESSAGE)
 		return
 	}
 
-	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusCreated, Success: true, Message: msg, Data: nil})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusCreated, Success: true, Message: response.MESSAGE, Data: nil})
 }

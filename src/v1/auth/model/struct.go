@@ -19,10 +19,9 @@ type UserResponseObject struct {
 	ID       string `json:"id"`
 }
 
-type LoginResponse struct {
-	MESSAGE string             `json:"message"`
-	TOKEN   string             `json:"token"`
-	USER    UserResponseObject `json:"user"`
+type AuthResponse struct {
+	MESSAGE string      `json:"message"`
+	DATA    interface{} `json:"data"`
 }
 
 type RegisterAuth struct {

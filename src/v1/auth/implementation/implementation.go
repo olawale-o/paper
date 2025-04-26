@@ -20,45 +20,46 @@ func NewService(rep repo.Repository) authSvc.Service {
 	return &service{repo: rep}
 }
 
-func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.LoginResponse, gin.H) {
-	var response model.LoginResponse
+func (s *service) Login(ctx *gin.Context, payload model.LoginAuth) (model.AuthResponse, bool) {
 
 	dbUser, err := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if err != nil {
-		return response, gin.H{"err": "Cannot find user"}
+		return model.AuthResponse{MESSAGE: "Cannot find user"}, true
 	}
 
 	match := auth.CheckPasswordHash(payload.PASSWORD, dbUser.PASSWORD)
 	if !match {
-		return response, gin.H{"err": "Please provide valid password credentials"}
+		return model.AuthResponse{MESSAGE: "Please provide valid password credentials"}, true
 	}
 
 	tokenString, err := jwt.CreateToken(map[string]string{"username": dbUser.ID, "role": "user", "id": dbUser.ID})
 
 	if err != nil {
-		return response, gin.H{"err": "Internal Server error"}
+		return model.AuthResponse{MESSAGE: "Internal Server error"}, true
 	}
 
-	response = model.LoginResponse{
+	response := model.AuthResponse{
 		MESSAGE: "Logged in Succesfully",
-		TOKEN:   tokenString,
-		USER: model.UserResponseObject{
-			USERNAME: dbUser.USERNAME,
-			ID:       dbUser.ID,
-			ROLE:     dbUser.ROLE,
+		DATA: map[string]interface{}{
+			"TOKEN": tokenString,
+			"USER": model.UserResponseObject{
+				USERNAME: dbUser.USERNAME,
+				ID:       dbUser.ID,
+				ROLE:     dbUser.ROLE,
+			},
 		},
 	}
 
-	return response, gin.H{}
+	return response, false
 }
 
-func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string, gin.H) {
+func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (model.AuthResponse, bool) {
 
 	dbUser, _ := s.repo.FindOne(context.TODO(), "users", payload.USERNAME)
 
 	if dbUser.USERNAME != "" {
-		return "", gin.H{"err": "Kindly login with your credentials"}
+		return model.AuthResponse{MESSAGE: "Kindly login with your credentials"}, true
 	}
 
 	hash, _ := auth.HashPassword(payload.PASSWORD)
@@ -70,7 +71,7 @@ func (s *service) Register(ctx *gin.Context, payload model.RegisterAuth) (string
 		PASSWORD:  hash,
 	})
 	if err != nil {
-		return "", gin.H{"err": "Something went wrong"}
+		return model.AuthResponse{MESSAGE: "Something went wrong"}, true
 	}
-	return "User created", gin.H{}
+	return model.AuthResponse{MESSAGE: "User created successfully"}, false
 }
