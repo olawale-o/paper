@@ -9,7 +9,7 @@ import (
 type Comment struct {
 	ID                interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
 	ARTICLEID         primitive.ObjectID `bson:"articleId" json:"articleId"`
-	BODY              string             `bson:"body" json:"body"`
+	BODY              string             `bson:"body" json:"body" validate:"required"`
 	USERID            primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
 	LIKES             int                `bson:"likes,omitempty" json:"likes,omitempty"`
 	CREATEDAT         primitive.DateTime `bson:"createdAt,omitempty" json:"createdAt,omitempty" swaggertype:"string"`
