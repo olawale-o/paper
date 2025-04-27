@@ -28,19 +28,12 @@ var database = client.Database("go")
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [get]
 func ArticleIndex(c *gin.Context) {
+	repository, _ := repo.New(database)
+	service, _ := service.New(repository)
+
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
-		return
-	}
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 	res, _ := service.AllArticles(oid)
@@ -60,19 +53,12 @@ func ArticleIndex(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
+	repository, _ := repo.New(database)
+	service, _ := service.New(repository)
+
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
-		return
-	}
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
 
@@ -101,6 +87,10 @@ func ArticleNew(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles/{articleId} [put]
 func ArticleUpdate(c *gin.Context) {
+	repository, _ := repo.New(database)
+	service, _ := service.New(repository)
+	article := c.MustGet("body").(model.AuthorArticle)
+
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
@@ -111,19 +101,6 @@ func ArticleUpdate(c *gin.Context) {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
-
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
-
-	article := c.MustGet("body").(model.AuthorArticle)
 
 	res, err := service.UpdateArticle(article, authorId, articleId)
 
@@ -151,24 +128,10 @@ func ArticleDelete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	var newArticle model.AuthorArticle
-	if err := c.BindJSON(&newArticle); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Unable to process entities"})
-		return
-	}
+	repository, _ := repo.New(database)
+	service, _ := service.New(repository)
 
-	err = service.DeleteArticle(authorId, articleId)
+	err := service.DeleteArticle(authorId, articleId)
 
 	if err != nil {
 		log.Println(err)

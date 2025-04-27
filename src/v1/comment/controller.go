@@ -1,20 +1,18 @@
 package comment
 
 import (
-	"fmt"
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"go-simple-rest/src/v1/comment/service"
 	"go-simple-rest/src/v1/utils"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var client, ctx, err = db.Connect()
+var client, _, _ = db.Connect()
 var database = client.Database("go")
 
 // Comment godoc
@@ -31,51 +29,31 @@ var database = client.Database("go")
 // @Router /articles/{id}/comments [post]
 func New(c *gin.Context) {
 
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	commentService, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repository, _ := repo.New(database)
+	commentService, _ := service.New(repository)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
-	var comment model.Comment
-	if err := c.BindJSON(&comment); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
-		return
-	}
-	err, _ = commentService.NewComment(comment, articleId, userId)
+
+	comment := c.MustGet("body").(model.Comment)
+	err, _ := commentService.NewComment(comment, articleId, userId)
 
 	if err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: "Failed to create comment", Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment saved"})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comment saved", Data: nil})
 }
 
 func Show(c *gin.Context) {
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	commentService, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
-		return
-	}
+	repository, _ := repo.New(database)
+	commentService, _ := service.New(repository)
 
 	var next primitive.ObjectID
+	var err error
 	nextCursor := c.Query("nextCursor")
 
 	if nextCursor == "" {
@@ -83,7 +61,7 @@ func Show(c *gin.Context) {
 	} else {
 		next, err = utils.ParseParamToPrimitiveObjectId(nextCursor)
 		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 			return
 		}
 	}
@@ -91,10 +69,10 @@ func Show(c *gin.Context) {
 	res, err := commentService.GetComment(articleId, commentId, next)
 
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusNotFound, Success: false, Message: "Comment not found", Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "comment", "data": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comment retrieved", Data: res})
 }
 
 // Comment godoc
@@ -111,16 +89,8 @@ func Show(c *gin.Context) {
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	commentService, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repository, _ := repo.New(database)
+	commentService, _ := service.New(repository)
 
 	// var limit int
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
@@ -135,6 +105,7 @@ func Index(c *gin.Context) {
 	// res, err := commentService.GetComments(articleId, limit, prev, next)
 
 	var next primitive.ObjectID
+	var err error
 	nextCursor := c.Query("nextCursor")
 
 	if nextCursor == "" {
@@ -142,18 +113,17 @@ func Index(c *gin.Context) {
 	} else {
 		next, err = utils.ParseParamToPrimitiveObjectId(nextCursor)
 		if err != nil {
-			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 			return
 		}
 	}
 
 	res, nextId, err := commentService.ArticleComments(articleId, next)
 	if err != nil {
-		fmt.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: "Failed to retrieve comments", Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "comments", "nextCursor": nextId, "data": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comments retrieved", Data: map[string]interface{}{"data": res, "nextCursor": nextId}})
 }
 
 // ReplyComment godoc
@@ -169,33 +139,19 @@ func Index(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id}/comments/{cid}/reply [post]
 func ReplyComment(c *gin.Context) {
-	repository, err := repo.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	commentService, err := service.New(repository)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repository, _ := repo.New(database)
+	commentService, _ := service.New(repository)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
 
-	var comment model.Comment
-	if err := c.BindJSON(&comment); err != nil {
-		log.Println(err)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": "Please provide valid credntials"})
-		return
-	}
+	comment := c.MustGet("body").(model.Comment)
 
-	_, err = commentService.ReplyComment(comment, articleId, commentId, userId)
+	_, err := commentService.ReplyComment(comment, articleId, commentId, userId)
 	if err != nil {
-		fmt.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Comment Saved"})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comment saved", Data: nil})
 }
