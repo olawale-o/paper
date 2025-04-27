@@ -13,5 +13,5 @@ func CommentRoutes(r *gin.RouterGroup) {
 	comments.GET("/", Index)
 	comments.GET("/:cid", Show)
 	comments.POST("/", middlewares.RequestToJSON[model.Comment](), middlewares.Validator[model.Comment](), New)
-	comments.POST("/:cid/reply", ReplyComment)
+	comments.POST("/:cid/reply", middlewares.RequestToJSON[model.Comment](), middlewares.Validator[model.Comment](), ReplyComment)
 }
