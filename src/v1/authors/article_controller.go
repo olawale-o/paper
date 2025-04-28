@@ -2,6 +2,7 @@ package authors
 
 import (
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/authors/dao"
 	"go-simple-rest/src/v1/authors/model"
 	"go-simple-rest/src/v1/authors/repo"
 	"go-simple-rest/src/v1/authors/service"
@@ -29,7 +30,8 @@ var database = client.Database("go")
 // @Router /authors/{id}/articles [get]
 func ArticleIndex(c *gin.Context) {
 	repository, _ := repo.New(database)
-	service, _ := service.New(repository)
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
@@ -54,7 +56,8 @@ func ArticleIndex(c *gin.Context) {
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
 	repository, _ := repo.New(database)
-	service, _ := service.New(repository)
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
@@ -88,7 +91,8 @@ func ArticleNew(c *gin.Context) {
 // @Router /authors/{id}/articles/{articleId} [put]
 func ArticleUpdate(c *gin.Context) {
 	repository, _ := repo.New(database)
-	service, _ := service.New(repository)
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 	article := c.MustGet("body").(model.AuthorArticle)
 
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
@@ -129,7 +133,8 @@ func ArticleDelete(c *gin.Context) {
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
 	repository, _ := repo.New(database)
-	service, _ := service.New(repository)
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 
 	err := service.DeleteArticle(authorId, articleId)
 
