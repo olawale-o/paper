@@ -1,6 +1,7 @@
 package authors
 
 import (
+	"go-simple-rest/src/v1/authors/dao"
 	"go-simple-rest/src/v1/authors/model"
 	"go-simple-rest/src/v1/authors/repo"
 	"go-simple-rest/src/v1/authors/service"
@@ -30,17 +31,12 @@ func Show(c *gin.Context) {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
+	repository, _ := repo.New(database)
 
-		return
-	}
+	articleDAO := dao.NewArticleDaoManager(repository)
+
+	service, _ := service.New(articleDAO)
+
 	res, err := service.ShowAuthor(authorId)
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
@@ -74,18 +70,9 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-
-		return
-	}
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-
-		return
-	}
+	repository, _ := repo.New(database)
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 
 	res, err := service.UpdateAuthor(authorId, author)
 
@@ -111,18 +98,10 @@ func Update(c *gin.Context) {
 func Delete(c *gin.Context) {
 	authorId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 
-	repository, err := repo.New(database)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
+	repository, _ := repo.New(database)
 
-		return
-	}
-
-	service, err := service.New(repository)
-	if err != nil {
-		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
-		return
-	}
+	articleDAO := dao.NewArticleDaoManager(repository)
+	service, _ := service.New(articleDAO)
 
 	res, err := service.DeleteAuthor(authorId)
 

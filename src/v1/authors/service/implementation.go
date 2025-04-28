@@ -1,10 +1,8 @@
 package service
 
 import (
-	"context"
-	"go-simple-rest/db"
+	"go-simple-rest/src/v1/authors/dao"
 	"go-simple-rest/src/v1/authors/model"
-	"go-simple-rest/src/v1/authors/repo"
 	"log"
 	"time"
 
@@ -13,21 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var client, ctx, err = db.Connect()
-
-var database = client.Database("go")
-
 type ServiceManager struct {
-	repo repo.Repository
+	authorDao dao.AuthorDao
 }
 
-func New(repo repo.Repository) (Service, error) {
-	return &ServiceManager{repo: repo}, nil
+func New(authorDao dao.AuthorDao) (Service, error) {
+	return &ServiceManager{authorDao: authorDao}, nil
 }
 
 func (s *ServiceManager) AllArticles(authorId primitive.ObjectID) (interface{}, error) {
 
-	articles, err := s.repo.Get(context.TODO(), "articles", bson.M{"authorId": authorId})
+	articles, err := s.authorDao.GetArticlesByAuthor(authorId)
 
 	if err != nil {
 		return nil, err
@@ -38,7 +32,7 @@ func (s *ServiceManager) AllArticles(authorId primitive.ObjectID) (interface{}, 
 func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId primitive.ObjectID) (interface{}, error) {
 
 	doc := model.AuthorArticle{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
-	insertedId, err := s.repo.InsertOne(context.TODO(), "articles", doc)
+	insertedId, err := s.authorDao.Create(doc)
 
 	if err != nil {
 		log.Println(err)
@@ -50,7 +44,7 @@ func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId pri
 		"$push": bson.M{"articles": bson.M{"$each": []model.AuthorArticle{{TITLE: doc.TITLE, ID: insertedId, CONTENT: doc.CONTENT, CREATEDAT: doc.CREATEDAT, UPDATEDAT: doc.UPDATEDAT, LIKES: doc.LIKES, VIEWS: doc.VIEWS}}, "$sort": bson.M{"createdAt": -1}, "$slice": 2}},
 		"$inc":  bson.M{"articleCount": 1}}
 
-	_, err = s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	_, err = s.authorDao.UpdateArticleAuthor(filter, update)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -64,7 +58,7 @@ func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId pri
 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
 	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
 
-	_, err := s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	_, err := s.authorDao.Update(filter, update)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -72,7 +66,7 @@ func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId pri
 
 	filter = bson.M{"_id": articleId}
 	update = bson.M{"$set": bson.M{"title": article.TITLE, "content": article.CONTENT}}
-	res, err := s.repo.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
+	res, err := s.authorDao.Update(filter, update)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -85,13 +79,13 @@ func (s *ServiceManager) DeleteArticle(authorId primitive.ObjectID, articleId pr
 	filter := bson.M{"_id": authorId}
 	update := bson.M{"$pull": bson.M{"articles": bson.M{"_id": articleId}}}
 
-	_, err = s.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	_, err := s.authorDao.Update(filter, update)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	err = s.repo.DeleteOne(context.TODO(), "articles", bson.M{"_id": articleId})
+	err = s.authorDao.Delete(articleId)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -105,7 +99,7 @@ func (s *ServiceManager) ShowAuthor(authorId primitive.ObjectID) (interface{}, e
 
 	filter := bson.M{"_id": authorId}
 
-	data, err := s.repo.FindOne(context.TODO(), "users", filter, author)
+	data, err := s.authorDao.GetAuthorById(filter)
 
 	if err != nil {
 		return author, err
@@ -119,7 +113,7 @@ func (s *ServiceManager) UpdateAuthor(authorId primitive.ObjectID, updatedAuthor
 	filter := bson.M{"_id": authorId}
 	update := bson.M{"$set": bson.M{"firstName": updatedAuthor.FIRSTNAME, "username": updatedAuthor.USERNAME, "lastName": updatedAuthor.LASTNAME}}
 
-	result, err := s.repo.UpdateOne(context.TODO(), "users", filter, update, true)
+	result, err := s.authorDao.UpdateAuthor(filter, update)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -133,7 +127,7 @@ func (s *ServiceManager) UpdateAuthor(authorId primitive.ObjectID, updatedAuthor
 func (s *ServiceManager) DeleteAuthor(authorId primitive.ObjectID) (int64, error) {
 
 	filter := bson.M{"_id": authorId}
-	err = s.repo.DeleteOne(context.TODO(), "users", filter)
+	err := s.authorDao.DeleteAuthor(filter)
 	if err != nil {
 		log.Println(err)
 		return 0, err
