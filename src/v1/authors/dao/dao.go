@@ -20,51 +20,51 @@ type AuthorDao interface {
 	DeleteAuthor(filter bson.M) error
 }
 
-type AuthorDaoManager struct {
+type MongoDBAuthorDaoManager struct {
 	repo repo.Repository
 }
 
 func NewArticleDaoManager(repo repo.Repository) AuthorDao {
-	return &AuthorDaoManager{repo: repo}
+	return &MongoDBAuthorDaoManager{repo: repo}
 }
 
-func (d *AuthorDaoManager) UpdateArticleAuthor(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
+func (d *MongoDBAuthorDaoManager) UpdateArticleAuthor(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
 	articles, err := d.repo.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
 	return articles, err
 }
 
-func (d *AuthorDaoManager) GetArticlesByAuthor(authorId primitive.ObjectID) ([]model.AuthorArticle, error) {
+func (d *MongoDBAuthorDaoManager) GetArticlesByAuthor(authorId primitive.ObjectID) ([]model.AuthorArticle, error) {
 	articles, err := d.repo.Get(context.TODO(), "articles", bson.M{"authorId": authorId})
 	return articles, err
 }
 
-func (d *AuthorDaoManager) Create(doc model.AuthorArticle) (interface{}, error) {
+func (d *MongoDBAuthorDaoManager) Create(doc model.AuthorArticle) (interface{}, error) {
 	insertedId, err := d.repo.InsertOne(context.TODO(), "articles", doc)
 	return insertedId, err
 }
 
-func (d *AuthorDaoManager) Update(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
+func (d *MongoDBAuthorDaoManager) Update(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
 	res, err := d.repo.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
 	return res, err
 }
 
-func (d *AuthorDaoManager) Delete(articleId primitive.ObjectID) error {
+func (d *MongoDBAuthorDaoManager) Delete(articleId primitive.ObjectID) error {
 	err := d.repo.DeleteOne(context.TODO(), "articles", bson.M{"_id": articleId})
 	return err
 }
 
-func (d *AuthorDaoManager) GetAuthorById(filter bson.M) (interface{}, error) {
-	var author bson.M
+func (d *MongoDBAuthorDaoManager) GetAuthorById(filter bson.M) (interface{}, error) {
+	var author model.Author
 	data, err := d.repo.FindOne(context.TODO(), "users", filter, author)
 	return data, err
 
 }
 
-func (d *AuthorDaoManager) UpdateAuthor(filter, update bson.M) (interface{}, error) {
+func (d *MongoDBAuthorDaoManager) UpdateAuthor(filter, update bson.M) (interface{}, error) {
 	res, err := d.repo.UpdateOne(context.TODO(), "users", filter, update, true)
 	return res, err
 }
-func (d *AuthorDaoManager) DeleteAuthor(filter bson.M) error {
+func (d *MongoDBAuthorDaoManager) DeleteAuthor(filter bson.M) error {
 	err := d.repo.DeleteOne(context.TODO(), "users", filter)
 	return err
 }

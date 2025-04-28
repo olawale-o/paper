@@ -37,9 +37,9 @@ func (repo *repository) Get(ctx context.Context, collection string, filter bson.
 	return articles, nil
 }
 
-func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M) (interface{}, error) {
+func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v model.Author) (model.Author, error) {
 	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter).Decode(&v); err != nil {
-		return nil, err
+		return v, err
 	}
 	return v, nil
 }

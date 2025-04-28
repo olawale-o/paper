@@ -102,6 +102,12 @@ func watchDb(client *mongo.Client, ctx context.Context) {
 // const uri = "mongodb://localhost:27017"
 const uri = "mongodb://localhost:27018,localhost:27019,localhost:27010/?replicaSet=rs0"
 
+func LoadConfig(uri string) *options.ClientOptions {
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+	return opts
+}
+
 func Connect() (*mongo.Client, context.Context, error) {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)

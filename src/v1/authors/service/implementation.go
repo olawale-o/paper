@@ -94,18 +94,20 @@ func (s *ServiceManager) DeleteArticle(authorId primitive.ObjectID, articleId pr
 	return nil
 }
 
-func (s *ServiceManager) ShowAuthor(authorId primitive.ObjectID) (interface{}, error) {
-	var author bson.M
+func (s *ServiceManager) ShowAuthor(authorId primitive.ObjectID) (model.Author, error) {
+	var author model.Author
 
 	filter := bson.M{"_id": authorId}
 
 	data, err := s.authorDao.GetAuthorById(filter)
 
+	author = data.(model.Author)
+
 	if err != nil {
 		return author, err
 	}
 
-	return data, nil
+	return author, nil
 }
 
 func (s *ServiceManager) UpdateAuthor(authorId primitive.ObjectID, updatedAuthor model.Author) (interface{}, error) {

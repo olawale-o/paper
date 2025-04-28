@@ -42,7 +42,7 @@ func Show(c *gin.Context) {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: err.Error(), Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Retrieved single author", "data": res})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Author retrieved successfully", Data: res})
 }
 
 // AuthorUpdate godoc

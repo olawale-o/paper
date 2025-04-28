@@ -11,7 +11,7 @@ type Service interface {
 	CreateArticle(article model.AuthorArticle, authorId primitive.ObjectID) (interface{}, error)
 	UpdateArticle(article model.AuthorArticle, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error)
 	DeleteArticle(authorId primitive.ObjectID, articleId primitive.ObjectID) error
-	ShowAuthor(authorId primitive.ObjectID) (interface{}, error)
+	ShowAuthor(authorId primitive.ObjectID) (model.Author, error)
 	UpdateAuthor(authorId primitive.ObjectID, updatedAuthor model.Author) (interface{}, error)
 	DeleteAuthor(authorId primitive.ObjectID) (int64, error)
 }
