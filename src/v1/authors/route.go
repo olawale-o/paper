@@ -11,7 +11,7 @@ func AuthorRoutes(r *gin.RouterGroup) {
 	authors := r.Group("/authors")
 	// authors.GET("/", Index)
 	authors.GET("/:id", Show)
-	authors.PUT("/:id", Update)
+	authors.PUT("/:id", middlewares.RequestToJSON[model.Author](), middlewares.Validator[model.Author](), Update)
 	authors.DELETE("/:id", Delete)
 	authors.GET("/:id/articles", ArticleIndex)
 	authors.POST("/:id/articles", middlewares.RequestToJSON[model.AuthorArticle](), middlewares.Validator[model.AuthorArticle](), ArticleNew)
