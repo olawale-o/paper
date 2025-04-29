@@ -41,10 +41,11 @@ func (repo *RepositoryManager) Find(ctx context.Context, collection string, filt
 	return articles, nil
 }
 
-func (repo *RepositoryManager) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M, opts bson.M) (interface{}, error) {
+func (repo *RepositoryManager) FindOne(ctx context.Context, collection string, filter bson.M, opts bson.M) (model.Article, error) {
+	var v model.Article
 	options := options.FindOne().SetProjection(opts)
 	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter, options).Decode(&v); err != nil {
-		return nil, err
+		return v, err
 	}
 	return v, nil
 }

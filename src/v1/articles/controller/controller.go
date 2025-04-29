@@ -2,6 +2,7 @@ package controller
 
 import (
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/articles/dao"
 	"go-simple-rest/src/v1/articles/model"
 	"go-simple-rest/src/v1/articles/repository/implementation"
 	"go-simple-rest/src/v1/articles/service"
@@ -11,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var client, ctx, err = db.Connect()
+var client, _, _ = db.Connect()
 
 var database = client.Database("go")
 
@@ -31,26 +32,21 @@ func GetArticles(c *gin.Context) {
 	date := c.DefaultQuery("date", "desc")
 	likes := c.DefaultQuery("likes", "desc")
 	views := c.DefaultQuery("views", "desc")
-	repo, err := implementation.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-	service, err := service.New(repo)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repo, _ := implementation.New(database)
+	articleDAO := dao.NewArticleDaoManager(repo)
+	service, _ := service.New(articleDAO)
+
 	articles, err := service.GetAll(model.QueryParams{
 		Date:  date,
 		Likes: likes,
 		Views: views,
 	})
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Message: err.Error(), Success: false, Data: nil})
+
 		return
 	}
-	c.IndentedJSON(http.StatusOK, articles)
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Message: "articles", Success: true, Data: articles})
 }
 
 // Articles godoc
@@ -64,27 +60,22 @@ func GetArticles(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [get]
 func ShowArticle(c *gin.Context) {
-	repo, err := implementation.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repo, _ := implementation.New(database)
+	articleDAO := dao.NewArticleDaoManager(repo)
+	service, _ := service.New(articleDAO)
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Message: err.Error(), Success: false, Data: nil})
 		return
 	}
-	service, err := service.New(repo)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+
 	article, err := service.GetArticle(oid)
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusNotFound, Message: err.Error(), Success: false, Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"article": article})
+
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Message: "articles", Success: true, Data: article})
 }
 
 // Articles godoc
@@ -98,32 +89,23 @@ func ShowArticle(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [put]
 func UpdateArticle(c *gin.Context) {
-	repo, err := implementation.New(database)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	repo, _ := implementation.New(database)
+	articleDAO := dao.NewArticleDaoManager(repo)
+	service, _ := service.New(articleDAO)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Message: err.Error(), Success: false, Data: nil})
 		return
 	}
 
-	var updatedArticle model.Article
-	if err := c.BindJSON(&updatedArticle); err != nil {
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"message": err.Error()})
-		return
-	}
-	service, err := service.New(repo)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
+	updatedArticle := c.MustGet("body").(model.Article)
+
 	result, err := service.Update(oid, updatedArticle)
 	if err != nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Article not found"})
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusNotFound, Message: err.Error(), Success: false, Data: nil})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Article updated", "article": result})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Message: "articles", Success: true, Data: result})
+
 }

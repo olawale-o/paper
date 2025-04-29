@@ -10,5 +10,4 @@ type Service interface {
 	GetAll(params model.QueryParams) ([]model.Article, error)
 	GetArticle(articleId primitive.ObjectID) (interface{}, error)
 	Update(articleId primitive.ObjectID, article model.Article) (interface{}, error)
-	// Delete(repo repository.Repository, articleId primitive.ObjectID) (int64, error)
 }

@@ -1,13 +1,11 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
-	"go-simple-rest/db"
 	"time"
 
+	"go-simple-rest/src/v1/articles/dao"
 	"go-simple-rest/src/v1/articles/model"
-	"go-simple-rest/src/v1/articles/repository"
 	"go-simple-rest/src/v1/kafkaclient"
 	"go-simple-rest/src/v1/utils"
 	"log"
@@ -18,24 +16,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const collectionName = "articles"
-
-var client, ctx, err = db.Connect()
-var exclude bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
-
 type ServiceManager struct {
-	repo repository.Repository
+	articleDao dao.ArticleDao
 }
 
-func New(repo repository.Repository) (Service, error) {
-	return &ServiceManager{repo: repo}, nil
+func New(articleDao dao.ArticleDao) (Service, error) {
+	return &ServiceManager{articleDao: articleDao}, nil
 }
 
 func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, error) {
 	filter := bson.M{}
 	sort := utils.HandleQueryParams(params)
 
-	articles, err := sm.repo.Find(context.TODO(), collectionName, filter, sort, exclude)
+	articles, err := sm.articleDao.GetArticles(filter, sort)
 	if err != nil {
 		return []model.Article{}, err
 	}
@@ -44,10 +37,8 @@ func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, err
 
 func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{}, error) {
 
-	var article bson.M
-
-	filter := bson.M{"_id": articleId}
-	data, err := sm.repo.FindOne(context.TODO(), collectionName, filter, article, exclude)
+	var article model.Article
+	data, err := sm.articleDao.GetArticleById(articleId)
 
 	if err != nil {
 		return article, err
@@ -69,9 +60,9 @@ func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{},
 
 	// natsclient.PublishMessage(context.Background(), "INTERACTIONS.view", value)
 
-	if err != nil {
-		return article, err
-	}
+	// if err != nil {
+	// 	return article, err
+	// }
 
 	return data, nil
 }
@@ -81,7 +72,7 @@ func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Art
 	filter := bson.M{"_id": articleId}
 	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
 
-	result, err := sm.repo.UpdateOne(context.TODO(), collectionName, filter, update, true)
+	result, err := sm.articleDao.UpdateArticle(filter, update)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {
@@ -91,16 +82,3 @@ func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Art
 
 	return result, nil
 }
-
-// func (sm *ServiceManager) Delete(c *gin.Context) (int64, error) {
-// oid, _ := primitive.ObjectIDFromHex(c.Param("id"))
-// filter := bson.M{"_id": oid}
-// result, err := collection.DeleteOne(context.TODO(), filter)
-// if err != nil {
-// 	log.Println(err)
-// 	return 0, err
-// }
-
-// return result.DeletedCount, nil
-// return 0, nil
-// }
