@@ -2,6 +2,7 @@ package comment
 
 import (
 	"go-simple-rest/db"
+	"go-simple-rest/src/v1/comment/dao"
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
 	"go-simple-rest/src/v1/comment/service"
@@ -30,7 +31,8 @@ var database = client.Database("go")
 func New(c *gin.Context) {
 
 	repository, _ := repo.New(database)
-	commentService, _ := service.New(repository)
+	commentDAO := dao.NewCommentDaoManager(repository)
+	commentService, _ := service.New(commentDAO)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
@@ -50,7 +52,8 @@ func Show(c *gin.Context) {
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 
 	repository, _ := repo.New(database)
-	commentService, _ := service.New(repository)
+	commentDAO := dao.NewCommentDaoManager(repository)
+	commentService, _ := service.New(commentDAO)
 
 	var next primitive.ObjectID
 	var err error
@@ -90,7 +93,8 @@ func Show(c *gin.Context) {
 // @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
 	repository, _ := repo.New(database)
-	commentService, _ := service.New(repository)
+	commentDAO := dao.NewCommentDaoManager(repository)
+	commentService, _ := service.New(commentDAO)
 
 	// var limit int
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
@@ -140,7 +144,8 @@ func Index(c *gin.Context) {
 // @Router /articles/{id}/comments/{cid}/reply [post]
 func ReplyComment(c *gin.Context) {
 	repository, _ := repo.New(database)
-	commentService, _ := service.New(repository)
+	commentDAO := dao.NewCommentDaoManager(repository)
+	commentService, _ := service.New(commentDAO)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
