@@ -96,17 +96,7 @@ func Index(c *gin.Context) {
 	commentDAO := dao.NewCommentDaoManager(repository)
 	commentService, _ := service.New(commentDAO)
 
-	// var limit int
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
-	// limit, err = strconv.Atoi(c.Query("limit"))
-	// if err != nil {
-	// 	limit = 0
-	// }
-
-	// prev := c.Query("prev")
-	// next := c.Query("next")
-
-	// res, err := commentService.GetComments(articleId, limit, prev, next)
 
 	var next primitive.ObjectID
 	var err error
@@ -127,7 +117,7 @@ func Index(c *gin.Context) {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: "Failed to retrieve comments", Data: nil})
 		return
 	}
-	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comments retrieved", Data: map[string]interface{}{"data": res, "nextCursor": nextId}})
+	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comments retrieved", Data: map[string]interface{}{"comments": res, "nextCursor": nextId}})
 }
 
 // ReplyComment godoc

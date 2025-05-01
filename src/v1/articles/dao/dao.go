@@ -16,7 +16,7 @@ var exclude bson.M = bson.M{"deletedAt": 0, "tags": 0, "categories": 0}
 type ArticleDao interface {
 	GetArticles(filter, sort bson.M) ([]model.Article, error)
 	GetArticleById(articleId primitive.ObjectID) (model.Article, error)
-	UpdateArticle(filter, update bson.M) (interface{}, error)
+	UpdateArticle(filter, update bson.M) (any, error)
 }
 
 type MongoDBArticleDaoManager struct {
@@ -38,7 +38,7 @@ func (d *MongoDBArticleDaoManager) GetArticleById(articleId primitive.ObjectID) 
 	return data, err
 }
 
-func (d *MongoDBArticleDaoManager) UpdateArticle(filter, update bson.M) (interface{}, error) {
+func (d *MongoDBArticleDaoManager) UpdateArticle(filter, update bson.M) (any, error) {
 	res, err := d.repo.UpdateOne(context.TODO(), collectionName, filter, update, true)
 	return res, err
 }

@@ -14,7 +14,7 @@ type ArticleInteraction struct {
 }
 
 type Article struct {
-	ID                interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	ID                any                `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE             string             `bson:"title" json:"title"`
 	CONTENT           string             `bson:"content" json:"content"`
 	AUTHORID          primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
@@ -32,14 +32,14 @@ type Article struct {
 }
 
 type Author struct {
-	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
-	FIRSTNAME string      `bson:"firstName" json:"firstName"`
-	LASTNAME  string      `bson:"lastName" json:"lastName"`
-	USERNAME  string      `bson:"username" json:"username"`
+	ID        any    `bson:"_id,omitempty" json:"id,omitempty"`
+	FIRSTNAME string `bson:"firstName" json:"firstName"`
+	LASTNAME  string `bson:"lastName" json:"lastName"`
+	USERNAME  string `bson:"username" json:"username"`
 }
 
 type AuthorArticle struct {
-	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	ID         any                `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE      string             `bson:"title" json:"title"`
 	CONTENT    string             `bson:"content" json:"content"`
 	AUTHOR     Author             `bson:"authorId,omitempty" json:"authorId,omitempty"`

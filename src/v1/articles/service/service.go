@@ -8,6 +8,6 @@ import (
 
 type Service interface {
 	GetAll(params model.QueryParams) ([]model.Article, error)
-	GetArticle(articleId primitive.ObjectID) (interface{}, error)
-	Update(articleId primitive.ObjectID, article model.Article) (interface{}, error)
+	GetArticle(articleId primitive.ObjectID) (any, error)
+	Update(articleId primitive.ObjectID, article model.Article) (any, error)
 }

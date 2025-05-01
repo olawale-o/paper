@@ -19,7 +19,7 @@ func New(authorDao dao.AuthorDao) (Service, error) {
 	return &ServiceManager{authorDao: authorDao}, nil
 }
 
-func (s *ServiceManager) AllArticles(authorId primitive.ObjectID) (interface{}, error) {
+func (s *ServiceManager) AllArticles(authorId primitive.ObjectID) (any, error) {
 
 	articles, err := s.authorDao.GetArticlesByAuthor(authorId)
 
@@ -29,7 +29,7 @@ func (s *ServiceManager) AllArticles(authorId primitive.ObjectID) (interface{}, 
 	return articles, nil
 }
 
-func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId primitive.ObjectID) (interface{}, error) {
+func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId primitive.ObjectID) (any, error) {
 
 	doc := model.AuthorArticle{TITLE: article.TITLE, AUTHORID: authorId, CONTENT: article.CONTENT, LIKES: 0, VIEWS: 0, CREATEDAT: time.Now(), UPDATEDAT: time.Now(), TAGS: article.TAGS, CATEGORIES: article.CATEGORIES}
 	insertedId, err := s.authorDao.Create(doc)
@@ -53,7 +53,7 @@ func (s *ServiceManager) CreateArticle(article model.AuthorArticle, authorId pri
 	return insertedId, err
 }
 
-func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId primitive.ObjectID, articleId primitive.ObjectID) (interface{}, error) {
+func (s *ServiceManager) UpdateArticle(article model.AuthorArticle, authorId primitive.ObjectID, articleId primitive.ObjectID) (any, error) {
 
 	filter := bson.M{"_id": authorId, "articles": bson.M{"$elemMatch": bson.M{"_id": articleId}}}
 	update := bson.M{"$set": bson.M{"articles.$.title": article.TITLE, "articles.$.content": article.CONTENT}}
@@ -110,7 +110,7 @@ func (s *ServiceManager) ShowAuthor(authorId primitive.ObjectID) (model.Author, 
 	return author, nil
 }
 
-func (s *ServiceManager) UpdateAuthor(authorId primitive.ObjectID, updatedAuthor model.Author) (interface{}, error) {
+func (s *ServiceManager) UpdateAuthor(authorId primitive.ObjectID, updatedAuthor model.Author) (any, error) {
 
 	filter := bson.M{"_id": authorId}
 	update := bson.M{"$set": bson.M{"firstName": updatedAuthor.FIRSTNAME, "username": updatedAuthor.USERNAME, "lastName": updatedAuthor.LASTNAME}}

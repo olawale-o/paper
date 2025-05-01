@@ -12,11 +12,11 @@ import (
 type AuthorDao interface {
 	UpdateArticleAuthor(filter, update bson.M) (model.AuthorArticleUpdateResponse, error)
 	GetArticlesByAuthor(authorId primitive.ObjectID) ([]model.AuthorArticle, error)
-	Create(doc model.AuthorArticle) (interface{}, error)
+	Create(doc model.AuthorArticle) (any, error)
 	Update(filter, update bson.M) (model.AuthorArticleUpdateResponse, error)
 	Delete(articleId primitive.ObjectID) error
-	GetAuthorById(filter bson.M) (interface{}, error)
-	UpdateAuthor(filter, update bson.M) (interface{}, error)
+	GetAuthorById(filter bson.M) (any, error)
+	UpdateAuthor(filter, update bson.M) (any, error)
 	DeleteAuthor(filter bson.M) error
 }
 
@@ -38,7 +38,7 @@ func (d *MongoDBAuthorDaoManager) GetArticlesByAuthor(authorId primitive.ObjectI
 	return articles, err
 }
 
-func (d *MongoDBAuthorDaoManager) Create(doc model.AuthorArticle) (interface{}, error) {
+func (d *MongoDBAuthorDaoManager) Create(doc model.AuthorArticle) (any, error) {
 	insertedId, err := d.repo.InsertOne(context.TODO(), "articles", doc)
 	return insertedId, err
 }
@@ -53,14 +53,14 @@ func (d *MongoDBAuthorDaoManager) Delete(articleId primitive.ObjectID) error {
 	return err
 }
 
-func (d *MongoDBAuthorDaoManager) GetAuthorById(filter bson.M) (interface{}, error) {
+func (d *MongoDBAuthorDaoManager) GetAuthorById(filter bson.M) (any, error) {
 	var author model.Author
 	data, err := d.repo.FindOne(context.TODO(), "users", filter, author)
 	return data, err
 
 }
 
-func (d *MongoDBAuthorDaoManager) UpdateAuthor(filter, update bson.M) (interface{}, error) {
+func (d *MongoDBAuthorDaoManager) UpdateAuthor(filter, update bson.M) (any, error) {
 	res, err := d.repo.UpdateOne(context.TODO(), "users", filter, update, true)
 	return res, err
 }

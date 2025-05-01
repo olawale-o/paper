@@ -5,7 +5,7 @@ import (
 )
 
 type Comment struct {
-	ID                interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	ID                any                `bson:"_id,omitempty" json:"id,omitempty"`
 	ARTICLEID         primitive.ObjectID `bson:"articleId" json:"articleId"`
 	BODY              string             `bson:"body" json:"body" validate:"required"`
 	USERID            primitive.ObjectID `bson:"userId,omitempty" json:"userId,omitempty"`
@@ -21,17 +21,17 @@ type Comment struct {
 }
 
 type Reply struct {
-	ID                 interface{} `bson:"_id,omitempty" json:"id,omitempty"`
-	BODY               string      `bson:"body,omitempty" json:"body,omitempty"`
-	COMMENTID          interface{} `bson:"commentId,omitempty" json:"commentId,omitempty"`
-	USERID             interface{} `bson:"userId,omitempty" json:"userId,omitempty"`
-	CREATEDATTIMESTAMP int         `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+	ID                 any    `bson:"_id,omitempty" json:"id,omitempty"`
+	BODY               string `bson:"body,omitempty" json:"body,omitempty"`
+	COMMENTID          any    `bson:"commentId,omitempty" json:"commentId,omitempty"`
+	USERID             any    `bson:"userId,omitempty" json:"userId,omitempty"`
+	CREATEDATTIMESTAMP int    `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
 }
 
 type ArticleWithComments struct {
-	ID                interface{} `bson:"id,omitempty" json:"id,omitempty"`
-	ARTICLEID         interface{} `bson:"articleId,omitempty" json:"articleId,omitempty"`
-	BODY              string      `bson:"body,omitempty" json:"body,omitempty"`
-	REPLIES           []Reply     `bson:"replies,omitempty" json:"replies,omitempty"`
-	CREATEDATIMESTAMP int         `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
+	ID                any     `bson:"id,omitempty" json:"id,omitempty"`
+	ARTICLEID         any     `bson:"articleId,omitempty" json:"articleId,omitempty"`
+	BODY              string  `bson:"body,omitempty" json:"body,omitempty"`
+	REPLIES           []Reply `bson:"replies,omitempty" json:"replies,omitempty"`
+	CREATEDATIMESTAMP int     `bson:"createdAtTimestamp,omitempty" json:"createdAtTimestamp,omitempty"`
 }

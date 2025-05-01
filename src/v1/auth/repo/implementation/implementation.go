@@ -42,7 +42,7 @@ func (repo *repository) FindOne(ctx context.Context, collection string, username
 	return dbUser, nil
 }
 
-func (repo *repository) InsertOne(ctx context.Context, collection string, user model.User) (interface{}, error) {
+func (repo *repository) InsertOne(ctx context.Context, collection string, user model.User) (any, error) {
 	doc := model.User{
 		FIRSTNAME:         user.FIRSTNAME,
 		LASTNAME:          user.LASTNAME,

@@ -44,7 +44,7 @@ func (repo *repository) FindOne(ctx context.Context, collection string, filter b
 	return v, nil
 }
 
-func (repo *repository) InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error) {
+func (repo *repository) InsertOne(ctx context.Context, collection string, doc any) (any, error) {
 	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
 		return "", err
@@ -74,7 +74,7 @@ func (repo *repository) DeleteOne(ctx context.Context, collection string, filter
 	return nil
 }
 
-func (repo *repository) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
+func (repo *repository) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (any, error) {
 	opts := options.Update().SetUpsert(upsert)
 	result, err := repo.db.Collection(collection).UpdateOne(context.TODO(), filter, update, opts)
 

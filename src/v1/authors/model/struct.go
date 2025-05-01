@@ -7,16 +7,16 @@ import (
 )
 
 type Author struct {
-	ID        interface{} `bson:"_id,omitempty" json:"id,omitempty"`
-	FIRSTNAME string      `bson:"firstName" json:"firstName"`
-	LASTNAME  string      `bson:"lastName" json:"lastName"`
-	USERNAME  string      `bson:"username" json:"username"`
-	CREATEDAT time.Time   `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
-	UPDATEDAT time.Time   `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	ID        any       `bson:"_id,omitempty" json:"id,omitempty"`
+	FIRSTNAME string    `bson:"firstName" json:"firstName"`
+	LASTNAME  string    `bson:"lastName" json:"lastName"`
+	USERNAME  string    `bson:"username" json:"username"`
+	CREATEDAT time.Time `bson:"createdAt,omitempty" json:"createdAt,omitempty"`
+	UPDATEDAT time.Time `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 }
 
 type AuthorArticle struct {
-	ID         interface{}        `bson:"_id,omitempty" json:"id,omitempty"`
+	ID         any                `bson:"_id,omitempty" json:"id,omitempty"`
 	TITLE      string             `bson:"title" json:"title" validate:"required,min=1"`
 	CONTENT    string             `bson:"content" json:"content" validate:"required,min=1"`
 	AUTHORID   primitive.ObjectID `bson:"authorId,omitempty" json:"authorId,omitempty"`
@@ -41,5 +41,5 @@ type AuthorArticleResponse struct {
 }
 
 type AuthorArticleUpdateResponse struct {
-	ID interface{} `bson:"_id,omitempty" json:"id,omitempty"`
+	ID any `bson:"_id,omitempty" json:"id,omitempty"`
 }

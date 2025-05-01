@@ -20,8 +20,8 @@ type UserResponseObject struct {
 }
 
 type AuthResponse struct {
-	MESSAGE string      `json:"message"`
-	DATA    interface{} `json:"data"`
+	MESSAGE string `json:"message"`
+	DATA    any    `json:"data"`
 }
 
 type RegisterAuth struct {

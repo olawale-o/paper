@@ -43,7 +43,7 @@ func (repo *RepositoryManager) Find(ctx context.Context, collection string, filt
 	return articles, nil
 }
 
-func (repo *RepositoryManager) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M, opts bson.M) (interface{}, error) {
+func (repo *RepositoryManager) FindOne(ctx context.Context, collection string, filter bson.M, v bson.M, opts bson.M) (any, error) {
 	options := options.FindOne().SetProjection(opts)
 	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter, options).Decode(&v); err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (repo *RepositoryManager) FindOne(ctx context.Context, collection string, f
 	return v, nil
 }
 
-func (repo *RepositoryManager) InsertOne(ctx context.Context, collection string, doc interface{}) (interface{}, error) {
+func (repo *RepositoryManager) InsertOne(ctx context.Context, collection string, doc any) (any, error) {
 	result, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (repo *RepositoryManager) InsertOne(ctx context.Context, collection string,
 	return result.InsertedID, nil
 }
 
-func (repo *RepositoryManager) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (interface{}, error) {
+func (repo *RepositoryManager) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (any, error) {
 	result, err := repo.db.Collection(collection).UpdateOne(context.TODO(), filter, update, options.Update().SetUpsert(upsert))
 	if err != nil {
 		return nil, err

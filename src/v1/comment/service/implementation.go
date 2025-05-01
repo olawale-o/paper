@@ -22,7 +22,7 @@ func New(commentDao dao.CommentDao) (Service, error) {
 	return &ServiceManager{commentDao: commentDao}, nil
 }
 
-func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, interface{}) {
+func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, any) {
 	data, err := sm.commentDao.FindArticleById(articleId)
 	if err != nil {
 		return err, "Article not found"
@@ -42,7 +42,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	return err, res
 }
 
-func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) (interface{}, error) {
+func (sm *ServiceManager) GetComment(articleId, commentId, next primitive.ObjectID) (any, error) {
 	data, err := _FetchCommentWithReplies(sm.commentDao, articleId, commentId, next)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (sm *ServiceManager) GetComment(articleId primitive.ObjectID, commentId pri
 	return data, err
 }
 
-func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev, next string) (Response, error) {
 	data, err := _HandlePaginate(sm.commentDao, articleId, l, prev, next)
 	if err != nil {
 		return Response{}, err
@@ -59,7 +59,7 @@ func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev 
 	return data, nil
 }
 
-func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID, userId primitive.ObjectID) (interface{}, error) {
+func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID, userId primitive.ObjectID) (any, error) {
 	// var comment bson.M
 	// var opts bson.M
 
@@ -107,7 +107,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 	return data, err
 }
 
-func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, interface{}, error) {
+func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, any, error) {
 	var matchStage bson.M
 	var limitStage bson.M
 	var unwindStage bson.M = bson.M{"$unwind": bson.M{"path": "$replies", "preserveNullAndEmptyArrays": true}}

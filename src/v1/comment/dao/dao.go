@@ -13,12 +13,12 @@ const collectionName = "article_comments"
 const articleCollection = "articles"
 
 type CommentDao interface {
-	Create(comment model.Comment) (interface{}, error)
+	Create(comment model.Comment) (any, error)
 	FindAll(filter, sort bson.M, limit int64) ([]model.Comment, error)
 	FindById(filter bson.M) (model.Comment, error)
-	FindArticleById(id primitive.ObjectID) (interface{}, error)
+	FindArticleById(id primitive.ObjectID) (any, error)
 	FindCommentByIdWithReplies(articleId, commentId, nextId primitive.ObjectID) ([]model.Comment, error)
-	UpdateCommentWithReply(id, articleId primitive.ObjectID, update bson.M) (interface{}, error)
+	UpdateCommentWithReply(id, articleId primitive.ObjectID, update bson.M) (any, error)
 	Aggregate(pipeline []bson.M) ([]model.ArticleWithComments, error)
 }
 
@@ -30,7 +30,7 @@ func NewCommentDaoManager(repo repo.Repository) CommentDao {
 	return &MongoDBCommentDaoManager{repo: repo}
 }
 
-func (d *MongoDBCommentDaoManager) Create(doc model.Comment) (interface{}, error) {
+func (d *MongoDBCommentDaoManager) Create(doc model.Comment) (any, error) {
 	res, err := d.repo.InsertOne(context.TODO(), collectionName, doc)
 	return res, err
 }
@@ -51,7 +51,7 @@ func (d *MongoDBCommentDaoManager) FindById(filter bson.M) (model.Comment, error
 	return data.(model.Comment), nil
 }
 
-func (d *MongoDBCommentDaoManager) FindArticleById(id primitive.ObjectID) (interface{}, error) {
+func (d *MongoDBCommentDaoManager) FindArticleById(id primitive.ObjectID) (any, error) {
 	var article bson.M
 	var opts bson.M
 
@@ -72,7 +72,7 @@ func (d *MongoDBCommentDaoManager) FindCommentByIdWithReplies(articleId, comment
 		"$and": []bson.M{
 			bson.M{"articleId": articleId},
 			bson.M{"parentCommentId": commentId},
-			bson.M{"_id": bson.M{"$lt": nextId}},
+			//bson.M{"_id": bson.M{"$lt": nextId}},
 		},
 	}
 	data, err := d.repo.Find(context.TODO(), collectionName, filter, sort, limit)
@@ -82,7 +82,7 @@ func (d *MongoDBCommentDaoManager) FindCommentByIdWithReplies(articleId, comment
 	return data, nil
 }
 
-func (d *MongoDBCommentDaoManager) UpdateCommentWithReply(id, articleId primitive.ObjectID, update bson.M) (interface{}, error) {
+func (d *MongoDBCommentDaoManager) UpdateCommentWithReply(id, articleId primitive.ObjectID, update bson.M) (any, error) {
 	filter := bson.M{"_id": id, "articleId": articleId}
 	res, err := d.repo.UpdateOne(context.TODO(), articleCollection, filter, update, false)
 	if err != nil {

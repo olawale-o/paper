@@ -15,10 +15,10 @@ type Response struct {
 }
 
 type Service interface {
-	NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, interface{})
-	GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) (interface{}, error)
+	NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, any)
+	GetComment(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) (any, error)
 	GetComments(articleId primitive.ObjectID, l int, prev string, next string) (Response, error)
-	ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID, userId primitive.ObjectID) (interface{}, error)
-	ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, interface{}, error)
+	ReplyComment(c model.Comment, articleId primitive.ObjectID, commentId primitive.ObjectID, userId primitive.ObjectID) (any, error)
+	ArticleComments(articleId primitive.ObjectID, next primitive.ObjectID) ([]model.ArticleWithComments, any, error)
 	MoreReplies(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error)
 }

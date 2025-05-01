@@ -7,5 +7,5 @@ import (
 
 type Repository interface {
 	FindOne(ctx context.Context, collection string, username string) (model.User, error)
-	InsertOne(ctx context.Context, collection string, user model.User) (interface{}, error)
+	InsertOne(ctx context.Context, collection string, user model.User) (any, error)
 }

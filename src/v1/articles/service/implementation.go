@@ -35,7 +35,7 @@ func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, err
 	return articles, nil
 }
 
-func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{}, error) {
+func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (any, error) {
 
 	var article model.Article
 	data, err := sm.articleDao.GetArticleById(articleId)
@@ -67,7 +67,7 @@ func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (interface{},
 	return data, nil
 }
 
-func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Article) (interface{}, error) {
+func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Article) (any, error) {
 
 	filter := bson.M{"_id": articleId}
 	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
