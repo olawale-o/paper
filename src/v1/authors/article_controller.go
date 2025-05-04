@@ -29,9 +29,10 @@ var database = client.Database("go")
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [get]
 func ArticleIndex(c *gin.Context) {
-	repository, _ := repo.New(database)
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
+
+	service, _ := service.New(repository)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
@@ -55,9 +56,10 @@ func ArticleIndex(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [post]
 func ArticleNew(c *gin.Context) {
-	repository, _ := repo.New(database)
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
+
+	service, _ := service.New(repository)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
@@ -90,9 +92,10 @@ func ArticleNew(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles/{articleId} [put]
 func ArticleUpdate(c *gin.Context) {
-	repository, _ := repo.New(database)
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
+
+	service, _ := service.New(repository)
 	article := c.MustGet("body").(model.AuthorArticle)
 
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
@@ -132,9 +135,10 @@ func ArticleDelete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	repository, _ := repo.New(database)
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
+
+	service, _ := service.New(repository)
 
 	err := service.DeleteArticle(authorId, articleId)
 

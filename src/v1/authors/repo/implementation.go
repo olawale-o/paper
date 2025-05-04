@@ -2,87 +2,58 @@ package repo
 
 import (
 	"context"
-	"fmt"
-	"log"
-
+	"go-simple-rest/src/v1/authors/dao"
 	"go-simple-rest/src/v1/authors/model"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type repository struct {
-	db     *mongo.Database
-	logger log.Logger
+	dao dao.AuthorDAO
 }
 
-func New(db *mongo.Database) (Repository, error) {
-	return &repository{
-		db: db,
-	}, nil
+func NewRepository(dao dao.AuthorDAO) Repository {
+	return &repository{dao: dao}
 }
 
-func (repo *repository) Get(ctx context.Context, collection string, filter bson.M) ([]model.AuthorArticle, error) {
-	cursor, err := repo.db.Collection(collection).Find(context.TODO(), filter)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return []model.AuthorArticle{}, err
-	}
-	var articles []model.AuthorArticle
-	if err = cursor.All(context.TODO(), &articles); err != nil {
-		return []model.AuthorArticle{}, err
-	}
-	return articles, nil
+func (d *repository) UpdateArticleAuthor(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
+	articles, err := d.dao.FindOneAndUpdate(context.TODO(), "users", filter, update, true)
+	return articles, err
 }
 
-func (repo *repository) FindOne(ctx context.Context, collection string, filter bson.M, v model.Author) (model.Author, error) {
-	if err := repo.db.Collection(collection).FindOne(context.TODO(), filter).Decode(&v); err != nil {
-		return v, err
-	}
-	return v, nil
+func (d *repository) GetAuthorArticles(authorId primitive.ObjectID) ([]model.AuthorArticle, error) {
+	articles, err := d.dao.Get(context.TODO(), "articles", bson.M{"authorId": authorId})
+	return articles, err
 }
 
-func (repo *repository) InsertOne(ctx context.Context, collection string, doc any) (any, error) {
-	res, err := repo.db.Collection(collection).InsertOne(context.TODO(), doc)
-	if err != nil {
-		return "", err
-	}
-	return res.InsertedID, nil
+func (d *repository) Create(doc model.AuthorArticle) (any, error) {
+	insertedId, err := d.dao.InsertOne(context.TODO(), "articles", doc)
+	return insertedId, err
 }
 
-func (repo *repository) FindOneAndUpdate(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (model.AuthorArticleUpdateResponse, error) {
-	var data model.AuthorArticleUpdateResponse
-	opts := options.FindOneAndUpdate().SetUpsert(upsert)
-	repo.db.Collection(collection).FindOneAndUpdate(context.TODO(), filter, update, opts).Decode(&data)
-
-	//if err != nil {
-	//	return data, err
-	//}
-	return data, nil
+func (d *repository) Update(filter, update bson.M) (model.AuthorArticleUpdateResponse, error) {
+	res, err := d.dao.FindOneAndUpdate(context.TODO(), "articles", filter, update, false)
+	return res, err
 }
 
-func (repo *repository) DeleteOne(ctx context.Context, collection string, filter bson.M) error {
-	res, err := repo.db.Collection(collection).DeleteOne(context.TODO(), filter)
-	if err != nil {
-		return err
-	}
-	if res.DeletedCount == 0 {
-		return fmt.Errorf("no document deleted")
-	}
-	return nil
+func (d *repository) Delete(articleId primitive.ObjectID) error {
+	err := d.dao.DeleteOne(context.TODO(), "articles", bson.M{"_id": articleId})
+	return err
 }
 
-func (repo *repository) UpdateOne(ctx context.Context, collection string, filter bson.M, update bson.M, upsert bool) (any, error) {
-	opts := options.Update().SetUpsert(upsert)
-	result, err := repo.db.Collection(collection).UpdateOne(context.TODO(), filter, update, opts)
+func (d *repository) GetAuthorById(filter bson.M) (any, error) {
+	var author model.Author
+	data, err := d.dao.FindOne(context.TODO(), "users", filter, author)
+	return data, err
 
-	if err != nil {
-		log.Println(err)
-		if err == mongo.ErrNoDocuments {
-			return nil, err
-		}
-	}
-	return result, nil
+}
+
+func (d *repository) UpdateAuthor(filter, update bson.M) (any, error) {
+	res, err := d.dao.UpdateOne(context.TODO(), "users", filter, update, true)
+	return res, err
+}
+func (d *repository) DeleteAuthor(filter bson.M) error {
+	err := d.dao.DeleteOne(context.TODO(), "users", filter)
+	return err
 }

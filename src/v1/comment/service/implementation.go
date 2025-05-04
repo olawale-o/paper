@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
-	"go-simple-rest/src/v1/comment/dao"
 	"go-simple-rest/src/v1/comment/model"
+	"go-simple-rest/src/v1/comment/repo"
 	"log"
 	"slices"
 	"time"
@@ -15,15 +15,15 @@ import (
 )
 
 type ServiceManager struct {
-	commentDao dao.CommentDao
+	commentRepo repo.Repository
 }
 
-func New(commentDao dao.CommentDao) (Service, error) {
-	return &ServiceManager{commentDao: commentDao}, nil
+func New(commentRepo repo.Repository) (Service, error) {
+	return &ServiceManager{commentRepo: commentRepo}, nil
 }
 
 func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.ObjectID, userId primitive.ObjectID) (error, any) {
-	data, err := sm.commentDao.FindArticleById(articleId)
+	data, err := sm.commentRepo.FindArticleById(articleId)
 	if err != nil {
 		return err, "Article not found"
 	}
@@ -33,7 +33,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 	}
 
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: c.PARENTCOMMENTID, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	res, err := sm.commentDao.Create(doc)
+	res, err := sm.commentRepo.Create(doc)
 	if err != nil {
 		log.Println(err)
 		return err, ""
@@ -43,7 +43,7 @@ func (sm *ServiceManager) NewComment(c model.Comment, articleId primitive.Object
 }
 
 func (sm *ServiceManager) GetComment(articleId, commentId, next primitive.ObjectID) (any, error) {
-	data, err := _FetchCommentWithReplies(sm.commentDao, articleId, commentId, next)
+	data, err := _FetchCommentWithReplies(sm.commentRepo, articleId, commentId, next)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (sm *ServiceManager) GetComment(articleId, commentId, next primitive.Object
 }
 
 func (sm *ServiceManager) GetComments(articleId primitive.ObjectID, l int, prev, next string) (Response, error) {
-	data, err := _HandlePaginate(sm.commentDao, articleId, l, prev, next)
+	data, err := _HandlePaginate(sm.commentRepo, articleId, l, prev, next)
 	if err != nil {
 		return Response{}, err
 	}
@@ -64,7 +64,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 	// var opts bson.M
 
 	filter := bson.M{"_id": commentId, "articleId": articleId}
-	data, err := sm.commentDao.FindById(filter) // FindOne(context.TODO(), collectionName, filter, comment, opts)
+	data, err := sm.commentRepo.FindById(filter) // FindOne(context.TODO(), collectionName, filter, comment, opts)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, errors.New("Comment not found")
@@ -73,7 +73,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 	}
 
 	doc := model.Comment{BODY: c.BODY, ARTICLEID: articleId, USERID: userId, LIKES: 0, CREATEDAT: primitive.NewDateTimeFromTime(time.Now()), UPDATEDAT: primitive.NewDateTimeFromTime(time.Now()), STATUS: "pending", PARENTCOMMENTID: commentId, CREATEDATIMESTAMP: time.Now().Local().UnixMilli(), UPDATEDATIMESTAMP: time.Now().Local().UnixMilli()}
-	res, err := sm.commentDao.Create(doc)
+	res, err := sm.commentRepo.Create(doc)
 
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (sm *ServiceManager) ReplyComment(c model.Comment, articleId primitive.Obje
 		return nil, errors.New("Invalid data type")
 	}
 
-	id, err := sm.commentDao.UpdateCommentWithReply(
+	id, err := sm.commentRepo.UpdateCommentWithReply(
 		commentId,
 		articleId,
 		bson.M{"$push": bson.M{"replies": bson.M{"$each": []model.Reply{
@@ -172,7 +172,7 @@ func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next pri
 		limitStage,
 	}
 
-	data, err := sm.commentDao.Aggregate(pipeline)
+	data, err := sm.commentRepo.Aggregate(pipeline)
 	if err != nil {
 		return nil, "", err
 	}
@@ -186,7 +186,7 @@ func (sm *ServiceManager) ArticleComments(articleId primitive.ObjectID, next pri
 
 func (sm *ServiceManager) MoreReplies(articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
 	var comments []model.Comment
-	data, err := _HandleMoreReplies(sm.commentDao, articleId, commentId, next)
+	data, err := _HandleMoreReplies(sm.commentRepo, articleId, commentId, next)
 
 	if err != nil {
 		return comments, err
@@ -195,7 +195,7 @@ func (sm *ServiceManager) MoreReplies(articleId primitive.ObjectID, commentId pr
 	return data, nil
 }
 
-func _HandleMoreReplies(dao dao.CommentDao, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
+func _HandleMoreReplies(repo repo.Repository, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
 
 	filter := bson.M{
 		"$and": []bson.M{
@@ -208,7 +208,7 @@ func _HandleMoreReplies(dao dao.CommentDao, articleId primitive.ObjectID, commen
 	sort := bson.M{"createdAtTimestamp": -1}
 	limt := int64(0)
 
-	data, err := dao.FindAll(filter, sort, limt)
+	data, err := repo.FindAll(filter, sort, limt)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func _HandleMoreReplies(dao dao.CommentDao, articleId primitive.ObjectID, commen
 	return data, nil
 }
 
-func _HandlePaginate(dao dao.CommentDao, articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
+func _HandlePaginate(repo repo.Repository, articleId primitive.ObjectID, l int, prev string, next string) (Response, error) {
 	var sort bson.M = bson.M{"_id": -1}
 	var filter bson.M = bson.M{"articleId": articleId}
 	var limit int64
@@ -242,7 +242,7 @@ func _HandlePaginate(dao dao.CommentDao, articleId primitive.ObjectID, l int, pr
 		limit = int64(10)
 	}
 
-	result, err := dao.FindAll(filter, sort, limit)
+	result, err := repo.FindAll(filter, sort, limit)
 
 	if err != nil {
 		return Response{}, err
@@ -253,13 +253,13 @@ func _HandlePaginate(dao dao.CommentDao, articleId primitive.ObjectID, l int, pr
 		lastId = result[len(result)-1].ID.(primitive.ObjectID)
 		firstId = result[0].ID.(primitive.ObjectID)
 		filter["_id"] = bson.M{"$lt": lastId}
-		nxtComment, _ := dao.FindById(filter)
+		nxtComment, _ := repo.FindById(filter)
 		if nxtComment != (model.Comment{}) {
 			hasNext = true
 		}
 
 		filter["_id"] = bson.M{"$gt": firstId}
-		prvComment, _ := dao.FindById(filter)
+		prvComment, _ := repo.FindById(filter)
 		if prvComment != (model.Comment{}) {
 			hasPrev = true
 		}
@@ -280,12 +280,12 @@ func _HandlePaginate(dao dao.CommentDao, articleId primitive.ObjectID, l int, pr
 	return Response{Comments: result, HasNext: hasNext, HasPrev: hasPrev, PreviousID: firstId.Hex(), NextID: lastId.Hex()}, nil
 }
 
-func _FetchCommentWithReplies(dao dao.CommentDao, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
+func _FetchCommentWithReplies(repo repo.Repository, articleId primitive.ObjectID, commentId primitive.ObjectID, next primitive.ObjectID) ([]model.Comment, error) {
 	fmt.Println(articleId)
 	fmt.Println(commentId)
 	fmt.Println(next)
 
-	result, err := dao.FindCommentByIdWithReplies(articleId, commentId, next)
+	result, err := repo.FindCommentByIdWithReplies(articleId, commentId, next)
 
 	if err != nil {
 		return nil, err

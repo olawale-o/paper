@@ -30,9 +30,9 @@ var database = client.Database("go")
 // @Router /articles/{id}/comments [post]
 func New(c *gin.Context) {
 
-	repository, _ := repo.New(database)
-	commentDAO := dao.NewCommentDaoManager(repository)
-	commentService, _ := service.New(commentDAO)
+	commentDAO, _ := dao.New(database)
+	repository := repo.NewRepository(commentDAO)
+	commentService, _ := service.New(repository)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	userId, _ := utils.ParseParamToPrimitiveObjectId(c.MustGet("userId").(string))
@@ -51,9 +51,9 @@ func Show(c *gin.Context) {
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 
-	repository, _ := repo.New(database)
-	commentDAO := dao.NewCommentDaoManager(repository)
-	commentService, _ := service.New(commentDAO)
+	commentDAO, _ := dao.New(database)
+	repository := repo.NewRepository(commentDAO)
+	commentService, _ := service.New(repository)
 
 	var next primitive.ObjectID
 	var err error
@@ -92,9 +92,9 @@ func Show(c *gin.Context) {
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [get]
 func Index(c *gin.Context) {
-	repository, _ := repo.New(database)
-	commentDAO := dao.NewCommentDaoManager(repository)
-	commentService, _ := service.New(commentDAO)
+	commentDAO, _ := dao.New(database)
+	repository := repo.NewRepository(commentDAO)
+	commentService, _ := service.New(repository)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 
@@ -133,9 +133,9 @@ func Index(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id}/comments/{cid}/reply [post]
 func ReplyComment(c *gin.Context) {
-	repository, _ := repo.New(database)
-	commentDAO := dao.NewCommentDaoManager(repository)
-	commentService, _ := service.New(commentDAO)
+	commentDAO, _ := dao.New(database)
+	repository := repo.NewRepository(commentDAO)
+	commentService, _ := service.New(repository)
 
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))

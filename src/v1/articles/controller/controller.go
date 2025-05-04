@@ -4,7 +4,7 @@ import (
 	"go-simple-rest/db"
 	"go-simple-rest/src/v1/articles/dao"
 	"go-simple-rest/src/v1/articles/model"
-	"go-simple-rest/src/v1/articles/repository/implementation"
+	"go-simple-rest/src/v1/articles/repository"
 	"go-simple-rest/src/v1/articles/service"
 	"go-simple-rest/src/v1/utils"
 	"net/http"
@@ -32,9 +32,9 @@ func GetArticles(c *gin.Context) {
 	date := c.DefaultQuery("date", "desc")
 	likes := c.DefaultQuery("likes", "desc")
 	views := c.DefaultQuery("views", "desc")
-	repo, _ := implementation.New(database)
-	articleDAO := dao.NewArticleDaoManager(repo)
-	service, _ := service.New(articleDAO)
+	articleDAO, _ := dao.New(database)
+	repo := repository.NewRepositoryManager(articleDAO)
+	service, _ := service.New(repo)
 
 	articles, err := service.GetAll(model.QueryParams{
 		Date:  date,
@@ -60,9 +60,9 @@ func GetArticles(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [get]
 func ShowArticle(c *gin.Context) {
-	repo, _ := implementation.New(database)
-	articleDAO := dao.NewArticleDaoManager(repo)
-	service, _ := service.New(articleDAO)
+	articleDAO, _ := dao.New(database)
+	repo := repository.NewRepositoryManager(articleDAO)
+	service, _ := service.New(repo)
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Message: err.Error(), Success: false, Data: nil})
@@ -89,9 +89,9 @@ func ShowArticle(c *gin.Context) {
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id} [put]
 func UpdateArticle(c *gin.Context) {
-	repo, _ := implementation.New(database)
-	articleDAO := dao.NewArticleDaoManager(repo)
-	service, _ := service.New(articleDAO)
+	articleDAO, _ := dao.New(database)
+	repo := repository.NewRepositoryManager(articleDAO)
+	service, _ := service.New(repo)
 
 	oid, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {

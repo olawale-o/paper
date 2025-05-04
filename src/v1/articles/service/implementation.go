@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"go-simple-rest/src/v1/articles/dao"
 	"go-simple-rest/src/v1/articles/model"
+	"go-simple-rest/src/v1/articles/repository"
 	"go-simple-rest/src/v1/kafkaclient"
 	"go-simple-rest/src/v1/utils"
 	"log"
@@ -17,18 +17,18 @@ import (
 )
 
 type ServiceManager struct {
-	articleDao dao.ArticleDao
+	articleRepo repository.Repostiory
 }
 
-func New(articleDao dao.ArticleDao) (Service, error) {
-	return &ServiceManager{articleDao: articleDao}, nil
+func New(articleRepo repository.Repostiory) (Service, error) {
+	return &ServiceManager{articleRepo: articleRepo}, nil
 }
 
 func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, error) {
 	filter := bson.M{}
 	sort := utils.HandleQueryParams(params)
 
-	articles, err := sm.articleDao.GetArticles(filter, sort)
+	articles, err := sm.articleRepo.GetArticles(filter, sort)
 	if err != nil {
 		return []model.Article{}, err
 	}
@@ -38,7 +38,7 @@ func (sm *ServiceManager) GetAll(params model.QueryParams) ([]model.Article, err
 func (sm *ServiceManager) GetArticle(articleId primitive.ObjectID) (any, error) {
 
 	var article model.Article
-	data, err := sm.articleDao.GetArticleById(articleId)
+	data, err := sm.articleRepo.GetArticleById(articleId)
 
 	if err != nil {
 		return article, err
@@ -72,7 +72,7 @@ func (sm *ServiceManager) Update(articleId primitive.ObjectID, article model.Art
 	filter := bson.M{"_id": articleId}
 	update := bson.M{"$set": bson.M{"title": article.TITLE, "author": article.AUTHORID}}
 
-	result, err := sm.articleDao.UpdateArticle(filter, update)
+	result, err := sm.articleRepo.UpdateArticle(filter, update)
 	if err != nil {
 		log.Println(err)
 		if err == mongo.ErrNoDocuments {

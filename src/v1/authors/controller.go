@@ -31,11 +31,10 @@ func Show(c *gin.Context) {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
-	repository, _ := repo.New(database)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
 
-	articleDAO := dao.NewArticleDaoManager(repository)
-
-	service, _ := service.New(articleDAO)
+	service, _ := service.New(repository)
 
 	res, err := service.ShowAuthor(authorId)
 	if err != nil {
@@ -70,9 +69,10 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	repository, _ := repo.New(database)
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
+
+	service, _ := service.New(repository)
 
 	res, err := service.UpdateAuthor(authorId, author)
 
@@ -97,11 +97,10 @@ func Update(c *gin.Context) {
 // @Router /authors/{id} [delete]
 func Delete(c *gin.Context) {
 	authorId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
+	authorDAO, _ := dao.New(database)
+	repository := repo.NewRepository(authorDAO)
 
-	repository, _ := repo.New(database)
-
-	articleDAO := dao.NewArticleDaoManager(repository)
-	service, _ := service.New(articleDAO)
+	service, _ := service.New(repository)
 
 	res, err := service.DeleteAuthor(authorId)
 
