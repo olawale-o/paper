@@ -1,4 +1,4 @@
-package authors
+package controller
 
 import (
 	"go-simple-rest/src/v1/authors/dao"
@@ -9,11 +9,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// var client, ctx, err = db.Connect()
+type authorController struct {
+	database *mongo.Database
+}
 
-// var userCollection = client.Database("go").Collection("users")
+func AuthorControllerImpl(database *mongo.Database) AuthorController {
+	return &authorController{
+		database: database,
+	}
+}
 
 // Author godoc
 // @Tags Authors
@@ -25,13 +32,13 @@ import (
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [get]
-func Show(c *gin.Context) {
+func (authorController *authorController) Show(c *gin.Context) {
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
 		return
 	}
-	authorDAO, _ := dao.New(database)
+	authorDAO, _ := dao.New(authorController.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)
@@ -55,7 +62,7 @@ func Show(c *gin.Context) {
 // @Success 422 {string} message "Response"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [put]
-func Update(c *gin.Context) {
+func (authorController *authorController) Update(c *gin.Context) {
 	authorId, err := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	if err != nil {
 		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusBadRequest, Success: false, Message: "Invalid ID", Data: nil})
@@ -69,11 +76,10 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	authorDAO, _ := dao.New(database)
+	authorDAO, _ := dao.New(authorController.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)
-
 	res, err := service.UpdateAuthor(authorId, author)
 
 	if err != nil {
@@ -95,9 +101,9 @@ func Update(c *gin.Context) {
 // @Success 200 {string} message "Response"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id} [delete]
-func Delete(c *gin.Context) {
+func (authorController *authorController) Delete(c *gin.Context) {
 	authorId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
-	authorDAO, _ := dao.New(database)
+	authorDAO, _ := dao.New(authorController.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)

@@ -6,10 +6,12 @@ import (
 	"go-simple-rest/src/v1/middlewares"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func ArticleRoutes(r *gin.RouterGroup) {
+func ArticleRoutes(r *gin.RouterGroup, databaseClient *mongo.Database) {
 
+	controller := controller.ArticleControllerImpl(databaseClient)
 	articles := r.Group("/articles")
 	articles.GET("/", controller.GetArticles)
 	articles.GET("/:id", controller.ShowArticle)

@@ -1,7 +1,6 @@
-package comment
+package controller
 
 import (
-	"go-simple-rest/db"
 	"go-simple-rest/src/v1/comment/dao"
 	"go-simple-rest/src/v1/comment/model"
 	"go-simple-rest/src/v1/comment/repo"
@@ -11,10 +10,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var client, _, _ = db.Connect()
-var database = client.Database("go")
+type CommentController struct {
+	database *mongo.Database
+}
+
+func CommentControllerImpl(database *mongo.Database) Controller {
+	return &CommentController{
+		database: database,
+	}
+}
 
 // Comment godoc
 // @Summary Create a new comment
@@ -28,9 +35,9 @@ var database = client.Database("go")
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [post]
-func New(c *gin.Context) {
+func (comnentController *CommentController) New(c *gin.Context) {
 
-	commentDAO, _ := dao.New(database)
+	commentDAO, _ := dao.New(comnentController.database)
 	repository := repo.NewRepository(commentDAO)
 	commentService, _ := service.New(repository)
 
@@ -47,11 +54,11 @@ func New(c *gin.Context) {
 	utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusOK, Success: true, Message: "Comment saved", Data: nil})
 }
 
-func Show(c *gin.Context) {
+func (comnentController *CommentController) Show(c *gin.Context) {
 	articleId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("id"))
 	commentId, _ := utils.ParseParamToPrimitiveObjectId(c.Param("cid"))
 
-	commentDAO, _ := dao.New(database)
+	commentDAO, _ := dao.New(comnentController.database)
 	repository := repo.NewRepository(commentDAO)
 	commentService, _ := service.New(repository)
 
@@ -91,8 +98,8 @@ func Show(c *gin.Context) {
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
 // @Router /articles/{id}/comments [get]
-func Index(c *gin.Context) {
-	commentDAO, _ := dao.New(database)
+func (comnentController *CommentController) Index(c *gin.Context) {
+	commentDAO, _ := dao.New(comnentController.database)
 	repository := repo.NewRepository(commentDAO)
 	commentService, _ := service.New(repository)
 
@@ -132,8 +139,8 @@ func Index(c *gin.Context) {
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /articles/{id}/comments/{cid}/reply [post]
-func ReplyComment(c *gin.Context) {
-	commentDAO, _ := dao.New(database)
+func (comnentController *CommentController) ReplyComment(c *gin.Context) {
+	commentDAO, _ := dao.New(comnentController.database)
 	repository := repo.NewRepository(commentDAO)
 	commentService, _ := service.New(repository)
 

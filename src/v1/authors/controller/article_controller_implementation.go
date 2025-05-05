@@ -1,7 +1,6 @@
-package authors
+package controller
 
 import (
-	"go-simple-rest/db"
 	"go-simple-rest/src/v1/authors/dao"
 	"go-simple-rest/src/v1/authors/model"
 	"go-simple-rest/src/v1/authors/repo"
@@ -12,11 +11,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var client, _, _ = db.Connect()
+type authorArticleController struct {
+	database *mongo.Database
+}
 
-var database = client.Database("go")
+func AuthorArticleControllerImpl(database *mongo.Database) AuthorArticleController {
+	return &authorArticleController{
+		database: database,
+	}
+}
 
 // AuthorArticleIndex godoc
 // @Tags Authors
@@ -28,8 +34,8 @@ var database = client.Database("go")
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [get]
-func ArticleIndex(c *gin.Context) {
-	authorDAO, _ := dao.New(database)
+func (a *authorArticleController) ArticleIndex(c *gin.Context) {
+	authorDAO, _ := dao.New(a.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)
@@ -55,8 +61,8 @@ func ArticleIndex(c *gin.Context) {
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles [post]
-func ArticleNew(c *gin.Context) {
-	authorDAO, _ := dao.New(database)
+func (a *authorArticleController) ArticleNew(c *gin.Context) {
+	authorDAO, _ := dao.New(a.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)
@@ -91,8 +97,8 @@ func ArticleNew(c *gin.Context) {
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles/{articleId} [put]
-func ArticleUpdate(c *gin.Context) {
-	authorDAO, _ := dao.New(database)
+func (a *authorArticleController) ArticleUpdate(c *gin.Context) {
+	authorDAO, _ := dao.New(a.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)
@@ -131,11 +137,11 @@ func ArticleUpdate(c *gin.Context) {
 // @Failure 400 {object} string "Error"
 // @Failure 500 {object} string "Error"
 // @Router /authors/{id}/articles/{articleId} [delete]
-func ArticleDelete(c *gin.Context) {
+func (a *authorArticleController) ArticleDelete(c *gin.Context) {
 	authorId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 	articleId, _ := primitive.ObjectIDFromHex(c.Param("articleId"))
 
-	authorDAO, _ := dao.New(database)
+	authorDAO, _ := dao.New(a.database)
 	repository := repo.NewRepository(authorDAO)
 
 	service, _ := service.New(repository)

@@ -43,13 +43,17 @@ import (
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	initializeDatabase()
+	client, _, err := initializeDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	database := client.Database("go")
 
 	swagger.Initialize()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	src.Routes(r)
+	src.Routes(r, database)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// cc, err := natsclient.Consumer()
@@ -86,11 +90,12 @@ func iterateChangeStream(routineCtx context.Context, waitGroup *sync.WaitGroup, 
 	}
 }
 
-func initializeDatabase() {
+func initializeDatabase() (*mongo.Client, context.Context, error) {
 	// const uri = "mongodb://localhost:27018,localhost:27019,localhost:27010/?replicaSet=rs0"
 	// config := db.LoadConfig(uri)
 	// client, _, err := db.Connect(config)
 
 	// return client, err
-	db.Connect()
+	client, ctx, err := db.Connect()
+	return client, ctx, err
 }
