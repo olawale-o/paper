@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"go-simple-rest/src/v1/auth/implementation"
 	"go-simple-rest/src/v1/auth/model"
-	repo "go-simple-rest/src/v1/auth/repo/implementation"
+	"go-simple-rest/src/v1/auth/repo"
+	"go-simple-rest/src/v1/auth/service"
 	"go-simple-rest/src/v1/jwt"
 	"go-simple-rest/src/v1/utils"
 	"net/http"
@@ -24,12 +24,13 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 	payload := c.MustGet("body").(model.LoginAuth)
 	rep, _ := repo.New(ac.database)
-	s := implementation.NewService(rep)
+	s := service.NewService(rep)
 
 	response, ok := s.Login(c, payload)
 
 	if ok {
-		c.IndentedJSON(http.StatusInternalServerError, response.MESSAGE)
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: response.MESSAGE, Data: nil})
+
 		return
 	}
 
@@ -47,12 +48,12 @@ func (ac *AuthController) Login(c *gin.Context) {
 func (ac *AuthController) Register(c *gin.Context) {
 	payload := c.MustGet("body").(model.RegisterAuth)
 	rep, _ := repo.New(ac.database)
-	s := implementation.NewService(rep)
+	s := service.NewService(rep)
 
 	response, ok := s.Register(c, payload)
 
 	if ok {
-		c.IndentedJSON(http.StatusInternalServerError, response.MESSAGE)
+		utils.TransformResponse(c, utils.Reponse{StatusCode: http.StatusInternalServerError, Success: false, Message: response.MESSAGE, Data: nil})
 		return
 	}
 

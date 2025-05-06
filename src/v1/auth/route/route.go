@@ -10,12 +10,9 @@ import (
 )
 
 func AuthRoutes(r *gin.RouterGroup, databaseClient *mongo.Database) {
-	// r.Use(middlewares.Logger())
-	//
 	controller := controller.AuthControllerImpl(databaseClient)
 
 	r.POST("/auth/login", middlewares.RequestToJSON[model.LoginAuth](), middlewares.Validator[model.LoginAuth](), controller.Login)
 
 	r.POST("/auth/sign-up", middlewares.RequestToJSON[model.RegisterAuth](), middlewares.Validator[model.RegisterAuth](), controller.Register)
-
 }

@@ -1,12 +1,10 @@
-package implementation
+package repo
 
 import (
 	"context"
-	"go-simple-rest/db"
 	"log"
 
 	"go-simple-rest/src/v1/auth/model"
-	"go-simple-rest/src/v1/auth/repo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,22 +12,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var client, ctx, err = db.Connect()
-
-var collection = client.Database("go").Collection("users")
-
-type repository struct {
+type AuthRepository struct {
 	db     *mongo.Database
-	logger log.Logger
+	logger *log.Logger
 }
 
-func New(db *mongo.Database) (repo.Repository, error) {
-	return &repository{
+func New(db *mongo.Database) (*AuthRepository, error) {
+	return &AuthRepository{
 		db: db,
 	}, nil
 }
 
-func (repo *repository) FindOne(ctx context.Context, collection string, username string) (model.User, error) {
+func (repo *AuthRepository) FindOne(ctx context.Context, collection string, username string) (model.User, error) {
 	var dbUser model.User
 	err := repo.db.Collection(collection).FindOne(context.TODO(), bson.M{"username": username}).Decode(&dbUser)
 
@@ -42,7 +36,7 @@ func (repo *repository) FindOne(ctx context.Context, collection string, username
 	return dbUser, nil
 }
 
-func (repo *repository) InsertOne(ctx context.Context, collection string, user model.User) (any, error) {
+func (repo *AuthRepository) InsertOne(ctx context.Context, collection string, user model.User) (any, error) {
 	doc := model.User{
 		FIRSTNAME:         user.FIRSTNAME,
 		LASTNAME:          user.LASTNAME,
